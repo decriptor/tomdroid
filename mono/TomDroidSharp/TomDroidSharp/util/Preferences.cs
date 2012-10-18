@@ -59,7 +59,7 @@ namespace TomDroidSharp.util
 			ACCESS_TOKEN_URL ("access_token_url", ""),
 			REQUEST_TOKEN_URL ("request_token_url", ""),
 			LATEST_SYNC_REVISION ("latest_sync_revision", 0L),
-			LATEST_SYNC_DATE ("latest_sync_date", (new Time()).format3339(false)), // will be used to tell whether we have newer notes
+			LATEST_SYNC_DATE ("latest_sync_date", (new Time()).Format3339(false)), // will be used to tell whether we have newer notes
 			SORT_ORDER ("sort_order", "sort_date"),
 			FIRST_RUN ("first_run", true),
 			BASE_TEXT_SIZE("base_text_size","18")
@@ -85,7 +85,7 @@ namespace TomDroidSharp.util
 		private static SharedPreferences client = null;
 		private static SharedPreferences.Editor editor = null;
 		
-		public static void init(Context context, boolean clean) {
+		public static void init(Context context, bool clean) {
 			
 			client = PreferenceManager.getDefaultSharedPreferences(context);
 			editor = client.edit();
@@ -118,12 +118,12 @@ namespace TomDroidSharp.util
 			editor.commit();
 		}
 		
-		public static boolean getBoolean(Key key) {
+		public static bool getBoolean(Key key) {
 			
-			return client.getBoolean(key.getName(), (Boolean)key.getDefault());
+			return client.getBoolean(key.getName(), (bool)key.getDefault());
 		}
 		
-		public static void putBoolean(Key key, boolean value) {
+		public static void putBoolean(Key key, bool value) {
 			
 			editor.putBoolean(key.getName(), value);
 			editor.commit();

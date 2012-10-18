@@ -23,7 +23,7 @@
  */
 .xml;
 
-import java.util.ArrayList;
+import java.util.List;
 
 using TomDroidSharp.Note;
 using TomDroidSharp.util.TLog;
@@ -53,18 +53,18 @@ public class NoteContentHandler string  DefaultHandler {
 	private string TAG = "NoteContentHandler";
 	
 	// position keepers
-	private boolean inNoteContentTag = false;
-	private boolean inBoldTag = false;
-	private boolean inItalicTag = false;
-	private boolean inStrikeTag = false;
-	private boolean inHighlighTag = false;
-	private boolean inMonospaceTag = false;
-	private boolean inSizeSmallTag = false;
-	private boolean inSizeLargeTag = false;
-	private boolean inSizeHugeTag = false;
-	private boolean inLinkInternalTag = false;
+	private bool inNoteContentTag = false;
+	private bool inBoldTag = false;
+	private bool inItalicTag = false;
+	private bool inStrikeTag = false;
+	private bool inHighlighTag = false;
+	private bool inMonospaceTag = false;
+	private bool inSizeSmallTag = false;
+	private bool inSizeLargeTag = false;
+	private bool inSizeHugeTag = false;
+	private bool inLinkInternalTag = false;
 	private int inListLevel = 0;
-	private boolean inListItem = false;
+	private bool inListItem = false;
 	
 	// -- Tomboy's notes XML tags names -- 
 	// Style related
@@ -101,9 +101,9 @@ public class NoteContentHandler string  DefaultHandler {
 	private int hugeEndPos = -1;
 	private int linkinternalStartPos = -1;
 	private int linkinternalEndPos = -1;
-	private ArrayList<Integer> listItemStartPos = new ArrayList<Integer>(0);
-	private ArrayList<Integer> listItemEndPos = new ArrayList<Integer>(0);
-	private ArrayList<Boolean> listItemIsEmpty =  new ArrayList<Boolean>(0);
+	private List<Integer> listItemStartPos = new List<Integer>(0);
+	private List<Integer> listItemEndPos = new List<Integer>(0);
+	private List<bool> listItemIsEmpty =  new List<bool>(0);
 	
 	// accumulate note-content in this var since it spans multiple xml tags
 	private SpannablestringBuilder ssb;
@@ -153,7 +153,7 @@ public class NoteContentHandler string  DefaultHandler {
 				// is empty until characters() gets called and proves otherwise.
 				
 				if (listItemIsEmpty.size() < inListLevel) {
-					listItemIsEmpty.add(new Boolean(true));
+					listItemIsEmpty.add(new bool(true));
 				}
 				// if listItem's position not already in tracking array, add it.
 				// Otherwise if the start position equals 0 then set
@@ -268,7 +268,7 @@ public class NoteContentHandler string  DefaultHandler {
 				{
 					listItemStartPos.set(inListLevel-1, new Integer(0));
 					listItemEndPos.set(inListLevel-1, new Integer(0));
-					listItemIsEmpty.set(inListLevel-1, new Boolean(true));
+					listItemIsEmpty.set(inListLevel-1, new bool(true));
 					
 					return;					
 				}
@@ -279,7 +279,7 @@ public class NoteContentHandler string  DefaultHandler {
 				ssb.setSpan(new BulletSpan(), listItemStartPos.get(inListLevel-1), listItemEndPos.get(inListLevel-1), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				listItemStartPos.set(inListLevel-1, new Integer(0));
 				listItemEndPos.set(inListLevel-1, new Integer(0));
-				listItemIsEmpty.set(inListLevel-1, new Boolean(true));
+				listItemIsEmpty.set(inListLevel-1, new bool(true));
 				
 				inListItem = false;
 			}
@@ -375,7 +375,7 @@ public class NoteContentHandler string  DefaultHandler {
 			if (inListItem) {
 				// this list item is not empty, so we mark it as such. We keep track of this to avoid any
 				// problems with list items nested like this: <item><item><item>Content!</item></item></item>
-				listItemIsEmpty.set(inListLevel-1, new Boolean(false));
+				listItemIsEmpty.set(inListLevel-1, new bool(false));
 				
 				// no matter what, if we are still in the tag, end is now further
 				listItemEndPos.set(inListLevel-1, strLenEnd);					

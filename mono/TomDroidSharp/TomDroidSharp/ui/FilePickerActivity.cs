@@ -19,7 +19,7 @@
 
 //import java.io.File;
 //import java.io.FilenameFilter;
-//import java.util.ArrayList;
+//import java.util.List;
 //import java.util.Collections;
 //import java.util.Comparator;
 //import java.util.List;
@@ -49,14 +49,14 @@ namespace TomDroidSharp.ui
 		public readonly static string EXTRA_SHOW_HIDDEN_FILES = "show_hidden_files";
 
 		/**
-		 * The allowed file extensions in an ArrayList of strings
+		 * The allowed file extensions in an List of strings
 		 */
 		public readonly static string EXTRA_ACCEPTED_FILE_EXTENSIONS = "accepted_file_extensions";
 		
 		protected File mDirectory;
-		protected ArrayList<File> mFiles;
+		protected List<File> mFiles;
 		protected FilePickerListAdapter mAdapter;
-		protected boolean mShowHiddenFiles = false;
+		protected bool mShowHiddenFiles = false;
 		protected string[] acceptedFileExtensions;
 		
 		private LinearLayout navButtons = null;
@@ -66,7 +66,7 @@ namespace TomDroidSharp.ui
 			super.onCreate(savedInstanceState);
 
 			View contentView =  View.inflate(this, R.layout.file_picker_content_view, null);
-	        setContentView(contentView);
+	        SetContentView(contentView);
 	        
 	        navButtons = (LinearLayout) contentView.findViewById(R.id.navButtons);
 	        
@@ -84,8 +84,8 @@ namespace TomDroidSharp.ui
 			mDirectory = new File(Preferences.getstring(Preferences.Key.LAST_FILE_PATH));
 			refreshNavButtons();
 			
-			// Initialize the ArrayList
-			mFiles = new ArrayList<File>();
+			// Initialize the List
+			mFiles = new List<File>();
 			
 			// Set the ListAdapter
 			mAdapter = new FilePickerListAdapter(this, mFiles);
@@ -102,7 +102,7 @@ namespace TomDroidSharp.ui
 				mShowHiddenFiles = getIntent().getBooleanExtra(EXTRA_SHOW_HIDDEN_FILES, false);
 			}
 			if(getIntent().hasExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS)) {
-				ArrayList<string> collection = getIntent().getstringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
+				List<string> collection = getIntent().getstringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
 				acceptedFileExtensions = (string[]) collection.toArray(new string[collection.size()]);
 			}
 		}
@@ -117,7 +117,7 @@ namespace TomDroidSharp.ui
 		 * Updates the list view to the current directory
 		 */
 		protected void refreshFilesList() {
-			// Clear the files ArrayList
+			// Clear the files List
 			mFiles.clear();
 			
 			// Set the extension file filter
@@ -273,7 +273,7 @@ namespace TomDroidSharp.ui
 			}
 			
 			@Override
-			public boolean accept(File dir, string filename) {
+			public bool accept(File dir, string filename) {
 				if(new File(dir, filename).isDirectory()) {
 					// Accept all directory names
 					return true;

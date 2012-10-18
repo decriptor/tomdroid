@@ -68,8 +68,8 @@ namespace TomDroidSharp.ui.actionbar
 	     * Note: marking menu items as invisible/visible is not currently supported.
 	     */
 	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
-	        boolean retValue = false;
+	    public bool onCreateOptionsMenu(Menu menu) {
+	        bool retValue = false;
 	        retValue |= mActionBarHelper.onCreateOptionsMenu(menu);
 	        retValue |= super.onCreateOptionsMenu(menu);
 	        return retValue;

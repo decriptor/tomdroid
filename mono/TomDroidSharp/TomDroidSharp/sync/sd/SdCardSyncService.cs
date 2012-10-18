@@ -23,67 +23,63 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 using Android.App;
 using Android.OS;
+using Android.Provider;
 using Android.Text.Format;
 using Android.Util;
 
-using TomDroidSharp.sync;
+using TomDroidSharp;
+using TomDroidSharp.Sync;
+using TomDroidSharp.util;
 //import org.xml.sax.InputSource;
 //import org.xml.sax.XMLReader;
-
-//import javax.xml.parsers.SAXParser;
-//import javax.xml.parsers.SAXParserFactory;
-//import java.io.*;
-//import java.util.ArrayList;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
+using Java.IO;
+using TomDroidSharp.ui;
+using Java.Util.Regex;
 
 namespace TomDroidSharp.sync.sd
 {
 	public class SdCardSyncService : SyncService {
 		
-		private static Pattern note_content = Pattern.compile("<note-content[^>]+>(.*)<\\/note-content>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
+		private static Java.Util.Regex.Pattern note_content = Java.Util.Regex.Pattern.Compile("<note-content[^>]+>(.*)<\\/note-content>", Java.Util.Regex.Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
 
 		// list of notes to sync
-		private ArrayList<Note> syncableNotes = new ArrayList<Note>();;
+		private List<Note> syncableNotes = new List<Note>();
 
 		// logging related
 		private readonly static string TAG = "SdCardSyncService";
 		
-		public SdCardSyncService(Activity activity, Handler handler) {
-			base (activity, handler);
+		public SdCardSyncService(Activity activity, Handler handler) : base(activity,handler) {
 		}
 		
-		@Override
-		public int getDescriptionAsId() {
-			return R.string.prefSDCard;
+		public override int getDescriptionAsId() {
+			return Resource.String.prefSDCard;
 		}
 
-		@Override
-		public string getName() {
+		public override string getName() {
 			return "sdcard";
 		}
 
-		@Override
-		public boolean needsServer() {
+		public override bool needsServer() {
 			return false;
 		}
 		
-		@Override
-		public boolean needsLocation() {
+		public override bool needsLocation() {
 			return true;
 		}
 		
-		@Override
-		public boolean needsAuth() {
+		public override bool needsAuth() {
 			return false;
 		}
 
-		@Override
-		protected void getNotesForSync(boolean push) {
-
-			setSyncProgress(0);
+		protected override void getNotesForSync(bool push)
+		{
+			SetSyncProgress(0);
 			
 			this.push = push;
 			
@@ -92,20 +88,20 @@ namespace TomDroidSharp.sync.sd
 			
 			File path = new File(Tomdroid.NOTES_PATH);
 			
-			if (!path.exists())
-				path.mkdir();
+			if (!path.Exists())
+				path.Mkdir();
 			
-			TLog.i(TAG, "Path {0} exists: {1}", path, path.exists());
+			TLog.i(TAG, "Path {0} Exists: {1}", path, path.Exists());
 			
 			// Check a second time, if not the most likely cause is the volume doesn't exist
-			if(!path.exists()) {
+			if(!path.Exists()) {
 				TLog.w(TAG, "Couldn't create {0}", path);
-				sendMessage(NO_SD_CARD);
-				setSyncProgress(100);
+				SendMessage(NO_SD_CARD);
+				SetSyncProgress(100);
 				return;
 			}
 			
-			File[] fileList = path.listFiles(new NotesFilter());
+			File[] fileList = path.ListFiles(new NotesFilter());
 
 			if(cancelled) {
 				doCancel();
@@ -113,16 +109,16 @@ namespace TomDroidSharp.sync.sd
 			}		
 
 			// If there are no notes, just start the sync
-			if (fileList == null || fileList.length == 0) {
+			if (fileList == null || fileList.Length == 0) {
 				TLog.i(TAG, "There are no notes in {0}", path);
-				prepareSyncableNotes(syncableNotes);
+				PrepareSyncableNotes(syncableNotes);
 				return;
 			}
-			
+
 		// get all remote notes for sync
 			
 			// every but the last note
-			for(int i = 0; i < fileList.length-1; i++) {
+			for(int i = 0; i < fileList.Length-1; i++) {
 				if(cancelled) {
 					doCancel();
 					return; 
@@ -130,7 +126,7 @@ namespace TomDroidSharp.sync.sd
 				// TODO better progress reporting from within the workers
 				
 				// give a filename to a thread and ask to parse it
-				syncInThread(new Worker(fileList[i], false, push));
+				SyncInThread(new Worker(fileList[i], false, push));
 	        }
 
 			if(cancelled) {
@@ -139,7 +135,7 @@ namespace TomDroidSharp.sync.sd
 			}
 			
 			// last task, warn it so it will know to start sync
-			syncInThread(new Worker(fileList[fileList.length-1], true, push));
+			SyncInThread(new Worker(fileList[fileList.Length-1], true, push));
 		}
 		
 		/**
@@ -147,8 +143,8 @@ namespace TomDroidSharp.sync.sd
 		 * TODO move into its own static class in a util package
 		 */
 		private class NotesFilter : FilenameFilter {
-			public boolean accept(File dir, string name) {
-				return (name.endsWith(".note"));
+			public bool accept(File dir, string name) {
+				return (name.EndsWith(".note"));
 			}
 		}
 		
@@ -162,10 +158,10 @@ namespace TomDroidSharp.sync.sd
 			// the note to be loaded and parsed
 			private Note note = new Note();
 			private File file;
-			private boolean isLast;
+			private bool isLast;
 			char[] buffer = new char[0x1000];
-			boolean push;
-			public Worker(File f, boolean isLast, boolean push) {
+			bool push;
+			public Worker(File f, bool isLast, bool push) {
 				file = f;
 				this.isLast = isLast;
 				this.push = push;
@@ -173,18 +169,18 @@ namespace TomDroidSharp.sync.sd
 
 			public void run() {
 				
-				note.setFileName(file.getAbsolutePath());
+				note.setFileName(file.AbsolutePath());
 				// the note guid is not stored in the xml but in the filename
-				note.setGuid(file.getName().replace(".note", ""));
+				note.setGuid(file.Name.Replace(".note", ""));
 				
 				// Try reading the file first
 				string contents = "";
 				try {
 					contents = readFile(file,buffer);
 				} catch (IOException e) {
-					e.printStackTrace();
+					e.PrintStackTrace();
 					TLog.w(TAG, "Something went wrong trying to read the note");
-					sendMessage(PARSING_FAILED, ErrorList.createError(note, e));
+					SendMessage(PARSING_FAILED, ErrorList.createError(note, e));
 					onWorkDone();
 					return;
 				}
@@ -204,17 +200,17 @@ namespace TomDroidSharp.sync.sd
 			        xr.setContentHandler(xmlHandler);
 
 			        // Create the proper input source
-			        stringReader sr = new stringReader(contents);
-			        InputSource is = new InputSource(sr);
+			        StringReader sr = new StringReader(contents);
+			        InputSource inputSource = new InputSource(sr);
 			        
-					TLog.d(TAG, "parsing note. filename: {0}", file.getName());
-					xr.parse(is);
+					TLog.d(TAG, "parsing note. filename: {0}", file.Name());
+					xr.parse(inputSource);
 
 				// TODO wrap and throw a new exception here
 				} catch (Exception e) {
-					e.printStackTrace();
-					if(e instanceof TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
-					sendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, e, contents));
+					e.PrintStackTrace();
+					if(e as TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
+					SendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, e, contents));
 					onWorkDone();
 					return;
 				}
@@ -225,7 +221,7 @@ namespace TomDroidSharp.sync.sd
 					note.setXmlContent(NoteManager.stripTitleFromContent(m.group(1),note.getTitle()));
 				} else {
 					TLog.w(TAG, "Something went wrong trying to grab the note-content out of a note");
-					sendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, "Something went wrong trying to grab the note-content out of a note", contents));
+					SendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, "Something went wrong trying to grab the note-content out of a note", contents));
 					onWorkDone();
 					return;
 				}
@@ -236,37 +232,44 @@ namespace TomDroidSharp.sync.sd
 			
 			private void onWorkDone(){
 				if (isLast) {
-					prepareSyncableNotes(syncableNotes);
+					PrepareSyncableNotes(syncableNotes);
 				}
 			}
 		}
 
-		private static string readFile(File file, char[] buffer) throws IOException {
-			stringBuilder out = new stringBuilder();
+		private static string readFile(File file, char[] buffer)
+		{
+			StringBuilder outFile = new StringBuilder();
+			try {
 			
 			int read;
 			Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			
 			do {
-			  read = reader.read(buffer, 0, buffer.length);
+			  read = reader.Read(buffer, 0, buffer.Length);
 			  if (read > 0) {
-			    out.append(buffer, 0, read);
+			    outFile.Append(buffer, 0, read);
 			  }
 			}
 			while (read >= 0);
 			
-			reader.close();
-			return out.tostring();
+			reader.Close();
+			}
+			catch(IOException io)
+			{
+
+			}
+			return outFile.ToString();
 		}
 
 		// this function either deletes or pushes, based on existence of deleted tag
-		@Override
-		public void pushNotes(ArrayList<Note> notes) {
+		public override void pushNotes(List<Note> notes) {
 			if(notes.size() == 0)
 				return;
-			
-			for (Note note : notes) {
-				if(note.getTags().contains("system:deleted")) // deleted note
+
+			foreach(Note note in notes)
+			{
+				if(note.getTags().Contains("system:deleted")) // deleted note
 					deleteNote(note.getGuid());
 				else
 					pushNote(note);
@@ -280,7 +283,7 @@ namespace TomDroidSharp.sync.sd
 			
 			int message = doPushNote(note);
 
-			sendMessage(message);
+			SendMessage(message);
 		}
 
 		// actually pushes a note to sdcard, with optional subdirectory (e.g. backup)
@@ -290,27 +293,27 @@ namespace TomDroidSharp.sync.sd
 			try {
 				File path = new File(Tomdroid.NOTES_PATH);
 				
-				if (!path.exists())
-					path.mkdir();
+				if (!path.Exists())
+					path.Mkdir();
 				
-				TLog.i(TAG, "Path {0} exists: {1}", path, path.exists());
+				TLog.i(TAG, "Path {0} Exists: {1}", path, path.Exists());
 				
 				// Check a second time, if not the most likely cause is the volume doesn't exist
-				if(!path.exists()) {
+				if(!path.Exists()) {
 					TLog.w(TAG, "Couldn't create {0}", path);
 					return NO_SD_CARD;
 				}
 				
 				path = new File(Tomdroid.NOTES_PATH + "/"+note.getGuid() + ".note");
 		
-				note.createDate = note.getLastChangeDate().format3339(false);
+				note.createDate = note.getLastChangeDate().Format3339(false);
 				note.cursorPos = 0;
 				note.width = 0;
 				note.height = 0;
 				note.X = -1;
 				note.Y = -1;
 				
-				if (path.exists()) { // update existing note
+				if (path.Exists()) { // update existing note
 		
 					// Try reading the file first
 					string contents = "";
@@ -318,7 +321,7 @@ namespace TomDroidSharp.sync.sd
 						char[] buffer = new char[0x1000];
 						contents = readFile(path,buffer);
 					} catch (IOException e) {
-						e.printStackTrace();
+						e.PrintStackTrace();
 						TLog.w(TAG, "Something went wrong trying to read the note");
 						return PARSING_FAILED;
 					}
@@ -338,16 +341,16 @@ namespace TomDroidSharp.sync.sd
 				        xr.setContentHandler(xmlHandler);
 		
 				        // Create the proper input source
-				        stringReader sr = new stringReader(contents);
-				        InputSource is = new InputSource(sr);
+				        StringReader sr = new StringReader(contents);
+				        InputSource inputSource = new InputSource(sr);
 				        
-						TLog.d(TAG, "parsing note. filename: {0}", path.getName());
-						xr.parse(is);
+						TLog.d(TAG, "parsing note. filename: {0}", path.Name());
+						xr.parse(inputSource);
 		
 					// TODO wrap and throw a new exception here
 					} catch (Exception e) {
-						e.printStackTrace();
-						if(e instanceof TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
+						e.PrintStackTrace();
+						if(e as TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
 						return PARSING_FAILED;
 					}
 		
@@ -361,15 +364,15 @@ namespace TomDroidSharp.sync.sd
 					note.setTags(rnote.getTags());
 				}
 				
-				string xmlOutput = note.getXmlFilestring();
+				string xmlOutput = note.getXmlFileString();
 				
-				path.createNewFile();
+				path.CreateNewFile();
 				FileOutputStream fOut = new FileOutputStream(path);
 				OutputStreamWriter myOutWriter = 
 										new OutputStreamWriter(fOut);
-				myOutWriter.append(xmlOutput);
-				myOutWriter.close();
-				fOut.close();	
+				myOutWriter.Append(xmlOutput);
+				myOutWriter.Close();
+				fOut.Close();	
 		
 			}
 			catch (Exception e) {
@@ -382,51 +385,49 @@ namespace TomDroidSharp.sync.sd
 		private void deleteNote(string guid){
 			try {
 				File path = new File(Tomdroid.NOTES_PATH + "/" + guid + ".note");
-				path.delete();
+				path.Delete();
 			}
 			catch (Exception e) {
 				TLog.e(TAG, "delete from sd card didn't work");
-				sendMessage(NOTE_DELETE_ERROR);
+				SendMessage(NOTE_DELETE_ERROR);
 				return;
 			}
-			sendMessage(NOTE_DELETED);
+			SendMessage(NOTE_DELETED);
 
 		}
 		
 		// pull note used for revert
-		@Override
-		protected void pullNote(string guid) {
+		protected override void pullNote(string guid) {
 			// start loading local notes
 			TLog.v(TAG, "pulling remote note");
 			
 			File path = new File(Tomdroid.NOTES_PATH);
 			
-			if (!path.exists())
+			if (!path.Exists())
 				path.mkdir();
 			
-			TLog.i(TAG, "Path {0} exists: {1}", path, path.exists());
+			TLog.i(TAG, "Path {0} Exists: {1}", path, path.Exists());
 			
 			// Check a second time, if not the most likely cause is the volume doesn't exist
-			if(!path.exists()) {
+			if(!path.Exists()) {
 				TLog.w(TAG, "Couldn't create {0}", path);
-				sendMessage(NO_SD_CARD);
+				SendMessage(NO_SD_CARD);
 				return;
 			}
 			
 			path = new File(Tomdroid.NOTES_PATH + guid + ".note");
 
-			syncInThread(new Worker(path, false, false));
+			SyncInThread(new Worker(path, false, false));
 			
 		}
 		
 		// backup function accessed via preferences
-		@Override
-		public void backupNotes() {
+		public override void backupNotes() {
 			Note[] notes = NoteManager.getAllNotesAsNotes(activity, true);
-			if(notes != null && notes.length > 0) 
-				for(Note note : notes)
+			if(notes != null && notes.Length > 0) 
+				foreach (Note note in notes)
 					doPushNote(note);
-			sendMessage(NOTES_BACKED_UP);
+			SendMessage(NOTES_BACKED_UP);
 		}
 
 		// auto backup function on save
@@ -434,42 +435,39 @@ namespace TomDroidSharp.sync.sd
 			doPushNote(note);
 		}
 		
-		@Override
-		public void finishSync(boolean refresh) {
+		public override void finishSync(bool refresh) {
 			// delete leftover local notes
 			NoteManager.purgeDeletedNotes(activity);
 			
 			Time now = new Time();
 			now.setToNow();
-			string nowstring = now.format3339(false);
+			string nowstring = now.Format3339(false);
 			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, nowstring);
 
 			setSyncProgress(100);
 			if (refresh)
-				sendMessage(PARSING_COMPLETE);
+				SendMessage(PARSING_COMPLETE);
 		}
 
-		@Override
-		public void deleteAllNotes() {
+		public override void deleteAllNotes() {
 			try {
 				File path = new File(Tomdroid.NOTES_PATH);
 				File[] fileList = path.listFiles(new NotesFilter());
 				
-				for(int i = 0; i < fileList.length-1; i++) {
+				for(int i = 0; i < fileList.Length-1; i++) {
 					fileList[i].delete();
 		        }
 			}
 			catch (Exception e) {
 				TLog.e(TAG, "delete from sd card didn't work");
-				sendMessage(NOTE_DELETE_ERROR);
+				SendMessage(NOTE_DELETE_ERROR);
 				return;
 			}
 			TLog.d(TAG, "notes deleted from SD Card");
-			sendMessage(REMOTE_NOTES_DELETED);
+			SendMessage(REMOTE_NOTES_DELETED);
 		}
 
-		@Override
-		protected void localSyncComplete() {
+		protected override void localSyncComplete() {
 		}
 	}
 }

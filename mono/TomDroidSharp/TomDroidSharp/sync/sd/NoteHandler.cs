@@ -23,6 +23,8 @@
  */
 
 using System;
+using System.Text;
+
 using TomDroidSharp;
 //import org.xml.sax.Attributes;
 //import org.xml.sax.SAXException;
@@ -61,16 +63,16 @@ namespace TomDroidSharp.sync.sd
 		private readonly static string NOTE_TAG = "tag";
 		
 		// Buffers for parsed elements
-		private stringBuilder title = new stringBuilder();
-		private stringBuilder lastChangeDate = new stringBuilder();
-		private stringBuilder noteContent = new stringBuilder();
-		private stringBuilder createDate = new stringBuilder();
-		private stringBuilder cursorPos = new stringBuilder();
-		private stringBuilder width = new stringBuilder();
-		private stringBuilder height = new stringBuilder();
-		private stringBuilder X = new stringBuilder();
-		private stringBuilder Y = new stringBuilder();
-		private stringBuilder tag = new stringBuilder();
+		private StringBuilder lastChangeDate = new StringBuilder();
+		private StringBuilder title = new StringBuilder();
+		private StringBuilder noteContent = new StringBuilder();
+		private StringBuilder createDate = new StringBuilder();
+		private StringBuilder cursorPos = new StringBuilder();
+		private StringBuilder width = new StringBuilder();
+		private StringBuilder height = new StringBuilder();
+		private StringBuilder X = new StringBuilder();
+		private StringBuilder Y = new StringBuilder();
+		private StringBuilder tag = new StringBuilder();
 		
 		// link to model 
 		private Note note;
@@ -80,47 +82,50 @@ namespace TomDroidSharp.sync.sd
 			this.note = note;
 		}
 		
-		@Override
-		public void startElement(string uri, string localName, string name, Attributes attributes) throws SAXException {
-			
-			// TODO validate top-level tag for tomboy notes and throw exception if its the wrong version number (maybe offer to parse also?)		
+		public override void startElement(string uri, string localName, string name, Attributes attributes)
+		{
+			try {
+				// TODO validate top-level tag for tomboy notes and throw exception if its the wrong version number (maybe offer to parse also?)		
 
-			if (localName.equals(TITLE)) {
-				inTitleTag = true;
-			} 
-			else if (localName.equals(LAST_CHANGE_DATE)) {
-				inLastChangeDateTag = true;
+				if (localName.equals(TITLE)) {
+					inTitleTag = true;
+				} 
+				else if (localName.equals(LAST_CHANGE_DATE)) {
+					inLastChangeDateTag = true;
+				}
+				else if (localName.equals(NOTE_CONTENT)) {
+					inNoteContentTag = true;
+				}
+				else if (localName.equals(CREATE_DATE)) {
+					inCreateDateTag = true;
+				}
+				else if (localName.equals(NOTE_C)) {
+					inCursorTag = true;
+				}
+				else if (localName.equals(NOTE_W)) {
+					inWidthTag = true;
+				}
+				else if (localName.equals(NOTE_H)) {
+					inHeightTag = true;
+				}
+				else if (localName.equals(NOTE_X)) {
+					inXTag = true;
+				}
+				else if (localName.equals(NOTE_Y)) {
+					inYTag = true;
+				}
+				else if (localName.equals(NOTE_TAG)) {
+					inTagTag = true;
+				}
 			}
-			else if (localName.equals(NOTE_CONTENT)) {
-				inNoteContentTag = true;
-			}
-			else if (localName.equals(CREATE_DATE)) {
-				inCreateDateTag = true;
-			}
-			else if (localName.equals(NOTE_C)) {
-				inCursorTag = true;
-			}
-			else if (localName.equals(NOTE_W)) {
-				inWidthTag = true;
-			}
-			else if (localName.equals(NOTE_H)) {
-				inHeightTag = true;
-			}
-			else if (localName.equals(NOTE_X)) {
-				inXTag = true;
-			}
-			else if (localName.equals(NOTE_Y)) {
-				inYTag = true;
-			}
-			else if (localName.equals(NOTE_TAG)) {
-				inTagTag = true;
+			catch (SAXException ex)
+			{
 			}
 		}
 
-		@Override
-		public void endElement(string uri, string localName, string name)
-				throws SAXException, TimeFormatException {
-
+		public override void endElement(string uri, string localName, string name)
+		{
+			try {
 			if (localName.equals(TITLE)) {
 				inTitleTag = false;
 				note.setTitle(title.tostring());
@@ -168,12 +173,19 @@ namespace TomDroidSharp.sync.sd
 				if(tag.length() > 0)
 					note.addTag(tag.tostring());
 			}
+			}
+			catch(SAXException ex)
+			{
+			}
+			catch(TimeFormatException tfe)
+			{
+
+			}
 		}
 
-		@Override
-		public void characters(char[] ch, int start, int length)
-				throws SAXException {
-			
+		public override void characters(char[] ch, int start, int length)
+		{
+			try {
 			if (inTitleTag) {
 				title.append(ch, start, length);
 			} 
@@ -203,6 +215,10 @@ namespace TomDroidSharp.sync.sd
 			}
 			else if (inTagTag) {
 				tag.append(ch, start, length);
+			}
+			}
+			catch (SAXException ex)
+			{
 			}
 		}
 	}

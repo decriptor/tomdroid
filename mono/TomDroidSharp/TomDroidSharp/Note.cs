@@ -22,22 +22,20 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Json;
+using System.Runtime.Serialization;
 
 using Android;
-//import android.os.Handler;
-//import android.text.SpannableStringBuilder;
-//import android.text.TextUtils;
-//import android.text.format.Time;
-//import android.util.TimeFormatException;
+using Android.OS;
+using Android.Text;
+using Android.Text.Format;
 //import org.json.JSONArray;
 //import org.json.JSONObject;
 
-using TomDroidSharp.util.NoteContentBuilder;
-using TomDroidSharp.util.XmlUtils;
-
-//import java.io.Serializable;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
+using Android.Util;
+using TomDroidSharp.util;
+using Java.Util.Regex;
 
 namespace TomDroidSharp
 {
@@ -74,7 +72,7 @@ namespace TomDroidSharp
 
 		// Unused members (for SD Card)
 		
-		public string createDate = new Time().format3339(false);
+		public string createDate = new Time().Format3339(false);
 		public int cursorPos = 0;
 		public int height = 0;
 		public int width = 0;
@@ -87,11 +85,11 @@ namespace TomDroidSharp
 		private string guid;
 		
 		// this is to tell the sync service to update the last date after pushing this note
-		public boolean lastSync = false;
+		public bool lastSync = false;
 		
 		// Date converter pattern (remove extra sub milliseconds from datetime string)
 		// ex: will strip 3020 in 2010-01-23T12:07:38.7743020-05:00
-		private static readonly Pattern dateCleaner = Pattern.compile(
+		private static readonly Java.Util.Regex.Pattern dateCleaner = Java.Util.Regex.Pattern.Compile(
 				"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3})" +	// matches: 2010-01-23T12:07:38.774
 				".+" + 														// matches what we are getting rid of
 				"([-\\+]\\d{2}:\\d{2})");									// matches timezone (-xx:xx or +xx:xx)
@@ -99,21 +97,21 @@ namespace TomDroidSharp
 		public Note() {
 			tags = new String();
 		}
-		
-		public Note(JSONObject json) {
-			
+
+		public Note(JsonObject json)
+		{	
 			// These methods return an empty string if the key is not found
-			setTitle(XmlUtils.unescape(json.optString("title")));
-			setGuid(json.optString("guid"));
-			setLastChangeDate(json.optString("last-change-date"));
-			String newXMLContent = json.optString("note-content");
+			setTitle(XmlUtils.unescape(json.Keys["title"]));
+			setGuid(json.Keys["guid"]);
+			setLastChangeDate(json.Keys["last-change-date"]);
+			String newXMLContent = json.Keys["note-content"];
 			setXmlContent(newXMLContent);
-			JSONArray jtags = json.optJSONArray("tags");
+			JsonArray jtags = json.Keys["tags"];
 			String tag;
 			tags = new String();
 			if (jtags != null) {
-				for (int i = 0; i < jtags.length(); i++ ) {
-					tag = jtags.optString(i);
+				for (int i = 0; i < jtags.Count; i++ ) {
+					tag = jtags[i];
 					tags += tag + ",";
 				}
 			}
@@ -128,7 +126,7 @@ namespace TomDroidSharp
 		}
 		
 		public void addTag(String tag) {
-			if(tags.length() > 0)
+			if(tags.Length > 0)
 				this.tags = this.tags+","+tag;
 			else
 				this.tags = tag;
@@ -136,11 +134,11 @@ namespace TomDroidSharp
 		
 		public void removeTag(String tag)
 		{	
-			string[] taga = TextUtils.split(this.tags, ",");
+			string[] taga = TextUtils.Split(this.tags, ",");
 			String newTags = "";
 			foreach(string atag in taga)
 			{
-				if(!atag.equals(tag))
+				if(atag != tag)
 					newTags += atag;
 			}
 			this.tags = newTags;
@@ -172,20 +170,20 @@ namespace TomDroidSharp
 
 		public Time getLastChangeDate() {
 			Time time = new Time();
-			time.parse3339(lastChangeDate);
+			time.Parse3339(lastChangeDate);
 			return time;
 		}
 		
 		// sets change date to now
 		public void setLastChangeDate() {
 			Time now = new Time();
-			now.setToNow();
-			String time = now.format3339(false);
+			now.SetToNow();
+			String time = now.Format3339(false);
 			setLastChangeDate(time);
 		}
 		
 		public void setLastChangeDate(Time lastChangeDateTime) {
-			this.lastChangeDate = lastChangeDateTime.format3339(false);
+			this.lastChangeDate = lastChangeDateTime.Format3339(false);
 		}
 		
 		public void setLastChangeDate(String lastChangeDateStr)
@@ -195,10 +193,10 @@ namespace TomDroidSharp
 				// regexp out the sub-milliseconds from tomboy's datetime format
 				// Normal RFC 3339 format: 2008-10-13T16:00:00.000-07:00
 				// Tomboy's (C# library) format: 2010-01-23T12:07:38.7743020-05:00
-				Matcher m = dateCleaner.matcher(lastChangeDateStr);
-				if (m.find()) {
+				Matcher m = dateCleaner.Matcher(lastChangeDateStr);
+				if (m.Find()) {
 					//TLog.d(TAG, "I had to clean out extra sub-milliseconds from the date");
-					lastChangeDateStr = m.group(1)+m.group(2);
+					lastChangeDateStr = m.Group(1)+m.Group(2);
 					//TLog.v(TAG, "new date: {0}", lastChangeDateStr);
 				}
 				
@@ -213,14 +211,14 @@ namespace TomDroidSharp
 		{
 			try
 			{
-				
+
 				// regexp out the sub-milliseconds from tomboy's datetime format
 				// Normal RFC 3339 format: 2008-10-13T16:00:00.000-07:00
 				// Tomboy's (C# library) format: 2010-01-23T12:07:38.7743020-05:00
-				Matcher m = dateCleaner.matcher(createDateStr);
-				if (m.find()) {
+				Matcher m = dateCleaner.Matcher(createDateStr);
+				if (m.Find()) {
 					//TLog.d(TAG, "I had to clean out extra sub-milliseconds from the date");
-					createDateStr = m.group(1)+m.group(2);
+					createDateStr = m.Group(1)+m.Group(2);
 					//TLog.v(TAG, "new date: {0}", lastChangeDateStr);
 				}
 				
@@ -274,7 +272,7 @@ namespace TomDroidSharp
 			string tagString = "";
 
 			if(tags.Length >0) {
-				string[] tagsA = tags.split(",");
+				string[] tagsA = tags.Split(",");
 				tagString = "\n\t<tags>";
 				foreach(string atag in tagsA)
 				{
@@ -285,11 +283,11 @@ namespace TomDroidSharp
 
 			// TODO: create-date
 			string fileString = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<note version=\"0.3\" xmlns:link=\"http://beatniksoftware.com/tomboy/link\" xmlns:size=\"http://beatniksoftware.com/tomboy/size\" xmlns=\"http://beatniksoftware.com/tomboy\">\n\t<title>"
-					+getTitle().replace("&", "&amp;")+"</title>\n\t<text xml:space=\"preserve\"><note-content version=\"0.1\">"
-					+getTitle().replace("&", "&amp;")+"\n\n" // added for compatibility
+					+getTitle().Replace("&", "&amp;")+"</title>\n\t<text xml:space=\"preserve\"><note-content version=\"0.1\">"
+					+getTitle().Replace("&", "&amp;")+"\n\n" // added for compatibility
 					+getXmlContent()+"</note-content></text>\n\t<last-change-date>"
-					+getLastChangeDate().format3339(false)+"</last-change-date>\n\t<last-metadata-change-date>"
-					+getLastChangeDate().format3339(false)+"</last-metadata-change-date>\n\t<create-date>"
+					+getLastChangeDate().Format3339(false)+"</last-change-date>\n\t<last-metadata-change-date>"
+					+getLastChangeDate().Format3339(false)+"</last-metadata-change-date>\n\t<create-date>"
 					+createDate+"</create-date>\n\t<cursor-position>"
 					+cursorPos+"</cursor-position>\n\t<width>"
 					+width+"</width>\n\t<height>"

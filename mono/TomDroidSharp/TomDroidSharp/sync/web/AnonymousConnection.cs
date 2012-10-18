@@ -28,23 +28,31 @@
 //import org.apache.http.client.methods.HttpGet;
 //import org.apache.http.client.methods.HttpPut;
 //import org.apache.http.entity.stringEntity;
+using Java.IO;
+using Java.Net;
 
 namespace TomDroidSharp.sync.web
 {
-	public class AnonymousConnection : WebConnection {
-
-		@Override
-		public string get(string uri) throws UnknownHostException
+	public class AnonymousConnection : WebConnection
+	{
+		public override string get(string uri)
 		{
-			// Prepare a request object
-			HttpGet httpGet = new HttpGet(uri);
-			HttpResponse response = execute(httpGet);
+			try
+			{
+				// Prepare a request object
+				HttpGet httpGet = new HttpGet(uri);
+				HttpResponse response = execute(httpGet);
+			}
+			catch (UnknownHostException ex)
+			{
+			}
 			return parseResponse(response);
 		}
 		
-		@Override
-		public string put(string uri, string data) throws UnknownHostException {
-			
+		public override string put(string uri, string data)
+		{
+			try
+			{
 			// Prepare a request object
 			HttpPut httpPut = new HttpPut(uri);
 			
@@ -52,12 +60,16 @@ namespace TomDroidSharp.sync.web
 				// The default http content charset is ISO-8859-1, JSON requires UTF-8
 				httpPut.setEntity(new stringEntity(data, "UTF-8"));
 			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
+				e1.PrintStackTrace();
 				return null;
 			}
 			
 			httpPut.setHeader("Content-Type", "application/json");
 			HttpResponse response = execute(httpPut);
+			}
+			catch(UnknownHostException ex)
+			{
+			}
 			return parseResponse(response);
 		}
 	}

@@ -48,7 +48,7 @@ namespace TomDroidSharp.ui
 	        super.onCreate(savedInstanceState);
 	        Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
 	        TLog.d(TAG, "creating shortcut...");
-	        setContentView(R.layout.shortcuts_list);
+	        SetContentView(R.layout.shortcuts_list);
 	        setTitle(R.string.shortcuts_view_caption);
 	        adapter = NoteManager.getListAdapter(this);
 	        setListAdapter(adapter);

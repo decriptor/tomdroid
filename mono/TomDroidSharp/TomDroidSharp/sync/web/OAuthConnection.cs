@@ -37,8 +37,7 @@ using Android.Net;
 //import org.apache.http.entity.stringEntity;
 //import org.json.JSONException;
 //import org.json.JSONObject;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.TLog;
+using TomDroidSharp.util;
 
 //import java.io.UnsupportedEncodingException;
 //import java.net.UnknownHostException;
@@ -57,7 +56,7 @@ namespace TomDroidSharp.sync.web
 		public string accessTokenSecret = "";
 		public string requestToken = "";
 		public string requestTokenSecret = "";
-		public boolean oauth10a = false;
+		public bool oauth10a = false;
 		public string authorizeUrl = "";
 		public string requestTokenUrl = "";
 		public string accessTokenUrl = "";
@@ -71,9 +70,9 @@ namespace TomDroidSharp.sync.web
 					CONSUMER_SECRET);
 		}
 
-		public boolean isAuthenticated() {
+		public bool isAuthenticated() {
 			
-			if (accessToken.equals("") || accessTokenSecret.equals(""))
+			if (accessToken == "" || accessTokenSecret == "")
 				return false;
 			else
 				return true;
@@ -112,151 +111,158 @@ namespace TomDroidSharp.sync.web
 			}
 		}
 		
-		public Uri getAuthorizationUrl(string server) throws UnknownHostException {
-			
-			string url = "";
-			
-			// this method shouldn't have been called
-			if (isAuthenticated())
-				return null;
-			
-			rootApi = server+"/api/1.0/";
-			
-			AnonymousConnection connection = new AnonymousConnection();
-			string response = connection.get(rootApi);
-			
-			JSONObject jsonResponse;
-			
+		public Uri getAuthorizationUrl (string server)
+		{
 			try {
-				jsonResponse = new JSONObject(response);
+				string url = "";
+			
+				// this method shouldn't have been called
+				if (isAuthenticated ())
+					return null;
+			
+				rootApi = server + "/api/1.0/";
+			
+				AnonymousConnection connection = new AnonymousConnection ();
+				string response = connection.get (rootApi);
+			
+				JSONObject jsonResponse;
+			
+				try {
+					jsonResponse = new JSONObject (response);
 				
-				accessTokenUrl = jsonResponse.getstring("oauth_access_token_url");
-				requestTokenUrl = jsonResponse.getstring("oauth_request_token_url");
-				authorizeUrl = jsonResponse.getstring("oauth_authorize_url");
+					accessTokenUrl = jsonResponse.getstring ("oauth_access_token_url");
+					requestTokenUrl = jsonResponse.getstring ("oauth_request_token_url");
+					authorizeUrl = jsonResponse.getstring ("oauth_authorize_url");
 				
-			} catch (JSONException e) {
-				e.printStackTrace();
-				return null;
+				} catch (JSONException e) {
+					e.printStackTrace ();
+					return null;
+				}
+			
+				OAuthProvider provider = getProvider ();
+			
+				try {
+					// the argument is the callback used when the remote authorization is complete
+					url = provider.retrieveRequestToken (consumer, "tomdroid://sync");
+				
+					requestToken = consumer.getToken ();
+					requestTokenSecret = consumer.getTokenSecret ();
+					oauth10a = provider.isOAuth10a ();
+					accessToken = "";
+					accessTokenSecret = "";
+					saveConfiguration ();
+				
+				} catch (OAuthMessageSignerException e1) {
+					e1.printStackTrace ();
+					return null;
+				} catch (OAuthNotAuthorizedException e1) {
+					e1.printStackTrace ();
+					return null;
+				} catch (OAuthExpectationFailedException e1) {
+					e1.printStackTrace ();
+					return null;
+				} catch (OAuthCommunicationException e1) {
+					e1.printStackTrace ();
+					return null;
+				}
+			
+				TLog.i (TAG, "Authorization URL : {0}", url);
+			} catch (UnknownHostException ex) {
 			}
-			
-			OAuthProvider provider = getProvider();
-			
-			try {
-				// the argument is the callback used when the remote authorization is complete
-				url = provider.retrieveRequestToken(consumer, "tomdroid://sync");
-				
-				requestToken = consumer.getToken();
-				requestTokenSecret = consumer.getTokenSecret();
-				oauth10a = provider.isOAuth10a();
-				accessToken = "";
-				accessTokenSecret = "";
-				saveConfiguration();
-				
-			} catch (OAuthMessageSignerException e1) {
-				e1.printStackTrace();
-				return null;
-			} catch (OAuthNotAuthorizedException e1) {
-				e1.printStackTrace();
-				return null;
-			} catch (OAuthExpectationFailedException e1) {
-				e1.printStackTrace();
-				return null;
-			} catch (OAuthCommunicationException e1) {
-				e1.printStackTrace();
-				return null;
-			}
-			
-			TLog.i(TAG, "Authorization URL : {0}", url);
-			
 			return Uri.parse(url);
 		}
 		
-		public boolean getAccess(string verifier) throws UnknownHostException {
-			
-			TLog.i(TAG, "Verifier: {0}", verifier);
-			
-			// this method shouldn't have been called
-			if (isAuthenticated())
-				return false;
-			
-			if (!requestToken.equals("") && !requestTokenSecret.equals("")) {
-				consumer.setTokenWithSecret(requestToken, requestTokenSecret);
-				TLog.d(TAG, "Added request token {0} and request token secret {1}", requestToken, requestTokenSecret);
-			}
-			else
-				return false;
-			
-			OAuthProvider provider = getProvider();
-			
+		public bool getAccess (string verifier)
+		{
 			try {
-				provider.retrieveAccessToken(consumer, verifier);
-			} catch (OAuthMessageSignerException e1) {
-				e1.printStackTrace();
-				return false;
-			} catch (OAuthNotAuthorizedException e1) {
-				e1.printStackTrace();
-				return false;
-			} catch (OAuthExpectationFailedException e1) {
-				e1.printStackTrace();
-				return false;
-			} catch (OAuthCommunicationException e1) {
-				e1.printStackTrace();
-				return false;
+				TLog.i (TAG, "Verifier: {0}", verifier);
+			
+				// this method shouldn't have been called
+				if (isAuthenticated ())
+					return false;
+			
+				if (!requestToken.equals ("") && !requestTokenSecret.equals ("")) {
+					consumer.setTokenWithSecret (requestToken, requestTokenSecret);
+					TLog.d (TAG, "Added request token {0} and request token secret {1}", requestToken, requestTokenSecret);
+				} else
+					return false;
+			
+				OAuthProvider provider = getProvider ();
+			
+				try {
+					provider.retrieveAccessToken (consumer, verifier);
+				} catch (OAuthMessageSignerException e1) {
+					e1.printStackTrace ();
+					return false;
+				} catch (OAuthNotAuthorizedException e1) {
+					e1.printStackTrace ();
+					return false;
+				} catch (OAuthExpectationFailedException e1) {
+					e1.printStackTrace ();
+					return false;
+				} catch (OAuthCommunicationException e1) {
+					e1.printStackTrace ();
+					return false;
+				}
+			
+				// access has been granted, store the access token
+				accessToken = consumer.getToken ();
+				accessTokenSecret = consumer.getTokenSecret ();
+				requestToken = "";
+				requestTokenSecret = "";
+			
+				try {
+					JSONObject response = new JSONObject (get (rootApi));
+					TLog.d (TAG, "Request: {0}", rootApi);
+			
+					// append a slash to the url, else the signature will fail
+					userApi = response.getJSONObject ("user-ref").getstring ("api-ref");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace ();
+				}
+			
+				saveConfiguration ();
+			
+				TLog.i (TAG, "Got access token {0}.", consumer.getToken ());
+			} catch (UnknownHostException ex) {
 			}
-			
-			// access has been granted, store the access token
-			accessToken = consumer.getToken();
-			accessTokenSecret = consumer.getTokenSecret();
-			requestToken = "";
-			requestTokenSecret = "";
-			
-			try {
-				JSONObject response = new JSONObject(get(rootApi));
-				TLog.d(TAG, "Request: {0}", rootApi);
-			
-				// append a slash to the url, else the signature will fail
-				userApi = response.getJSONObject("user-ref").getstring("api-ref");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			saveConfiguration();
-			
-			TLog.i(TAG, "Got access token {0}.", consumer.getToken());
-			
 			return true;
 		}
 		
-		@Override
-		public string get(string uri) throws java.net.UnknownHostException {
-			
-			// Prepare a request object
-			HttpGet httpGet = new HttpGet(uri);
-			sign(httpGet);
-			HttpResponse response = execute(httpGet);		
+		public override string get (string uri)
+		{
+			try {
+				// Prepare a request object
+				HttpGet httpGet = new HttpGet (uri);
+				sign (httpGet);
+				HttpResponse response = execute (httpGet);
+			} catch (java.net.UnknownHostException ex) {
+			}
 			return parseResponse(response);
 		}
 		
-		@Override
-		public string put(string uri, string data) throws UnknownHostException {
-			
-			// Prepare a request object
-			HttpPut httpPut = new HttpPut(uri);
-			
+		public override string put (string uri, string data)
+		{
 			try {
-				// The default http content charset is ISO-8859-1, JSON requires UTF-8
-				httpPut.setEntity(new stringEntity(data, "UTF-8"));
-			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
-				return null;
+				// Prepare a request object
+				HttpPut httpPut = new HttpPut (uri);
+			
+				try {
+					// The default http content charset is ISO-8859-1, JSON requires UTF-8
+					httpPut.setEntity (new stringEntity (data, "UTF-8"));
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace ();
+					return null;
+				}
+			
+				httpPut.setHeader ("Content-Type", "application/json");
+				sign (httpPut);
+			
+				// Do not handle redirects, we need to sign the request again as the old signature will be invalid
+				HttpResponse response = execute (httpPut);
+			} catch (UnknownHostException ex) {
 			}
-			
-			httpPut.setHeader("Content-Type", "application/json");
-			sign(httpPut);
-			
-			// Do not handle redirects, we need to sign the request again as the old signature will be invalid
-			HttpResponse response = execute(httpPut);
 			return parseResponse(response);
 		}
 		

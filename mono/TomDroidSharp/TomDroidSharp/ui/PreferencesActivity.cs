@@ -42,7 +42,7 @@ using TomDroidSharp.util.SearchSuggestionProvider;
 using TomDroidSharp.util.TLog;
 
 //import java.io.File;
-//import java.util.ArrayList;
+//import java.util.List;
 
 namespace TomDroidSharp.ui
 {
@@ -108,7 +108,7 @@ namespace TomDroidSharp.ui
 			backupNotes = (Preference)findPreference(Preferences.Key.BACKUP_NOTES.getName());
 			autoBackup = (Preference)findPreference(Preferences.Key.AUTO_BACKUP_NOTES.getName());
 			
-			// Set the default values if nothing exists
+			// Set the default values if nothing Exists
 			setDefaults();
 			
 			// Fill the services combo list
@@ -122,7 +122,7 @@ namespace TomDroidSharp.ui
 			
 			syncService.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 				
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
+				public bool onPreferenceChange(Preference preference, Object newValue) {
 					string selectedSyncServiceKey = (string)newValue;
 					
 					// did the selection change?
@@ -138,7 +138,7 @@ namespace TomDroidSharp.ui
 			// force reauthentication if the sync server changes
 			syncServer.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-				public boolean onPreferenceChange(Preference preference,
+				public bool onPreferenceChange(Preference preference,
 						Object serverUri) {
 					
 					if (serverUri == null) {
@@ -166,7 +166,7 @@ namespace TomDroidSharp.ui
 			// Change the Folder Location
 			sdLocation.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-				public boolean onPreferenceChange(Preference preference, Object locationUri) {
+				public bool onPreferenceChange(Preference preference, Object locationUri) {
 
 					if (locationUri.equals(Preferences.getstring(Preferences.Key.SD_LOCATION))) { 
 						return false;
@@ -179,7 +179,7 @@ namespace TomDroidSharp.ui
 					File path = new File(Environment.getExternalStorageDirectory()
 							+ "/" + locationUri + "/");
 
-					if(!path.exists()) {
+					if(!path.Exists()) {
 						TLog.w(TAG, "Folder {0} does not exist.", path);
 						folderNotExisting(path.tostring());
 						return false;
@@ -198,7 +198,7 @@ namespace TomDroidSharp.ui
 			
 			//delete Search History
 			clearSearchHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-		        public boolean onPreferenceClick(Preference preference) {
+		        public bool onPreferenceClick(Preference preference) {
 		            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(PreferencesActivity.this,
 		                    SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
 		            suggestions.clearHistory();
@@ -214,7 +214,7 @@ namespace TomDroidSharp.ui
 
 			baseSize.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 				
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
+				public bool onPreferenceChange(Preference preference, Object newValue) {
 					try {
 						Float.parseFloat((string)newValue);
 						Preferences.putstring(Preferences.Key.BASE_TEXT_SIZE, (string)newValue);
@@ -232,7 +232,7 @@ namespace TomDroidSharp.ui
 			});
 			defaultSort.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 				
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
+				public bool onPreferenceChange(Preference preference, Object newValue) {
 					string value = (string) newValue;
 					if(value.equals("sort_title"))
 						defaultSort.setSummary(getstring(R.string.sortByTitle));
@@ -243,7 +243,7 @@ namespace TomDroidSharp.ui
 			});
 			delNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				
-		        public boolean onPreferenceClick(Preference preference) {
+		        public bool onPreferenceClick(Preference preference) {
 		        	showDialog(DIALOG_DELETE);
 					return true;
 				}
@@ -251,7 +251,7 @@ namespace TomDroidSharp.ui
 
 			delRemoteNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				
-		        public boolean onPreferenceClick(Preference preference) {
+		        public bool onPreferenceClick(Preference preference) {
 		        	showDialog(DIALOG_DEL_REMOTE);
 					return true;
 				}
@@ -260,7 +260,7 @@ namespace TomDroidSharp.ui
 			
 			backupNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				
-		        public boolean onPreferenceClick(Preference preference) {
+		        public bool onPreferenceClick(Preference preference) {
 		        	showDialog(DIALOG_BACKUP);
 
 					return true;
@@ -279,7 +279,7 @@ namespace TomDroidSharp.ui
 		
 		private void fillServices()
 		{
-			ArrayList<SyncService> availableServices = SyncManager.getInstance().getServices();
+			List<SyncService> availableServices = SyncManager.getInstance().getServices();
 			CharSequence[] entries = new CharSequence[availableServices.size()];
 			CharSequence[] entryValues = new CharSequence[availableServices.size()];
 			
@@ -365,9 +365,9 @@ namespace TomDroidSharp.ui
 
 		//TODO use LocalStorage wrapper from two-way-sync branch when it get's merged
 		private void resetLocalDatabase() {
-			getContentResolver().delete(Tomdroid.CONTENT_URI, null, null);
+			ContentResolver.delete(Tomdroid.CONTENT_URI, null, null);
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
-			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().format3339(false));
+			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
 			
 			// add a first explanatory note
 			NoteManager.putNote(this, FirstNote.createFirstNote(this));
@@ -399,7 +399,7 @@ namespace TomDroidSharp.ui
 			
 			// reset last sync date, so we can push local notes to the service - to pull instead, we have "revert all"
 			
-			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().format3339(false));
+			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
 
 		}
@@ -440,7 +440,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
+		public bool onOptionsItemSelected(MenuItem item) {
 			if(item.getItemId() == android.R.id.home) {
 		        	// app icon in action bar clicked; go home
 	                Intent intent = new Intent(this, Tomdroid.class);

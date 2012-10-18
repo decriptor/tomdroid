@@ -110,14 +110,14 @@ namespace TomDroidSharp.Util
 		 * Both the exception and the note content are saved.
 		 * @return true if the save was successful, false if it wasn't
 		 */
-		public boolean save() {
+		public bool save() {
 			string path = Tomdroid.NOTES_PATH+"errors/";
 			
 			File fPath = new File(path);
-			if (!fPath.exists()) {
+			if (!fPath.Exists()) {
 				fPath.mkdirs();
 				// Check a second time, if not the most likely cause is the volume doesn't exist
-				if(!fPath.exists()) return false;
+				if(!fPath.Exists()) return false;
 			}
 			
 			if(this == null || this.isEmpty() || this.size() == 0)
@@ -161,7 +161,7 @@ namespace TomDroidSharp.Util
 		 * @param path The directory in which to save the error
 		 * @param baseName The base filename of the error
 		 * @param level The number that get appended to the filename
-		 * @return A filename that doesn't exists in the path directory
+		 * @return A filename that doesn't Exists in the path directory
 		 */
 		private string findFilename(string path, string baseName, int level) {
 			
@@ -171,7 +171,7 @@ namespace TomDroidSharp.Util
 			string filePath = path+baseName+suffix;
 			File file = new File(filePath);
 			
-			return file.exists() ? findFilename(path, baseName, level + 1) : baseName+suffix;		
+			return file.Exists() ? findFilename(path, baseName, level + 1) : baseName+suffix;		
 		}
 	}
 }

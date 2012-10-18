@@ -36,7 +36,7 @@ namespace TomDroidSharp.util
 	public class TLog
 	{
 	    // Logging should be disabled for release builds
-	    private static readonly boolean LOGGING_ENABLED = true;
+	    private static readonly bool LOGGING_ENABLED = true;
 
 	    public static void v(string tag, Throwable t, string msg, Object... args) {
 	        if (LOGGING_ENABLED) Log.v(tag, format(msg, args), t);

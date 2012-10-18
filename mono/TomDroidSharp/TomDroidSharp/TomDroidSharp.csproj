@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
+    <Reference Include="System.Json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Resources\Resource.designer.cs" />
@@ -99,30 +100,12 @@
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
-    <None Include="Resources\layout\actionbar_compat.axml" />
-    <None Include="Resources\layout\file_picker_content_view.axml" />
-    <None Include="Resources\layout\file_picker_empty_view.axml" />
-    <None Include="Resources\layout\file_picker_list_item.axml" />
-    <None Include="Resources\layout\main.axml" />
-    <None Include="Resources\layout\main_list_item.axml" />
-    <None Include="Resources\layout\note_compare.axml" />
-    <None Include="Resources\layout\note_edit.axml" />
-    <None Include="Resources\layout\note_view.axml" />
-    <None Include="Resources\layout\shortcuts_list.axml" />
-    <None Include="Resources\layout\strings.axml" />
     <None Include="Resources\layout-sw600dp-land\main.axml" />
     <None Include="Resources\layout-v11\actionbar_indeterminate_progress.axml" />
-    <None Include="Resources\menu\edit_note.axml" />
-    <None Include="Resources\menu\main.axml" />
-    <None Include="Resources\menu\main_longclick.axml" />
-    <None Include="Resources\menu\main_longclick_deleted.axml" />
-    <None Include="Resources\menu\search.axml" />
-    <None Include="Resources\menu\view_note.axml" />
     <None Include="Resources\menu-sw600dp-land\edit_note.axml" />
     <None Include="Resources\menu-sw600dp-land\main.axml" />
     <None Include="Resources\menu-sw600dp-land\search.axml" />
     <None Include="Resources\menu-sw600dp-land\view_note.axml" />
-    <None Include="Resources\values-bs\strings.xml" />
     <None Include="Resources\values-ca\strings.xml" />
     <None Include="Resources\values-cs\strings.xml" />
     <None Include="Resources\values-da\strings.xml" />
@@ -161,11 +144,6 @@
     <None Include="Resources\values-zh\strings.xml" />
     <None Include="Resources\values-zh-rCN\strings.xml" />
     <None Include="Resources\values-zh-rTW\strings.xml" />
-    <None Include="Resources\values\attrs.xml" />
-    <None Include="Resources\values\dimen.xml" />
-    <None Include="Resources\values\ids.xml" />
-    <None Include="Resources\values\strings.xml" />
-    <None Include="Resources\values\styles.xml" />
     <None Include="Resources\xml\preferences.xml" />
     <None Include="Resources\xml\searchable.xml" />
     <None Include="Resources\xml\sync_provider.xml" />
@@ -253,6 +231,23 @@
     <None Include="doc\dev\uml diagrams\src\stereotypes" />
     <None Include="doc\dev\uml diagrams\src\tools" />
     <None Include="Properties\AndroidManifest.xml" />
+    <None Include="Resources\menu\edit_note.axml" />
+    <None Include="Resources\menu\main.axml" />
+    <None Include="Resources\menu\main_longclick.axml" />
+    <None Include="Resources\menu\main_longclick_deleted.axml" />
+    <None Include="Resources\menu\search.axml" />
+    <None Include="Resources\menu\view_note.axml" />
+    <None Include="Resources\layout\actionbar_compat.axml" />
+    <None Include="Resources\layout\file_picker_content_view.axml" />
+    <None Include="Resources\layout\file_picker_empty_view.axml" />
+    <None Include="Resources\layout\file_picker_list_item.axml" />
+    <None Include="Resources\layout\main.axml" />
+    <None Include="Resources\layout\main_list_item.axml" />
+    <None Include="Resources\layout\note_compare.axml" />
+    <None Include="Resources\layout\note_edit.axml" />
+    <None Include="Resources\layout\note_view.axml" />
+    <None Include="Resources\layout\shortcuts_list.axml" />
+    <None Include="Resources\layout\strings.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Icon.png" />
@@ -306,6 +301,12 @@
     <AndroidResource Include="Resources\drawable-xhdpi\text.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\xml.png" />
     <AndroidResource Include="Resources\values-ar\strings.xml" />
+    <AndroidResource Include="Resources\values\Strings.axml" />
+    <AndroidResource Include="Resources\values\styles.axml" />
+    <AndroidResource Include="Resources\values\ids.axml" />
+    <AndroidResource Include="Resources\values\attrs.axml" />
+    <AndroidResource Include="Resources\values\dimen.axml" />
+    <AndroidResource Include="Resources\values-bs\strings.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup>

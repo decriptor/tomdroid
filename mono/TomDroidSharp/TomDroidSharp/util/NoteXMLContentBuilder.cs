@@ -21,7 +21,7 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.util.ArrayList;
+//import java.util.List;
 //import java.util.LinkedList;
 //import java.util.ListIterator;
 //import java.util.Map;
@@ -47,9 +47,9 @@ namespace TomDroidSharp.util
 
 		// set up check for mismatch (cross-boundary spans like <bold>foo<italic>bar</bold>foo</italic>)
 		
-		private ArrayList<string> openTags = new ArrayList<string>();
-		private ArrayList<string> closeTags = new ArrayList<string>();
-		private ArrayList<string> tagsToOpen = new ArrayList<string>();
+		private List<string> openTags = new List<string>();
+		private List<string> closeTags = new List<string>();
+		private List<string> tagsToOpen = new List<string>();
 		
 		// this is what we are building here
 		private string noteXMLContent = new string();
@@ -82,7 +82,7 @@ namespace TomDroidSharp.util
 		
 		public void run() {
 			
-			boolean successful = true;
+			bool successful = true;
 			
 			try {
 				// replace illegal XML characters with corresponding entities:
@@ -116,7 +116,7 @@ namespace TomDroidSharp.util
 						string elementName = "";
 						if( spanStart==currPos || spanEnd==currPos )
 						{
-							if( span instanceof StyleSpan )
+							if( span as StyleSpan )
 							{
 								StyleSpan style = (StyleSpan) span;
 								if( (style.getStyle()&Typeface.BOLD)>0 )
@@ -128,12 +128,12 @@ namespace TomDroidSharp.util
 									elementName = "italic";
 								}
 							}
-							else if( span instanceof StrikethroughSpan )
+							else if( span as StrikethroughSpan )
 							{
 								elementName = "strikethrough";
 							}
 
-							else if( span instanceof BackgroundColorSpan )
+							else if( span as BackgroundColorSpan )
 							{
 								BackgroundColorSpan bgcolor = (BackgroundColorSpan) span;
 								if( bgcolor.getBackgroundColor()==Note.NOTE_HIGHLIGHT_COLOR )
@@ -141,7 +141,7 @@ namespace TomDroidSharp.util
 									elementName = "highlight";
 								}
 							}
-							else if( span instanceof TypefaceSpan )
+							else if( span as TypefaceSpan )
 							{
 								TypefaceSpan typeface = (TypefaceSpan) span;
 								if( typeface.getFamily()==Note.NOTE_MONOSPACE_TYPEFACE )
@@ -149,7 +149,7 @@ namespace TomDroidSharp.util
 									elementName = "monospace";
 								}
 							}
-							else if( span instanceof RelativeSizeSpan )
+							else if( span as RelativeSizeSpan )
 							{
 								RelativeSizeSpan size = (RelativeSizeSpan) span;
 								if( size.getSizeChange()==Note.NOTE_SIZE_SMALL_FACTOR )
@@ -165,16 +165,16 @@ namespace TomDroidSharp.util
 									elementName = "size:huge";
 								}
 							}
-							else if( span instanceof LeadingMarginSpan.Standard )
+							else if( span as LeadingMarginSpan.Standard )
 							{
 								LeadingMarginSpan.Standard margin = (LeadingMarginSpan.Standard) span;
 								currentMargin = margin.getLeadingMargin(true);
 							}
-							else if( span instanceof LinkInternalSpan )
+							else if( span as LinkInternalSpan )
 							{
 								elementName = "link:internal";
 							}
-							else if( span instanceof BulletSpan )
+							else if( span as BulletSpan )
 							{
 								elementName = "list-item";
 								bulletStart = spanStart;
@@ -265,7 +265,7 @@ namespace TomDroidSharp.util
 
 					// API 3 compat - is this reversal really necessary?  I think it should be reversed in the for(string elementName...)
 					
-					ListIterator<Integer> iter = new ArrayList<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.size());
+					ListIterator<Integer> iter = new List<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.size());
 
 					// write needed end tags for the current span transition in the correct order, depending on the corresponding span start positions:
 
@@ -276,7 +276,7 @@ namespace TomDroidSharp.util
 						}				    
 					}
 					
-					iter = new ArrayList<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.size());
+					iter = new List<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.size());
 
 					// write needed start tags for the current span transition in the correct order, depending on the corresponding span end positions:
 					
@@ -308,7 +308,7 @@ namespace TomDroidSharp.util
 			warnHandler(successful);
 		}
 		
-	    private string addTags(boolean end) {
+	    private string addTags(bool end) {
 	    	string tags = "";
 			if(!openTags.isEmpty()) { 
 				if(!closeTags.isEmpty()) { // check for mismatch
@@ -338,7 +338,7 @@ namespace TomDroidSharp.util
 			return tags;
 		}
 
-		private void warnHandler(boolean successful) {
+		private void warnHandler(bool successful) {
 			
 			// notify the main UI that we are done here (sending an ok along with the note's title)
 			Message msg = Message.obtain();
@@ -349,7 +349,7 @@ namespace TomDroidSharp.util
 				msg.what = PARSE_ERROR;
 			}
 			
-			parentHandler.sendMessage(msg);
+			parentHandler.SendMessage(msg);
 	    }
 	}
 }

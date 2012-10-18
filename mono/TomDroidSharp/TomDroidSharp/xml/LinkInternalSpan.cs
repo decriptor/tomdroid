@@ -72,7 +72,7 @@ public class LinkInternalSpan string  ClickableSpan {
 		
 		return new MatchFilter() {
 			
-			public boolean acceptMatch(CharSequence s, int start, int end) {
+			public bool acceptMatch(CharSequence s, int start, int end) {
 				int spanstart, spanend;
 				for(LinkInternalSpan link: links) {
 					spanstart = noteContent.getSpanStart(link);

@@ -37,7 +37,7 @@ namespace TomDroidSharp.util
 		// Logging info
 		private static readonly string	TAG = "NewNote";
 		// indicates, if note was never saved before (for dismiss dialogue)
-		public static boolean neverSaved;
+		public static bool neverSaved;
 		
 		public static Note createNewNote(Context context, string title, string xmlContent) {
 			TLog.v(TAG, "Creating new note");

@@ -17,7 +17,7 @@
 using Android.Content;
 using Android.Views;
 
-//import java.util.ArrayList;
+//import java.util.List;
 
 namespace TomDroidSharp.ui.actionbar
 {
@@ -32,12 +32,12 @@ namespace TomDroidSharp.ui.actionbar
 	    private Context mContext;
 	    private Resources mResources;
 
-	    private ArrayList<SimpleMenuItem> mItems;
+	    private List<SimpleMenuItem> mItems;
 
 	    public SimpleMenu(Context context) {
 	        mContext = context;
 	        mResources = context.getResources();
-	        mItems = new ArrayList<SimpleMenuItem>();
+	        mItems = new List<SimpleMenuItem>();
 	    }
 
 	    public Context getContext() {
@@ -73,7 +73,7 @@ namespace TomDroidSharp.ui.actionbar
 	        return item;
 	    }
 
-	    private static int findInsertIndex(ArrayList<? string  MenuItem> items, int order) {
+	    private static int findInsertIndex(List<? string  MenuItem> items, int order) {
 	        for (int i = items.size() - 1; i >= 0; i--) {
 	            MenuItem item = items.get(i);
 	            if (item.getOrder() <= order) {
@@ -159,19 +159,19 @@ namespace TomDroidSharp.ui.actionbar
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public void setGroupCheckable(int i, boolean b, boolean b1) {
+	    public void setGroupCheckable(int i, bool b, bool b1) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public void setGroupVisible(int i, boolean b) {
+	    public void setGroupVisible(int i, bool b) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public void setGroupEnabled(int i, boolean b) {
+	    public void setGroupEnabled(int i, bool b) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public boolean hasVisibleItems() {
+	    public bool hasVisibleItems() {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
@@ -179,19 +179,19 @@ namespace TomDroidSharp.ui.actionbar
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public boolean performShortcut(int i, KeyEvent keyEvent, int i1) {
+	    public bool performShortcut(int i, KeyEvent keyEvent, int i1) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public boolean isShortcutKey(int i, KeyEvent keyEvent) {
+	    public bool isShortcutKey(int i, KeyEvent keyEvent) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public boolean performIdentifierAction(int i, int i1) {
+	    public bool performIdentifierAction(int i, int i1) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 
-	    public void setQwertyMode(boolean b) {
+	    public void setQwertyMode(bool b) {
 	        throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
 	    }
 	}

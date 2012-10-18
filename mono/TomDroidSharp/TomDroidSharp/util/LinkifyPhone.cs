@@ -69,7 +69,7 @@ namespace TomDroidSharp.util
 		 */
 		public static readonly MatchFilter sPhoneNumberMatchFilter = new MatchFilter() {
 
-			public readonly boolean acceptMatch(CharSequence s, int start, int end) {
+			public readonly bool acceptMatch(CharSequence s, int start, int end) {
 
 				// make sure there was a whitespace before pattern
 				try {

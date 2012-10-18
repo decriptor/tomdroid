@@ -40,7 +40,7 @@ namespace TomDroidSharp.ui.actionbar
 	    private CharSequence mTitleCondensed;
 	    private Drawable mIconDrawable;
 	    private int mIconResId = 0;
-	    private boolean mEnabled = true;
+	    private bool mEnabled = true;
 
 	    public SimpleMenuItem(SimpleMenu menu, int id, int order, CharSequence title) {
 	        mMenu = menu;
@@ -103,12 +103,12 @@ namespace TomDroidSharp.ui.actionbar
 	        return null;
 	    }
 
-	    public MenuItem setEnabled(boolean enabled) {
+	    public MenuItem setEnabled(bool enabled) {
 	        mEnabled = enabled;
 	        return this;
 	    }
 
-	    public boolean isEnabled() {
+	    public bool isEnabled() {
 	        return mEnabled;
 	    }
 
@@ -136,17 +136,17 @@ namespace TomDroidSharp.ui.actionbar
 	        return null;
 	    }
 
-	    public boolean expandActionView() {
+	    public bool expandActionView() {
 	        // Noop
 	        return false;
 	    }
 
-	    public boolean collapseActionView() {
+	    public bool collapseActionView() {
 	        // Noop
 	        return false;
 	    }
 
-	    public boolean isActionViewExpanded() {
+	    public bool isActionViewExpanded() {
 	        // Noop
 	        return false;
 	    }
@@ -192,37 +192,37 @@ namespace TomDroidSharp.ui.actionbar
 	        return 0;
 	    }
 
-	    public MenuItem setCheckable(boolean b) {
+	    public MenuItem setCheckable(bool b) {
 	        // Noop
 	        return this;
 	    }
 
-	    public boolean isCheckable() {
+	    public bool isCheckable() {
 	        // Noop
 	        return false;
 	    }
 
-	    public MenuItem setChecked(boolean b) {
+	    public MenuItem setChecked(bool b) {
 	        // Noop
 	        return this;
 	    }
 
-	    public boolean isChecked() {
+	    public bool isChecked() {
 	        // Noop
 	        return false;
 	    }
 
-	    public MenuItem setVisible(boolean b) {
+	    public MenuItem setVisible(bool b) {
 	        // Noop
 	        return this;
 	    }
 
-	    public boolean isVisible() {
+	    public bool isVisible() {
 	        // Noop
 	        return true;
 	    }
 
-	    public boolean hasSubMenu() {
+	    public bool hasSubMenu() {
 	        // Noop
 	        return false;
 	    }

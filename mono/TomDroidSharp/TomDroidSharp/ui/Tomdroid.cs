@@ -59,7 +59,7 @@ namespace TomDroidSharp.ui
 
 		// Global definition for Tomdroid
 		public static readonly string	AUTHORITY			= "org.tomdroidsharp.notes";
-		public static readonly Uri		CONTENT_URI			= Uri.parse("content://" + AUTHORITY + "/notes");
+		public static readonly Uri		CONTENT_URI			= Uri.Parse("content://" + AUTHORITY + "/notes");
 		public static readonly string	CONTENT_TYPE		= "vnd.android.cursor.dir/vnd.tomdroid.note";
 		public static readonly string	CONTENT_ITEM_TYPE	= "vnd.android.cursor.item/vnd.tomdroid.note";
 		public static readonly string	PROJECT_HOMEPAGE	= "http://www.launchpad.net/tomdroid/";
@@ -83,7 +83,7 @@ namespace TomDroidSharp.ui
 
 		private static string dialogstring;
 		private static Note dialogNote;
-		private static boolean dialogBoolean;
+		private static bool dialogBoolean;
 		private static int dialogInt;
 		private static int dialogInt2;
 		private EditText dialogInput;
@@ -96,13 +96,13 @@ namespace TomDroidSharp.ui
 		public static string	NOTES_PATH				= null;
 		
 		// Set this to false for release builds, the reason should be obvious
-		public static readonly boolean	CLEAR_PREFERENCES	= false;
+		public static readonly bool	CLEAR_PREFERENCES	= false;
 
 		// Logging info
 		private static readonly string	TAG					= "TomdroidSharp";
 
 		public static Uri getNoteIntentUri(long noteId) {
-	        return Uri.parse(CONTENT_URI + "/" + noteId);
+	        return Uri.Parse(CONTENT_URI + "/" + noteId);
 	    }
 
 		private View main;
@@ -115,7 +115,7 @@ namespace TomDroidSharp.ui
 		private Handler	 syncMessageHandler	= new SyncMessageHandler(this);
 
 		// sync variables
-		private boolean creating = true;
+		private bool creating = true;
 		private static ProgressDialog authProgressDialog;
 		
 		// UI for tablet
@@ -135,21 +135,21 @@ namespace TomDroidSharp.ui
 		// for searches
 		
 		private Intent intent;
-		private string query;
+		private string Query;
 		
 		/** Called when the activity is created. */
 		public override void OnCreate(Bundle savedInstanceState)
 		{
-			base.onCreate(savedInstanceState);
+			base.OnCreate(savedInstanceState);
 
 			Preferences.init(this, CLEAR_PREFERENCES);
 			context = this;
 			SyncManager.setActivity(this);
 			SyncManager.setHandler(this.syncMessageHandler);
 			
-	        main =  View.inflate(this, R.layout.main, null);
+	        main =  View.Inflate(this, R.layout.main, null);
 			
-	        setContentView(main);
+	        SetContentView(main);
 			
 			// get the Path to the notes-folder from Preferences
 			NOTES_PATH = Environment.getExternalStorageDirectory()
@@ -171,19 +171,19 @@ namespace TomDroidSharp.ui
 
 		    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 		    	this.setTitle(getstring(R.string.app_name) + " - " + getstring(R.string.SearchResultTitle));
-		    	query = intent.getstringExtra(SearchManager.QUERY);
+		    	Query = intent.getstringExtra(SearchManager.Query);
 		    	
-		    	//adds query to search history suggestions
+		    	//adds Query to search history suggestions
 		        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
 		                SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
-		        suggestions.saveRecentQuery(query, null);
+		        suggestions.saveRecentQuery(Query, null);
 			}
 		    
 			string defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
 			NoteManager.setSortOrder(defaultSortOrder);
 			
 		    // set list adapter
-		    updateNotesList(query, -1);
+		    updateNotesList(Query, -1);
 		    
 			// add note to pane for tablet
 			rightPane = (LinearLayout) findViewById(R.id.right_pane);
@@ -193,7 +193,7 @@ namespace TomDroidSharp.ui
 			if(getIntent().hasExtra("view_note")) {
 				uri = getIntent().getData();
 				getIntent().setData(null);
-				Intent i = new Intent(Intent.ACTION_VIEW, uri, this, ViewNote.class);
+				Intent i = new Intent(Intent.ACTION_VIEW, uri, this, ViewNote);
 				startActivity(i);
 			}
 			
@@ -207,12 +207,12 @@ namespace TomDroidSharp.ui
 			}
 			
 			// set the view shown when the list is empty
-			updateEmptyList(query);
+			updateEmptyList(Query);
 		}
 
 		@TargetApi(11)
 		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
+		public bool onCreateOptionsMenu(Menu menu) {
 
 			// Create the menu based on what is defined in res/menu/main.xml
 			MenuInflater inflater = getMenuInflater();
@@ -234,7 +234,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
+		public bool onOptionsItemSelected(MenuItem item) {
 			switch (item.getItemId()) {
 	        	case android.R.id.home:
 	        		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -260,7 +260,7 @@ namespace TomDroidSharp.ui
 					} else {
 						item.setTitle(R.string.sortByTitle);
 					}
-					updateNotesList(query, lastIndex);
+					updateNotesList(Query, lastIndex);
 					return true;
 				case R.id.menuRevert:
 					showDialog(DIALOG_REVERT_ALL);
@@ -296,7 +296,7 @@ namespace TomDroidSharp.ui
 					//intent.putExtra(FilePickerActivity.EXTRA_SHOW_HIDDEN_FILES, true);
 					
 					// Only make .png files visible
-					//ArrayList<string> extensions = new ArrayList<string>();
+					//List<string> extensions = new List<string>();
 					//extensions.add(".png");
 					//intent.putExtra(FilePickerActivity.EXTRA_ACCEPTED_FILE_EXTENSIONS, extensions);
 					
@@ -329,7 +329,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onContextItemSelected(MenuItem item) {
+		public bool onContextItemSelected(MenuItem item) {
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
 			long noteId = info.id;
 
@@ -411,10 +411,10 @@ namespace TomDroidSharp.ui
 					showNoteInPane(lastIndex);
 			}
 			else 
-				updateNotesList(query, lastIndex);
+				updateNotesList(Query, lastIndex);
 			
 			// set the view shown when the list is empty
-			updateEmptyList(query);
+			updateEmptyList(Query);
 			creating = false;
 		}
 
@@ -523,7 +523,7 @@ namespace TomDroidSharp.ui
 
 			            public void onClick(DialogInterface dialog, int which) {
 			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
-			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().format3339(false));
+			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
 			            	startSyncing(false);
 			           }
 
@@ -621,7 +621,7 @@ namespace TomDroidSharp.ui
 
 			            public void onClick(DialogInterface dialog, int which) {
 			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
-			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().format3339(false));
+			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
 			            	startSyncing(false);
 			           }
 
@@ -710,7 +710,7 @@ namespace TomDroidSharp.ui
 		{
 		    super.onConfigurationChanged(newConfig);
 	        main =  View.inflate(this, R.layout.main, null);
-	        setContentView(main);
+	        SetContentView(main);
 
 	        if (Integer.parseInt(Build.VERSION.SDK) >= 11) {
 	            Honeycomb.invalidateOptionsMenuWrapper(this); 
@@ -728,10 +728,10 @@ namespace TomDroidSharp.ui
 				showNoteInPane(lastIndex);
 			}
 			else
-				updateNotesList(query,-1);
+				updateNotesList(Query,-1);
 			
 			// set the view shown when the list is empty
-			updateEmptyList(query);
+			updateEmptyList(Query);
 		}
 
 		private void updateNotesList(string aquery, int aposition) {
@@ -789,7 +789,7 @@ namespace TomDroidSharp.ui
 	        View v = getListView().getChildAt(0);
 	        int top = (v == null) ? 0 : v.getTop();
 
-	        updateNotesList(query, position);
+	        updateNotesList(Query, position);
 
 	    // restore
 		
@@ -817,8 +817,8 @@ namespace TomDroidSharp.ui
 	    		lastIndex = position;
 	        } else {
 	            TLog.d(TAG, "The note {0} doesn't exist", uri);
-			    readonly boolean proposeShortcutRemoval;
-			    readonly boolean calledFromShortcut = getIntent().getBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
+			    readonly bool proposeShortcutRemoval;
+			    readonly bool calledFromShortcut = getIntent().getBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
 			    readonly string shortcutName = getIntent().getstringExtra(SHORTCUT_NAME);
 			    proposeShortcutRemoval = calledFromShortcut && uri != null && shortcutName != null;
 			
@@ -831,7 +831,7 @@ namespace TomDroidSharp.ui
 
 	        }
 		}
-		private void showNote(boolean xml) {
+		private void showNote(bool xml) {
 			
 			if(xml) {
 				content.setText(note.getXmlContent());
@@ -914,7 +914,7 @@ namespace TomDroidSharp.ui
 		};
 
 		// custom transform filter that takes the note's title part of the URI and translate it into the note id
-		// this was done to avoid problems with invalid characters in URI (ex: ? is the query separator but could be in a note title)
+		// this was done to avoid problems with invalid characters in URI (ex: ? is the Query separator but could be in a note title)
 		public TransformFilter noteTitleTransformFilter = new TransformFilter() {
 		
 			public string transformUrl(Matcher m, string str) {
@@ -927,7 +927,7 @@ namespace TomDroidSharp.ui
 		};
 		
 		@SuppressWarnings("deprecation")
-		private void startSyncing(boolean push) {
+		private void startSyncing(bool push) {
 
 			string serverUri = Preferences.getstring(Preferences.Key.SYNC_SERVER);
 			SyncService currentService = SyncManager.getInstance().getCurrentService();
@@ -944,7 +944,7 @@ namespace TomDroidSharp.ui
 					@Override
 					public void handleMessage(Message msg) {
 		
-						boolean wasSuccessful = false;
+						bool wasSuccessful = false;
 						Uri authorizationUri = (Uri) msg.obj;
 						if (authorizationUri != null) {
 		
@@ -981,7 +981,7 @@ namespace TomDroidSharp.ui
 		
 		//TODO use LocalStorage wrapper from two-way-sync branch when it get's merged
 		private void resetLocalDatabase() {
-			getContentResolver().delete(Tomdroid.CONTENT_URI, null, null);
+			ContentResolver.delete(Tomdroid.CONTENT_URI, null, null);
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
 			
 			// first explanatory note will be deleted on sync
@@ -1014,7 +1014,7 @@ namespace TomDroidSharp.ui
 			
 			// recreate listAdapter
 			
-			updateNotesList(query, 0);
+			updateNotesList(Query, 0);
 
 			// show new note and update list
 
@@ -1034,7 +1034,7 @@ namespace TomDroidSharp.ui
 		
 		private void undeleteNote(Note anote) {
 			NoteManager.undeleteNote(this, anote);
-			updateNotesList(query,lastIndex);
+			updateNotesList(Query,lastIndex);
 		}
 			
 		@SuppressWarnings("deprecation")
@@ -1057,7 +1057,7 @@ namespace TomDroidSharp.ui
 				SyncService currentService = SyncManager.getInstance().getCurrentService();
 				string serviceDescription = currentService.getDescription();
 				string message = "";
-				boolean dismiss = false;
+				bool dismiss = false;
 
 				switch (msg.what) {
 					case SyncService.AUTH_COMPLETE:

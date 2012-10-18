@@ -21,7 +21,7 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.util.ArrayList;
+//import java.util.List;
 
 using TomDroidSharp.sync.sd.SdCardSyncService;
 using TomDroidSharp.sync.web.SnowySyncService;
@@ -34,14 +34,14 @@ namespace TomDroidSharp.sync
 
 public class SyncManager {
 		
-		private static ArrayList<SyncService> services = new ArrayList<SyncService>();
+		private static List<SyncService> services = new List<SyncService>();
 		private SyncService service;
 		
 		public SyncManager() {
 			createServices();
 		}
 
-		public ArrayList<SyncService> getServices() {
+		public List<SyncService> getServices() {
 			return services;
 		}
 		
@@ -56,7 +56,7 @@ public class SyncManager {
 			return null;
 		}
 		
-		public void startSynchronization(boolean push) {
+		public void startSynchronization(bool push) {
 			
 			service = getCurrentService();
 			service.setCancelled(false);

@@ -49,7 +49,7 @@ namespace TomDroidSharp.ui.actionbar
 	    /**{@inheritDoc}*/
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
-	        if (!(mActivity instanceof PreferenceActivity)) {
+	        if (!(mActivity as PreferenceActivity)) {
 	            mActivity.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 	        }
 	    }
@@ -101,7 +101,7 @@ namespace TomDroidSharp.ui.actionbar
 
 	    /**{@inheritDoc}*/
 	    @Override
-	    public void setRefreshActionItemState(boolean refreshing) {
+	    public void setRefreshActionItemState(bool refreshing) {
 	        View refreshButton = mActivity.findViewById(R.id.actionbar_compat_item_refresh);
 	        View refreshIndicator = mActivity.findViewById(
 	                R.id.actionbar_compat_item_refresh_progress);
@@ -120,7 +120,7 @@ namespace TomDroidSharp.ui.actionbar
 	     * NOTE: This code will mark on-screen menu items as invisible.
 	     */
 	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
+	    public bool onCreateOptionsMenu(Menu menu) {
 	        // Hides on-screen action items from the options menu.
 	        for (Integer id : mActionItemIds) {
 	            menu.findItem(id).setVisible(false);
@@ -157,7 +157,7 @@ namespace TomDroidSharp.ui.actionbar
 	     * Adds an action button to the compatibility action bar, using menu information from a {@link
 	     * android.view.MenuItem}. If the menu item ID is <code>menu_refresh</code>, the menu item's
 	     * state can be changed to show a loading spinner using
-	     * {@link com.example.android.actionbarcompat.ActionBarHelperBase#setRefreshActionItemState(boolean)}.
+	     * {@link com.example.android.actionbarcompat.ActionBarHelperBase#setRefreshActionItemState(bool)}.
 	     */
 	    private View addActionItemCompatFromMenuItem(final MenuItem item) {
 	        readonly int itemId = item.getItemId();
@@ -251,7 +251,7 @@ namespace TomDroidSharp.ui.actionbar
 	                int itemId;
 	                int showAsAction;
 
-	                boolean eof = false;
+	                bool eof = false;
 	                while (!eof) {
 	                    switch (eventType) {
 	                        case XmlPullParser.START_TAG:

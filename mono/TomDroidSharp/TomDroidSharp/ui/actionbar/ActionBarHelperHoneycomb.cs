@@ -36,13 +36,13 @@ namespace TomDroidSharp.ui.actionbar
 	    }
 
 	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
+	    public bool onCreateOptionsMenu(Menu menu) {
 	        mOptionsMenu = menu;
 	        return super.onCreateOptionsMenu(menu);
 	    }
 
 	    @Override
-	    public void setRefreshActionItemState(boolean refreshing) {
+	    public void setRefreshActionItemState(bool refreshing) {
 	        // On Honeycomb, we can set the state of the refresh button by giving it a custom
 	        // action view.
 	        if (mOptionsMenu == null) {

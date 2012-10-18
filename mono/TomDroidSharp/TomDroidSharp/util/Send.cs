@@ -24,9 +24,9 @@ namespace TomDroidSharp.util
 		private Note note;
 		private SpannablestringBuilder noteContent;
 		private int DIALOG_CHOOSE = 0;
-		private boolean sendAsFile;;
+		private bool sendAsFile;;
 		
-		public Send(Activity activity, Uri uri, boolean sendAsFile) {
+		public Send(Activity activity, Uri uri, bool sendAsFile) {
 			this.activity = activity;
 			this.sendAsFile = sendAsFile;
 			this.note = NoteManager.getNote(activity, uri);
@@ -120,7 +120,7 @@ namespace TomDroidSharp.util
 
 		private void clearFilesDir() {
 			File dir = activity.getFilesDir();
-			if(dir == null || !dir.exists())
+			if(dir == null || !dir.Exists())
 				return;
 	        string[] children = dir.list();
 	        for (string s : children) {

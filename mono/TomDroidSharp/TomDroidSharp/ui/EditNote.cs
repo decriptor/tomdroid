@@ -85,14 +85,14 @@ namespace TomDroidSharp.ui
 	    private int sselectionStart;
 		private int sselectionEnd;
 	    private float size = 1.0f;
-		private boolean xmlOn = false;
+		private bool xmlOn = false;
 		
 		// check whether text has been changed yet
-		private boolean textChanged = false;
+		private bool textChanged = false;
 		// discard changes -> not will not be saved
-		private boolean discardChanges = false;
+		private bool discardChanges = false;
 		// force close without onDestroy() function when note not existing!
-		private boolean forceClose = false;
+		private bool forceClose = false;
 		
 		// TODO extract methods in here
 		@Override
@@ -101,7 +101,7 @@ namespace TomDroidSharp.ui
 
 			Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
 			
-			setContentView(R.layout.note_edit);
+			SetContentView(R.layout.note_edit);
 			
 			content = (EditText) findViewById(R.id.content);
 			title = (EditText) findViewById(R.id.title);
@@ -110,7 +110,7 @@ namespace TomDroidSharp.ui
 
 			content.setOnFocusChangeListener(new OnFocusChangeListener() {
 
-			    public void onFocusChange(View v, boolean hasFocus) {
+			    public void onFocusChange(View v, bool hasFocus) {
 			    	if(hasFocus && !xmlOn) {
 			    		formatBar.setVisibility(View.VISIBLE);
 			    	}
@@ -232,7 +232,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
+		public bool onCreateOptionsMenu(Menu menu) {
 			MenuInflater inflater = getMenuInflater();
 			inflater.inflate(R.menu.edit_note, menu);
 
@@ -242,7 +242,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
+		public bool onOptionsItemSelected(MenuItem item) {
 			switch (item.getItemId()) {
 		        case android.R.id.home:
 		        	// app icon in action bar clicked; go home
@@ -289,7 +289,7 @@ namespace TomDroidSharp.ui
 		}
 		
 		
-		private void showNote(boolean xml) {
+		private void showNote(bool xml) {
 			if(xml) {
 
 				formatBar.setVisibility(View.GONE);
@@ -397,7 +397,7 @@ namespace TomDroidSharp.ui
 		};
 
 		// custom transform filter that takes the note's title part of the URI and translate it into the note id
-		// this was done to avoid problems with invalid characters in URI (ex: ? is the query separator but could be in a note title)
+		// this was done to avoid problems with invalid characters in URI (ex: ? is the Query separator but could be in a note title)
 		private TransformFilter noteTitleTransformFilter = new TransformFilter() {
 
 			public string transformUrl(Matcher m, string str) {
@@ -409,7 +409,7 @@ namespace TomDroidSharp.ui
 			}  
 		};
 
-		private boolean updateNoteContent(boolean xml) {
+		private bool updateNoteContent(bool xml) {
 
 			SpannablestringBuilder newNoteContent = new SpannablestringBuilder();
 			if(xml) {
@@ -453,7 +453,7 @@ namespace TomDroidSharp.ui
 		private void saveNote() {
 			TLog.v(TAG, "saving note");
 			
-			boolean updated = updateNoteContent(xmlOn);
+			bool updated = updateNoteContent(xmlOn);
 			if(!updated) {
 				Toast.makeText(this, getstring(R.string.messageErrorParsingXML), Toast.LENGTH_SHORT).show();
 				return;
@@ -465,7 +465,7 @@ namespace TomDroidSharp.ui
 
 			Time now = new Time();
 			now.setToNow();
-			string time = now.format3339(false);
+			string time = now.Format3339(false);
 			note.setLastChangeDate(time);
 			NoteManager.putNote( this, note);
 			if(!SyncManager.getInstance().getCurrentService().needsLocation() && Preferences.getBoolean(Preferences.Key.AUTO_BACKUP_NOTES)) {
@@ -524,15 +524,15 @@ namespace TomDroidSharp.ui
 	            		Spannable str = content.getText();
 	            		StyleSpan[] ss = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
 	            		
-	            		boolean exists = false;
+	            		bool Exists = false;
 	            		for (int i = 0; i < ss.length; i++) {
 	            			if (ss[i].getStyle() == android.graphics.Typeface.BOLD){
 	            				str.removeSpan(ss[i]);
-	            				exists = true;
+	            				Exists = true;
 	            			}
 	                    }
 	            		
-	            		if (!exists){
+	            		if (!Exists){
 	            			str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	            		}
 	        			textChanged = true;
@@ -566,15 +566,15 @@ namespace TomDroidSharp.ui
 	            		Spannable str = content.getText();
 	            		StyleSpan[] ss = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
 	            		
-	            		boolean exists = false;
+	            		bool Exists = false;
 	            		for (int i = 0; i < ss.length; i++) {
 	            			if (ss[i].getStyle() == android.graphics.Typeface.ITALIC){
 	            				str.removeSpan(ss[i]);
-	            				exists = true;
+	            				Exists = true;
 	            			}
 	                    }
 	            		
-	            		if (!exists){
+	            		if (!Exists){
 	            			str.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	            		}
 	            		
@@ -609,13 +609,13 @@ namespace TomDroidSharp.ui
 	            		Spannable str = content.getText();
 	            		StrikethroughSpan[] ss = str.getSpans(selectionStart, selectionEnd, StrikethroughSpan.class);
 	            		
-	            		boolean exists = false;
+	            		bool Exists = false;
 	            		for (int i = 0; i < ss.length; i++) {
 	            				str.removeSpan(ss[i]);
-	            				exists = true;
+	            				Exists = true;
 	                    }
 	            		
-	            		if (!exists){
+	            		if (!Exists){
 	            			str.setSpan(new StrikethroughSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	            		}
 	        			textChanged = true;
@@ -649,13 +649,13 @@ namespace TomDroidSharp.ui
 	            		Spannable str = content.getText();
 	            		BackgroundColorSpan[] ss = str.getSpans(selectionStart, selectionEnd, BackgroundColorSpan.class);
 	            		
-	            		boolean exists = false;
+	            		bool Exists = false;
 	            		for (int i = 0; i < ss.length; i++) {
 	        				str.removeSpan(ss[i]);
-	        				exists = true;
+	        				Exists = true;
 	                    }
 	            		
-	            		if (!exists){
+	            		if (!Exists){
 	            			str.setSpan(new BackgroundColorSpan(Note.NOTE_HIGHLIGHT_COLOR), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	            		}
 	            		
@@ -690,15 +690,15 @@ namespace TomDroidSharp.ui
 	            		Spannable str = content.getText();
 	            		TypefaceSpan[] ss = str.getSpans(selectionStart, selectionEnd, TypefaceSpan.class);
 	            		
-	            		boolean exists = false;
+	            		bool Exists = false;
 	            		for (int i = 0; i < ss.length; i++) {
 	            			if (ss[i].getFamily()==Note.NOTE_MONOSPACE_TYPEFACE){
 	            				str.removeSpan(ss[i]);
-	            				exists = true;
+	            				Exists = true;
 	            			}
 	                    }
 	            		
-	            		if (!exists){
+	            		if (!Exists){
 	            			str.setSpan(new TypefaceSpan(Note.NOTE_MONOSPACE_TYPEFACE), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	            		}
 	            		

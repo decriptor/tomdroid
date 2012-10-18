@@ -30,18 +30,11 @@ using Android.Text.Format;
 //import org.json.JSONArray;
 //import org.json.JSONException;
 //import org.json.JSONObject;
-using TomDroidSharp.Note;
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.R;
-using TomDroidSharp.sync.ServiceAuth;
-using TomDroidSharp.sync.SyncService;
-using TomDroidSharp.util.ErrorList;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.TLog;
 
 //import java.net.UnknownHostException;
-//import java.util.ArrayList;
 //import java.util.List;
+//import java.util.List;
+using TomDroidSharp.util;
 
 namespace TomDroidSharp.sync.web
 {
@@ -56,38 +49,33 @@ namespace TomDroidSharp.sync.web
 			super(activity, handler);
 		}
 
-		@Override
-		public int getDescriptionAsId() {
-			return R.string.prefTomboyWeb;
+		public override int getDescriptionAsId() {
+			return Resource.String.prefTomboyWeb;
 		}
 
-		@Override
-		public string getName() {
+		public override string getName() {
 			return "tomboy-web";
 		}
 
-		public boolean isConfigured() {
+		public bool isConfigured() {
 			OAuthConnection auth = getAuthConnection();
 			return auth.isAuthenticated();
 		}
 
-		@Override
-		public boolean needsServer() {
+		public override bool needsServer() {
 			return true;
 		}
 
-		@Override
-		public boolean needsLocation() {
+		public override bool needsLocation() {
 			return false;
 		}
 
-		@Override
-		public boolean needsAuth() {
+		public override bool needsAuth() {
 			OAuthConnection auth = getAuthConnection();
 			return !auth.isAuthenticated();
 		}
 
-		public void getAuthUri(final string server, readonly Handler handler) {
+		public void getAuthUri(string server, Handler handler) {
 
 			execInThread(new Runnable() {
 
@@ -102,18 +90,18 @@ namespace TomDroidSharp.sync.web
 
 					} catch (UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 					}
 
 					Message message = new Message();
 					message.obj = authUri;
-					handler.sendMessage(message);
+					handler.SendMessage(message);
 				}
 
 			});
 		}
 
-		public void remoteAuthComplete(final Uri uri, readonly Handler handler) {
+		public void remoteAuthComplete(Uri uri, Handler handler) {
 
 			execInThread(new Runnable() {
 
@@ -126,7 +114,7 @@ namespace TomDroidSharp.sync.web
 						// process
 						// is complete
 						OAuthConnection auth = getAuthConnection();
-						boolean result = auth.getAccess(uri
+						bool result = auth.getAccess(uri
 								.getQueryParameter("oauth_verifier"));
 
 						if (result) {
@@ -137,11 +125,11 @@ namespace TomDroidSharp.sync.web
 						} else {
 							TLog.e(TAG,
 									"Something went wrong during the authorization process.");
-							sendMessage(AUTH_FAILED);
+							SendMessage(AUTH_FAILED);
 						}
 					} catch (UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 					}
 
 					// We don't care what we send, just remove the dialog
@@ -150,13 +138,12 @@ namespace TomDroidSharp.sync.web
 			});
 		}
 
-		@Override
-		public boolean isSyncable() {
-			return super.isSyncable() && isConfigured();
+		public override bool isSyncable()
+		{
+			return base.isSyncable() && isConfigured();
 		}
 
-		@Override
-		protected void getNotesForSync(final boolean push) {
+		protected override void getNotesForSync(bool push) {
 			this.push = push;
 			
 			// start loading snowy notes
@@ -165,10 +152,10 @@ namespace TomDroidSharp.sync.web
 
 			TLog.v(TAG, "Loading Snowy notes");
 
-			final string userRef = Preferences
+			string userRef = Preferences
 					.getstring(Preferences.Key.SYNC_SERVER_USER_API);
 
-			syncInThread(new Runnable() {
+			SyncInThread(new Runnable() {
 
 
 				public void run() {
@@ -184,7 +171,7 @@ namespace TomDroidSharp.sync.web
 							return; 
 						}
 						if (rawResponse == null) {
-							sendMessage(CONNECTING_FAILED);
+							SendMessage(CONNECTING_FAILED);
 							setSyncProgress(100);
 							return;
 						}
@@ -205,7 +192,7 @@ namespace TomDroidSharp.sync.web
 							setSyncProgress(35);
 
 							latestRemoteRevision = response.getLong("latest-sync-revision");
-							sendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
+							SendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
 							TLog.d(TAG, "old latest sync revision: {0}, remote latest sync revision: {1}", latestLocalRevision, latestRemoteRevision);
 
 							Cursor newLocalNotes = NoteManager.getNewNotes(activity); 
@@ -222,8 +209,8 @@ namespace TomDroidSharp.sync.web
 								TLog.v(TAG, "old sync revision on server, pushing new notes");
 								
 								JSONArray notes = response.getJSONArray("notes");
-								List<string> notesList = new ArrayList<string>();
-								for (int i = 0; i < notes.length(); i++)
+								List<string> notesList = new List<string>();
+								for (int i = 0; i < notes.Length; i++)
 									notesList.add(notes.getJSONObject(i).optstring("guid"));
 								prepareSyncableNotes(newLocalNotes);
 								setSyncProgress(50);
@@ -233,7 +220,7 @@ namespace TomDroidSharp.sync.web
 							// get notes list with content to find changes
 							
 							TLog.v(TAG, "contacting " + notesUrl);
-							sendMessage(SYNC_CONNECTED);
+							SendMessage(SYNC_CONNECTED);
 							rawResponse = auth.get(notesUrl + "?include_notes=true");
 							if(cancelled) {
 								doCancel();
@@ -241,14 +228,14 @@ namespace TomDroidSharp.sync.web
 							}
 							response = new JSONObject(rawResponse);
 							latestRemoteRevision = response.getLong("latest-sync-revision");
-							sendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
+							SendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
 
 							JSONArray notes = response.getJSONArray("notes");
 							setSyncProgress(50);
 
 							TLog.v(TAG, "number of notes: {0}", notes.length());
 
-							ArrayList<Note> notesList = new ArrayList<Note>();
+							List<Note> notesList = new List<Note>();
 
 							for (int i = 0; i < notes.length(); i++)
 								notesList.add(new Note(notes.getJSONObject(i)));
@@ -264,7 +251,7 @@ namespace TomDroidSharp.sync.web
 							
 						} catch (JSONException e) {
 							TLog.e(TAG, e, "Problem parsing the server response");
-							sendMessage(PARSING_FAILED,
+							SendMessage(PARSING_FAILED,
 									ErrorList.createErrorWithContents(
 											"JSON parsing", "json", e, rawResponse));
 							setSyncProgress(100);
@@ -272,7 +259,7 @@ namespace TomDroidSharp.sync.web
 						}
 					} catch (java.net.UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 						setSyncProgress(100);
 						return;
 					}
@@ -286,20 +273,20 @@ namespace TomDroidSharp.sync.web
 			});
 		}
 
-		public void finishSync(boolean refresh) {
+		public void finishSync(bool refresh) {
 
 			// delete leftover local notes
 			NoteManager.purgeDeletedNotes(activity);
 			
 			Time now = new Time();
 			now.setToNow();
-			string nowstring = now.format3339(false);
+			string nowstring = now.Format3339(false);
 			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, nowstring);
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, latestRemoteRevision);
 
 			setSyncProgress(100);
 			if (refresh)
-				sendMessage(PARSING_COMPLETE);
+				SendMessage(PARSING_COMPLETE);
 		}
 
 		private OAuthConnection getAuthConnection() {
@@ -333,19 +320,19 @@ namespace TomDroidSharp.sync.web
 
 		// push syncable notes
 		@Override
-		public void pushNotes(final ArrayList<Note> notes) {
+		public void pushNotes(List<Note> notes) {
 			if(notes.size() == 0)
 				return;
 			if(cancelled) {
 				doCancel();
 				return; 
 			}		
-			final string userRef = Preferences
+			string userRef = Preferences
 					.getstring(Preferences.Key.SYNC_SERVER_USER_API);
 			
-			final long newRevision = Preferences.getLong(Preferences.Key.LATEST_SYNC_REVISION)+1;
+			long newRevision = Preferences.getLong(Preferences.Key.LATEST_SYNC_REVISION)+1;
 					
-			syncInThread(new Runnable() {
+			SyncInThread(new Runnable() {
 				public void run() {
 					OAuthConnection auth = getAuthConnection();
 					try {
@@ -371,7 +358,7 @@ namespace TomDroidSharp.sync.web
 									Jnote.put("title", note.getTitle());
 									Jnote.put("note-content", note.getXmlContent());
 									Jnote.put("note-content-version", "0.1");
-									Jnote.put("last-change-date", note.getLastChangeDate().format3339(false));
+									Jnote.put("last-change-date", note.getLastChangeDate().Format3339(false));
 								}
 								Jnotes.put(Jnote);
 							}
@@ -398,18 +385,18 @@ namespace TomDroidSharp.sync.web
 
 							TLog.v(TAG, "put response: {0}", response.tostring());
 							latestRemoteRevision = response.getLong("latest-sync-revision");
-							sendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
+							SendMessage(LATEST_REVISION,(int)latestRemoteRevision,0);
 
 						} catch (JSONException e) {
 							TLog.e(TAG, e, "Problem parsing the server response");
-							sendMessage(NOTE_PUSH_ERROR,
+							SendMessage(NOTE_PUSH_ERROR,
 									ErrorList.createErrorWithContents(
 											"JSON parsing", "json", e, rawResponse));
 							return;
 						}
 					} catch (java.net.UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 						return;
 					}
 					// success, finish sync
@@ -420,16 +407,16 @@ namespace TomDroidSharp.sync.web
 		}
 
 		@Override
-		protected void pullNote(final string guid) {
+		protected void pullNote(string guid) {
 
 			// start loading snowy notes
 
 			TLog.v(TAG, "pulling remote note");
 
-			final string userRef = Preferences
+			string userRef = Preferences
 					.getstring(Preferences.Key.SYNC_SERVER_USER_API);
 
-			syncInThread(new Runnable() {
+			SyncInThread(new Runnable() {
 
 				public void run() {
 
@@ -459,7 +446,7 @@ namespace TomDroidSharp.sync.web
 
 						} catch (JSONException e) {
 							TLog.e(TAG, e, "Problem parsing the server response");
-							sendMessage(NOTE_PULL_ERROR,
+							SendMessage(NOTE_PULL_ERROR,
 									ErrorList.createErrorWithContents(
 											"JSON parsing", "json", e, rawResponse));
 							return;
@@ -467,11 +454,11 @@ namespace TomDroidSharp.sync.web
 
 					} catch (java.net.UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 						return;
 					}
 
-					sendMessage(NOTE_PULLED);
+					SendMessage(NOTE_PULLED);
 				}
 			});
 		}
@@ -479,16 +466,16 @@ namespace TomDroidSharp.sync.web
 
 			TLog.v(TAG, "Deleting Snowy notes");
 
-			final string userRef = Preferences.getstring(Preferences.Key.SYNC_SERVER_USER_API);
+			string userRef = Preferences.getstring(Preferences.Key.SYNC_SERVER_USER_API);
 			
-			final long newRevision;
+			long newRevision;
 			
 			if(latestLocalRevision > latestRemoteRevision)
 				newRevision = latestLocalRevision+1;
 			else
 				newRevision = latestRemoteRevision+1;
 			
-			syncInThread(new Runnable() {
+			SyncInThread(new Runnable() {
 
 				public void run() {
 
@@ -512,7 +499,7 @@ namespace TomDroidSharp.sync.web
 
 							TLog.v(TAG, "number of notes: {0}", notes.length());
 							
-							ArrayList<string> guidList = new ArrayList<string>();
+							List<string> guidList = new List<string>();
 
 							for (int i = 0; i < notes.length(); i++) {
 								JSONObject ajnote = notes.getJSONObject(i);
@@ -541,11 +528,11 @@ namespace TomDroidSharp.sync.web
 							
 							latestRemoteRevision = (int)response.getLong("latest-sync-revision");
 							Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, latestRemoteRevision);
-							Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE,new Time().format3339(false));
+							Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE,new Time().Format3339(false));
 							
 						} catch (JSONException e) {
 							TLog.e(TAG, e, "Problem parsing the server response");
-							sendMessage(PARSING_FAILED,
+							SendMessage(PARSING_FAILED,
 									ErrorList.createErrorWithContents(
 											"JSON parsing", "json", e, rawResponse));
 							setSyncProgress(100);
@@ -553,11 +540,11 @@ namespace TomDroidSharp.sync.web
 						}
 					} catch (java.net.UnknownHostException e) {
 						TLog.e(TAG, "Internet connection not available");
-						sendMessage(NO_INTERNET);
+						SendMessage(NO_INTERNET);
 						setSyncProgress(100);
 						return;
 					}
-					sendMessage(REMOTE_NOTES_DELETED);
+					SendMessage(REMOTE_NOTES_DELETED);
 				}
 			});
 		}

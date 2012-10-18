@@ -55,10 +55,10 @@ namespace TomDroidSharp.ui
 		private static readonly string TAG = "SyncDialog";
 		
 		private Note localNote;
-		private boolean differentNotes;
+		private bool differentNotes;
 		private Note remoteNote;
 		private int dateDiff;
-		private boolean noRemote;
+		private bool noRemote;
 
 		@Override	
 		public void onCreate(Bundle savedInstanceState) {	
@@ -71,7 +71,7 @@ namespace TomDroidSharp.ui
 			}
 			TLog.v(TAG, "starting CompareNotes");
 			
-			setContentView(R.layout.note_compare);
+			SetContentView(R.layout.note_compare);
 			
 			Bundle extras = this.getIntent().getExtras();
 
@@ -105,7 +105,7 @@ namespace TomDroidSharp.ui
 				TLog.v(TAG, "comparing two versions of the same note");
 			}
 			
-			boolean deleted = localNote.getTags().contains("system:deleted"); 
+			bool deleted = localNote.getTags().contains("system:deleted"); 
 			
 			string message;
 
@@ -162,7 +162,7 @@ namespace TomDroidSharp.ui
 			}
 			else {
 				string diff = "";
-				boolean titleMatch = localNote.getTitle().equals(extras.getstring("title"));
+				bool titleMatch = localNote.getTitle().equals(extras.getstring("title"));
 				
 				if(differentNotes)
 					message = getstring(R.string.sync_conflict_titles_message);
@@ -380,12 +380,12 @@ namespace TomDroidSharp.ui
 			finishForResult(new Intent());
 		}
 
-		protected void onChooseNote(string title, string content, boolean choseLocal) {
+		protected void onChooseNote(string title, string content, bool choseLocal) {
 			title = NoteManager.validateNoteTitle(this, title, localNote.getGuid());
 			
 			Time now = new Time();
 			now.setToNow();
-			string time = now.format3339(false);
+			string time = now.Format3339(false);
 			
 			localNote.setTitle(title);
 			localNote.setXmlContent(content);
@@ -462,7 +462,7 @@ namespace TomDroidSharp.ui
 			content.setTextColor(Color.DKGRAY);
 		}
 
-		private void collapseNote(EditText title, EditText content, boolean collapse) {
+		private void collapseNote(EditText title, EditText content, bool collapse) {
 			if(collapse) {
 				title.setVisibility(View.GONE);
 				content.setVisibility(View.GONE);

@@ -145,7 +145,7 @@ namespace TomDroidSharp.util
 				// TODO wrap and throw a new exception here
 				} catch (Exception e) {
 					e.printStackTrace();
-					if(e instanceof TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
+					if(e as TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
 					finish();
 				}
 				// the note guid is not stored in the xml but in the filename
@@ -167,7 +167,7 @@ namespace TomDroidSharp.util
 
 			remoteNote.setFileName(file.getAbsolutePath());
 
-			// check and see if the note already exists; if so, send to conflict resolver
+			// check and see if the note already Exists; if so, send to conflict resolver
 			Note localNote = NoteManager.getNoteByGuid(this, remoteNote.getGuid()); 
 			
 			if(localNote != null) {
@@ -181,7 +181,7 @@ namespace TomDroidSharp.util
 				bundle.putstring("title",remoteNote.getTitle());
 				bundle.putstring("file",remoteNote.getFileName());
 				bundle.putstring("guid",remoteNote.getGuid());
-				bundle.putstring("date",remoteNote.getLastChangeDate().format3339(false));
+				bundle.putstring("date",remoteNote.getLastChangeDate().Format3339(false));
 				bundle.putstring("content", remoteNote.getXmlContent());
 				bundle.putstring("tags", remoteNote.getTags());
 				bundle.putInt("datediff", compareBoth);

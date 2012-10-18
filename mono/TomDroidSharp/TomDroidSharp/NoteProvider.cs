@@ -42,319 +42,299 @@
  * available in the Android SDK. 
  */
 
-import android.content.*;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
-import android.net.Uri;
-import android.text.Html;
-import android.text.TextUtils;
-using TomDroidSharp.ui.Tomdroid;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.stringConverter;
-using TomDroidSharp.util.TLog;
+using Android.Content;
+using Android.Database;
+using Android.Database.Sqlite;
+using Android.Net;
+using Android.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+using TomDroidSharp;
+using TomDroidSharp.util;
 
 namespace TomDroidSharp
 {
-public class NoteProvider string  ContentProvider {
-	
-	// ContentProvider stuff
-	// --	
-	private static readonly string DATABASE_NAME = "tomdroid-notes.db";
-	private static readonly string DB_TABLE_NOTES = "notes";
-	private static readonly int DB_VERSION = 4;
-	
-    private static HashMap<string, string> notesProjectionMap;
+	public class NoteProvider : ContentProvider {
+		
+		// ContentProvider stuff
+		// --	
+		private static readonly string DATABASE_NAME = "tomdroid-notes.db";
+		private static readonly string DB_TABLE_NOTES = "notes";
+		private static readonly int DB_VERSION = 4;
+		
+	    private static HashMap<string, string> notesProjectionMap;
 
-    private static readonly int NOTES = 1;
-    private static readonly int NOTE_ID = 2;
-    private static readonly int NOTE_TITLE = 3;
+	    private static readonly int NOTES = 1;
+	    private static readonly int NOTE_ID = 2;
+	    private static readonly int NOTE_TITLE = 3;
 
-    private static readonly UriMatcher uriMatcher;
-    
-    // Logging info
-    private static readonly string TAG = "NoteProvider";
-       
-    // List of each version's columns
-	private static readonly string[][] COLUMNS_VERSION = {
-		{ Note.TITLE, Note.FILE, Note.MODIFIED_DATE },
-		{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE },
-		{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE, Note.TAGS },
-		{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.NOTE_CONTENT_PLAIN, Note.MODIFIED_DATE, Note.TAGS }
-	};
+	    private static readonly UriMatcher uriMatcher;
+	    
+	    // Logging info
+	    private static readonly string TAG = "NoteProvider";
+	       
+	    // List of each version's columns
+		private static readonly string[][] COLUMNS_VERSION = {
+			{ Note.TITLE, Note.FILE, Note.MODIFIED_DATE },
+			{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE },
+			{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE, Note.TAGS },
+			{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.NOTE_CONTENT_PLAIN, Note.MODIFIED_DATE, Note.TAGS }
+		};
 
-    /**
-     * This class helps open, create, and upgrade the database file.
-     */
-    private static class DatabaseHelper string  SQLiteOpenHelper {
+	    /**
+	     * This class helps open, create, and upgrade the database file.
+	     */
+	    private static class DatabaseHelper : SQLiteOpenHelper {
 
-        DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DB_VERSION);
-        }
+	        DatabaseHelper(Context context) : base(context, DATABASE_NAME, null, DB_VERSION) {
+	        }
 
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + DB_TABLE_NOTES	 + " ("
-                    + Note.ID + " INTEGER PRIMARY KEY,"
-                    + Note.GUID + " TEXT,"
-                    + Note.TITLE + " TEXT,"
-                    + Note.FILE + " TEXT,"
-                    + Note.NOTE_CONTENT + " TEXT,"
-                    + Note.NOTE_CONTENT_PLAIN + " TEXT,"
-                    + Note.MODIFIED_DATE + " string,"
-                    + Note.TAGS + " string"
-                    + ");");
-        }
+	        public override void OnCreate(SQLiteDatabase db) {
+	            db.ExecSQL("CREATE TABLE " + DB_TABLE_NOTES	 + " ("
+	                    + Note.ID + " INTEGER PRIMARY KEY,"
+	                    + Note.GUID + " TEXT,"
+	                    + Note.TITLE + " TEXT,"
+	                    + Note.FILE + " TEXT,"
+	                    + Note.NOTE_CONTENT + " TEXT,"
+	                    + Note.NOTE_CONTENT_PLAIN + " TEXT,"
+	                    + Note.MODIFIED_DATE + " string,"
+	                    + Note.TAGS + " string"
+	                    + ");");
+	        }
 
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        	TLog.d(TAG, "Upgrading database from version {0} to {1}",
-                    oldVersion, newVersion);
-        	Cursor notesCursor;
-        	ArrayList<Map<string, string>> db_list = new ArrayList<Map<string, string>>();
-        	notesCursor = db.query(DB_TABLE_NOTES, COLUMNS_VERSION[oldVersion - 1], null, null, null, null, null);
-        	notesCursor.moveToFirst();
+	        public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	        	TLog.d(TAG, "Upgrading database from version {0} to {1}",
+	                    oldVersion, newVersion);
+	        	Cursor notesCursor;
+	        	List<Map<string, string>> db_list = new List<Map<string, string>>();
+	        	notesCursor = db.Query(DB_TABLE_NOTES, COLUMNS_VERSION[oldVersion - 1], null, null, null, null, null);
+	        	notesCursor.moveToFirst();
 
-        	if (oldVersion == 1) {
-        		// GUID and NOTE_CONTENT are not saved.
-        		TLog.d(TAG, "Database version {0} is not supported to update, all old datas will be destroyed", oldVersion);
-        		db.execSQL("DROP TABLE IF EXISTS notes");
-        		onCreate(db);
-        		return;
-        	}
+	        	if (oldVersion == 1) {
+	        		// GUID and NOTE_CONTENT are not saved.
+	        		TLog.d(TAG, "Database version {0} is not supported to update, all old datas will be destroyed", oldVersion);
+	        		db.ExecSQL("DROP TABLE IF Exists notes");
+	        		onCreate(db);
+	        		return;
+	        	}
 
-			// Get old datas from the SQL
-			while(!notesCursor.isAfterLast()) {
-				Map<string, string> row = new HashMap<string, string>();
-				for(int i = 0; i < COLUMNS_VERSION[oldVersion - 1].length; i++) {
-					row.put(COLUMNS_VERSION[oldVersion - 1][i], notesCursor.getstring(i));
+				// Get old datas from the SQL
+				while(!notesCursor.isAfterLast()) {
+					Map<string, string> row = new HashMap<string, string>();
+					for(int i = 0; i < COLUMNS_VERSION[oldVersion - 1].Length; i++) {
+						row.put(COLUMNS_VERSION[oldVersion - 1][i], notesCursor.getstring(i));
+					}
+
+					// create new columns
+					if (oldVersion <= 2) {
+						row.put(Note.TAGS, "");
+					}
+					if (oldVersion <= 3) {
+						row.put(Note.NOTE_CONTENT_PLAIN, stringConverter.encode(Html.fromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).tostring()));
+					}
+
+					db_list.add(row);
+					notesCursor.moveToNext();
 				}
 
-				// create new columns
-				if (oldVersion <= 2) {
-					row.put(Note.TAGS, "");
+	            db.ExecSQL("DROP TABLE IF Exists notes");
+	            onCreate(db);
+
+				// put rows to the database
+				ContentValues row = new ContentValues();
+				for(int i = 0; i < db_list.size(); i++) {
+					for(int j = 0; j < COLUMNS_VERSION[newVersion - 1].Length; j++) {
+						row.put(COLUMNS_VERSION[newVersion - 1][j], db_list.get(i).get(COLUMNS_VERSION[newVersion - 1][j]));
+					}
+					db.Insert(DB_TABLE_NOTES, null, row);
 				}
-				if (oldVersion <= 3) {
-					row.put(Note.NOTE_CONTENT_PLAIN, stringConverter.encode(Html.fromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).tostring()));
-				}
+	        }
+	    }
 
-				db_list.add(row);
-				notesCursor.moveToNext();
-			}
+	    private DatabaseHelper dbHelper;
 
-            db.execSQL("DROP TABLE IF EXISTS notes");
-            onCreate(db);
+	    public override bool onCreate() {
+	        dbHelper = new DatabaseHelper(getContext());
+	        return true;
+	    }
 
-			// put rows to the database
-			ContentValues row = new ContentValues();
-			for(int i = 0; i < db_list.size(); i++) {
-				for(int j = 0; j < COLUMNS_VERSION[newVersion - 1].length; j++) {
-					row.put(COLUMNS_VERSION[newVersion - 1][j], db_list.get(i).get(COLUMNS_VERSION[newVersion - 1][j]));
-				}
-				db.insert(DB_TABLE_NOTES, null, row);
-			}
-        }
-    }
+	    public override Cursor Query(Uri uri, string[] projection, string selection, string[] selectionArgs,
+	            string sortOrder) {
+	        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
-    private DatabaseHelper dbHelper;
+	        switch (uriMatcher.Match(uri)) {
+	        case NOTES:
+	            qb.Tables = DB_TABLE_NOTES;
+	            qb.SetProjectionMap(notesProjectionMap);
+	            break;
 
-    @Override
-    public boolean onCreate() {
-        dbHelper = new DatabaseHelper(getContext());
-        return true;
-    }
+	        case NOTE_ID:
+	            qb.Tables = DB_TABLE_NOTES;
+	            qb.SetProjectionMap(notesProjectionMap);
+	            qb.AppendWhere(Note.ID + "=" + uri.PathSegments[1]);
+	            break;
+	            
+	        case NOTE_TITLE:
+	        	qb.Tables = DB_TABLE_NOTES;
+	        	qb.SetProjectionMap(notesProjectionMap);
+	        	// TODO appendWhere + whereArgs instead (new string[] whereArgs = uri.getLas..)?
+	        	qb.AppendWhere(Note.TITLE + " LIKE '" + uri.LastPathSegment +"'");
+	        	break;
 
-    @Override
-    public Cursor query(Uri uri, string[] projection, string selection, string[] selectionArgs,
-            string sortOrder) {
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+	        default:
+	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        }
 
-        switch (uriMatcher.match(uri)) {
-        case NOTES:
-            qb.setTables(DB_TABLE_NOTES);
-            qb.setProjectionMap(notesProjectionMap);
-            break;
+	        // If no sort order is specified use the default
+	        string orderBy;
+	        if (TextUtils.isEmpty(sortOrder)) {
+	      	    string defaultSortOrder;
+	    	    defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
+	    	    if(defaultSortOrder.equals("sort_title")) {
+	    	        orderBy = Note.TITLE + " ASC";
+	    	    } else {
+	    	        orderBy = Note.MODIFIED_DATE + " DESC";
+	    	    }
+	        } else {
+	            orderBy = sortOrder;
+	        }
+	        
 
-        case NOTE_ID:
-            qb.setTables(DB_TABLE_NOTES);
-            qb.setProjectionMap(notesProjectionMap);
-            qb.appendWhere(Note.ID + "=" + uri.getPathSegments().get(1));
-            break;
-            
-        case NOTE_TITLE:
-        	qb.setTables(DB_TABLE_NOTES);
-        	qb.setProjectionMap(notesProjectionMap);
-        	// TODO appendWhere + whereArgs instead (new string[] whereArgs = uri.getLas..)?
-        	qb.appendWhere(Note.TITLE + " LIKE '" + uri.getLastPathSegment()+"'");
-        	break;
+	        // Get the database and run the Query
+	        SQLiteDatabase db = dbHelper.getReadableDatabase();
+	        Cursor c = qb.Query(db, projection, selection, selectionArgs, null, null, orderBy);
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+	        // Tell the cursor what uri to watch, so it knows when its source data changes
+	        c.setNotificationUri(getContext().ContentResolver, uri);
+	        return c;
+	    }
 
-        // If no sort order is specified use the default
-        string orderBy;
-        if (TextUtils.isEmpty(sortOrder)) {
-      	    string defaultSortOrder;
-    	    defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
-    	    if(defaultSortOrder.equals("sort_title")) {
-    	        orderBy = Note.TITLE + " ASC";
-    	    } else {
-    	        orderBy = Note.MODIFIED_DATE + " DESC";
-    	    }
-        } else {
-            orderBy = sortOrder;
-        }
-        
+	    public override string getType(Uri uri) {
+	        switch (uriMatcher.match(uri)) {
+	        case NOTES:
+	            return Tomdroid.CONTENT_TYPE;
 
-        // Get the database and run the query
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+	        case NOTE_ID:
+	            return Tomdroid.CONTENT_ITEM_TYPE;
+	            
+	        case NOTE_TITLE:
+	        	return Tomdroid.CONTENT_ITEM_TYPE;
 
-        // Tell the cursor what uri to watch, so it knows when its source data changes
-        c.setNotificationUri(getContext().getContentResolver(), uri);
-        return c;
-    }
+	        default:
+	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        }
+	    }
 
-    @Override
-    public string getType(Uri uri) {
-        switch (uriMatcher.match(uri)) {
-        case NOTES:
-            return Tomdroid.CONTENT_TYPE;
+	    // TODO the following method is probably never called and probably wouldn't work
+	    public override Uri insert(Uri uri, ContentValues initialValues) {
+	        // Validate the requested uri
+	        if (uriMatcher.match(uri) != NOTES) {
+	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        }
 
-        case NOTE_ID:
-            return Tomdroid.CONTENT_ITEM_TYPE;
-            
-        case NOTE_TITLE:
-        	return Tomdroid.CONTENT_ITEM_TYPE;
+	        ContentValues values;
+	        if (initialValues != null) {
+	            values = new ContentValues(initialValues);
+	        } else {
+	            values = new ContentValues();
+	        }
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-    }
+	        // TODO either be identical to Tomboy's time format (if sortable) else make sure that this is documented
+	        Long now = Long.valueOf(System.currentTimeMillis());
 
-    // TODO the following method is probably never called and probably wouldn't work
-    @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
-        // Validate the requested uri
-        if (uriMatcher.match(uri) != NOTES) {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+	        // Make sure that the fields are all set
+	        if (values.containsKey(Note.MODIFIED_DATE) == false) {
+	            values.put(Note.MODIFIED_DATE, now);
+	        }
+	        
+	        // The guid is the unique identifier for a note so it has to be set.
+	        if (values.containsKey(Note.GUID) == false) {
+	        	values.put(Note.GUID, UUID.randomUUID().tostring());
+	        }
 
-        ContentValues values;
-        if (initialValues != null) {
-            values = new ContentValues(initialValues);
-        } else {
-            values = new ContentValues();
-        }
+	        // TODO does this make sense?
+	        if (values.containsKey(Note.TITLE) == false) {
+	            Resources r = Resources.getSystem();
+	            values.put(Note.TITLE, r.getstring(android.R.string.untitled));
+	        }
 
-        // TODO either be identical to Tomboy's time format (if sortable) else make sure that this is documented
-        Long now = Long.valueOf(System.currentTimeMillis());
+	        if (values.containsKey(Note.FILE) == false) {
+	            values.put(Note.FILE, "");
+	        }
+	        
+	        if (values.containsKey(Note.NOTE_CONTENT) == false) {
+	            values.put(Note.NOTE_CONTENT, "");
+	        }
 
-        // Make sure that the fields are all set
-        if (values.containsKey(Note.MODIFIED_DATE) == false) {
-            values.put(Note.MODIFIED_DATE, now);
-        }
-        
-        // The guid is the unique identifier for a note so it has to be set.
-        if (values.containsKey(Note.GUID) == false) {
-        	values.put(Note.GUID, UUID.randomUUID().tostring());
-        }
+	        SQLiteDatabase db = dbHelper.getWritableDatabase();
+	        long rowId = db.insert(DB_TABLE_NOTES, Note.FILE, values); // not so sure I did the right thing here
+	        if (rowId > 0) {
+	            Uri noteUri = ContentUris.withAppendedId(Tomdroid.CONTENT_URI, rowId);
+	            getContext().ContentResolver.notifyChange(noteUri, null);
+	            return noteUri;
+	        }
 
-        // TODO does this make sense?
-        if (values.containsKey(Note.TITLE) == false) {
-            Resources r = Resources.getSystem();
-            values.put(Note.TITLE, r.getstring(android.R.string.untitled));
-        }
+	        throw new SQLException("Failed to insert row into " + uri);
+	    }
 
-        if (values.containsKey(Note.FILE) == false) {
-            values.put(Note.FILE, "");
-        }
-        
-        if (values.containsKey(Note.NOTE_CONTENT) == false) {
-            values.put(Note.NOTE_CONTENT, "");
-        }
+	    public override int delete(Uri uri, string where, string[] whereArgs) {
+	        SQLiteDatabase db = dbHelper.getWritableDatabase();
+	        int count;
+	        switch (uriMatcher.match(uri)) {
+	        case NOTES:
+	            count = db.delete(DB_TABLE_NOTES, where, whereArgs);
+	            break;
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long rowId = db.insert(DB_TABLE_NOTES, Note.FILE, values); // not so sure I did the right thing here
-        if (rowId > 0) {
-            Uri noteUri = ContentUris.withAppendedId(Tomdroid.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(noteUri, null);
-            return noteUri;
-        }
+	        case NOTE_ID:
+	            string noteId = uri.getPathSegments().get(1);
+	            count = db.delete(DB_TABLE_NOTES, Note.ID + "=" + noteId
+	                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+	            break;
 
-        throw new SQLException("Failed to insert row into " + uri);
-    }
+	        default:
+	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        }
 
-    @Override
-    public int delete(Uri uri, string where, string[] whereArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count;
-        switch (uriMatcher.match(uri)) {
-        case NOTES:
-            count = db.delete(DB_TABLE_NOTES, where, whereArgs);
-            break;
+	        getContext().ContentResolver.notifyChange(uri, null);
+	        return count;
+	    }
 
-        case NOTE_ID:
-            string noteId = uri.getPathSegments().get(1);
-            count = db.delete(DB_TABLE_NOTES, Note.ID + "=" + noteId
-                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
-            break;
+	    public override int update(Uri uri, ContentValues values, string where, string[] whereArgs) {
+	        SQLiteDatabase db = dbHelper.getWritableDatabase();
+	        int count;
+	        switch (uriMatcher.match(uri)) {
+	        case NOTES:
+	            count = db.update(DB_TABLE_NOTES, values, where, whereArgs);
+	            break;
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+	        case NOTE_ID:
+	            string noteId = uri.getPathSegments().get(1);
+	            count = db.update(DB_TABLE_NOTES, values, Note.ID + "=" + noteId
+	                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+	            break;
 
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
-    }
+	        default:
+	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        }
 
-    @Override
-    public int update(Uri uri, ContentValues values, string where, string[] whereArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count;
-        switch (uriMatcher.match(uri)) {
-        case NOTES:
-            count = db.update(DB_TABLE_NOTES, values, where, whereArgs);
-            break;
+	        getContext().ContentResolver.notifyChange(uri, null);
+	        return count;
+	    }
 
-        case NOTE_ID:
-            string noteId = uri.getPathSegments().get(1);
-            count = db.update(DB_TABLE_NOTES, values, Note.ID + "=" + noteId
-                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
-            break;
+	    static {
+	        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes", NOTES);
+	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/#", NOTE_ID);
+	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/*", NOTE_TITLE);
 
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
-    }
-
-    static {
-        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes", NOTES);
-        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/#", NOTE_ID);
-        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/*", NOTE_TITLE);
-
-        notesProjectionMap = new HashMap<string, string>();
-        notesProjectionMap.put(Note.ID, Note.ID);
-        notesProjectionMap.put(Note.GUID, Note.GUID);
-        notesProjectionMap.put(Note.TITLE, Note.TITLE);
-        notesProjectionMap.put(Note.FILE, Note.FILE);
-        notesProjectionMap.put(Note.NOTE_CONTENT, Note.NOTE_CONTENT);
-        notesProjectionMap.put(Note.NOTE_CONTENT_PLAIN, Note.NOTE_CONTENT_PLAIN);
-        notesProjectionMap.put(Note.TAGS, Note.TAGS);
-        notesProjectionMap.put(Note.MODIFIED_DATE, Note.MODIFIED_DATE);
-    }
-}
+	        notesProjectionMap = new HashMap<string, string>();
+	        notesProjectionMap.put(Note.ID, Note.ID);
+	        notesProjectionMap.put(Note.GUID, Note.GUID);
+	        notesProjectionMap.put(Note.TITLE, Note.TITLE);
+	        notesProjectionMap.put(Note.FILE, Note.FILE);
+	        notesProjectionMap.put(Note.NOTE_CONTENT, Note.NOTE_CONTENT);
+	        notesProjectionMap.put(Note.NOTE_CONTENT_PLAIN, Note.NOTE_CONTENT_PLAIN);
+	        notesProjectionMap.put(Note.TAGS, Note.TAGS);
+	        notesProjectionMap.put(Note.MODIFIED_DATE, Note.MODIFIED_DATE);
+	    }
+	}
 }

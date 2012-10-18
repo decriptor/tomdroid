@@ -88,7 +88,7 @@ namespace TomDroidSharp.util
 				public void run() {
 					
 					
-					boolean successful = true;
+					bool successful = true;
 					
 					try {
 						// Parsing
@@ -119,7 +119,7 @@ namespace TomDroidSharp.util
 			return noteContent;
 		}
 
-	    private void warnHandler(boolean successful) {
+	    private void warnHandler(bool successful) {
 			
 			// notify the main UI that we are done here (sending an ok along with the note's title)
 			Message msg = Message.obtain();
@@ -130,7 +130,7 @@ namespace TomDroidSharp.util
 				msg.what = PARSE_ERROR;
 			}
 			
-			parentHandler.sendMessage(msg);
+			parentHandler.SendMessage(msg);
 	    }
 	}
 }

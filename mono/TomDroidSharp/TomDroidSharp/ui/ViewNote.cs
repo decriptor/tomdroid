@@ -73,7 +73,7 @@ namespace TomDroidSharp.ui
 		protected void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
-			setContentView(R.layout.note_view);
+			SetContentView(R.layout.note_view);
 			
 			content = (TextView) findViewById(R.id.content);
 			title = (TextView) findViewById(R.id.title);
@@ -109,8 +109,8 @@ namespace TomDroidSharp.ui
 	    }
 
 	    private void addShortcutNoteNotFoundElements(Uri uri, AlertDialog.Builder builder) {
-	        boolean proposeShortcutRemoval;
-	        boolean calledFromShortcut = getIntent().getBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
+	        bool proposeShortcutRemoval;
+	        bool calledFromShortcut = getIntent().getBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
 	        string shortcutName = getIntent().getstringExtra(SHORTCUT_NAME);
 	        proposeShortcutRemoval = calledFromShortcut && uri != null && shortcutName != null;
 
@@ -162,7 +162,7 @@ namespace TomDroidSharp.ui
 		}
 		
 		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
+		public bool onCreateOptionsMenu(Menu menu) {
 
 			// Create the menu based on what is defined in res/menu/noteview.xml
 			MenuInflater inflater = getMenuInflater();
@@ -174,7 +174,7 @@ namespace TomDroidSharp.ui
 		}
 
 		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
+		public bool onOptionsItemSelected(MenuItem item) {
 			switch (item.getItemId()) {
 		        case android.R.id.home:
 		        	// app icon in action bar clicked; go home
@@ -217,7 +217,7 @@ namespace TomDroidSharp.ui
 	        .show();
 		}
 
-		private void showNote(boolean xml) {
+		private void showNote(bool xml) {
 			if(xml) {
 				content.setText(note.getXmlContent());
 				title.setText((CharSequence) note.getTitle());
@@ -294,7 +294,7 @@ namespace TomDroidSharp.ui
 		};
 
 		// custom transform filter that takes the note's title part of the URI and translate it into the note id
-		// this was done to avoid problems with invalid characters in URI (ex: ? is the query separator but could be in a note title)
+		// this was done to avoid problems with invalid characters in URI (ex: ? is the Query separator but could be in a note title)
 		private TransformFilter noteTitleTransformFilter = new TransformFilter() {
 
 			public string transformUrl(Matcher m, string str) {
