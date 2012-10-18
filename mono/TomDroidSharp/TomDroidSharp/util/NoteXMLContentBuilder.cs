@@ -20,341 +20,336 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.TreeMap;
+//import java.util.ArrayList;
+//import java.util.LinkedList;
+//import java.util.ListIterator;
+//import java.util.Map;
+//import java.util.TreeMap;
 
-import org.tomdroid.Note;
-import org.tomdroid.xml.LinkInternalSpan;
+using Android.Graphics;
+using Android.OS;
+using Android.Text;
+using Android.Text.Style;
 
-import android.graphics.Typeface;
-import android.os.Handler;
-import android.os.Message;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.BulletSpan;
-import android.text.style.LeadingMarginSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
+using TomDroidSharp.Note;
+using TomDroidSharp.xml.LinkInternalSpan;
 
-public class NoteXMLContentBuilder implements Runnable {
-	
-	public static final int PARSE_OK = 0;
-	public static final int PARSE_ERROR = 1;
-	
-	private SpannableStringBuilder noteContent = null;
+namespace TomDroidSharp.util
+{
 
-	// set up check for mismatch (cross-boundary spans like <bold>foo<italic>bar</bold>foo</italic>)
-	
-	private ArrayList<String> openTags = new ArrayList<String>();
-	private ArrayList<String> closeTags = new ArrayList<String>();
-	private ArrayList<String> tagsToOpen = new ArrayList<String>();
-	
-	// this is what we are building here
-	private String noteXMLContent = new String();
-	
-	private final String TAG = "NoteBuilder";
-	
-	private Handler parentHandler;
-	
-	public NoteXMLContentBuilder () {}
-	
-	public NoteXMLContentBuilder setCaller(Handler parent) {
+	public class NoteXMLContentBuilder : Runnable {
 		
-		parentHandler = parent;
-		return this;
-	}
-	
-	public NoteXMLContentBuilder setInputSource(SpannableStringBuilder nc) {
+		public static readonly int PARSE_OK = 0;
+		public static readonly int PARSE_ERROR = 1;
 		
-		noteContent = nc;
-		return this;
-	}
-	
-	public String build() {
+		private SpannablestringBuilder noteContent = null;
+
+		// set up check for mismatch (cross-boundary spans like <bold>foo<italic>bar</bold>foo</italic>)
 		
-		//runner = new Thread(this);
-		//runner.start();
-		run();
-		return noteXMLContent;
-	}
-	
-	public void run() {
+		private ArrayList<string> openTags = new ArrayList<string>();
+		private ArrayList<string> closeTags = new ArrayList<string>();
+		private ArrayList<string> tagsToOpen = new ArrayList<string>();
 		
-		boolean successful = true;
+		// this is what we are building here
+		private string noteXMLContent = new string();
 		
-		try {
-			// replace illegal XML characters with corresponding entities:
-			String plainText = noteContent.toString();
-			TreeMap<String,String> replacements = new TreeMap<String,String>();
-			replacements.put( "&", "&amp;" ); replacements.put( "<", "&lt;" ); replacements.put( ">", "&gt;" );
-			for( Map.Entry<String,String> entry: replacements.entrySet() ) {
-				for( int currPos=plainText.length(); currPos>=0; currPos-- ){
-	 				currPos = plainText.lastIndexOf(entry.getKey(), currPos);
-	 				if(currPos < 0)
-	 				    break;
-	 				noteContent.replace( currPos, currPos+entry.getKey().length(), entry.getValue() );
-					TLog.d(TAG, "new xml content: {0}", noteContent.toString());
+		private readonly string TAG = "NoteBuilder";
+		
+		private Handler parentHandler;
+		
+		public NoteXMLContentBuilder () {}
+		
+		public NoteXMLContentBuilder setCaller(Handler parent) {
+			
+			parentHandler = parent;
+			return this;
+		}
+		
+		public NoteXMLContentBuilder setInputSource(SpannablestringBuilder nc) {
+			
+			noteContent = nc;
+			return this;
+		}
+		
+		public string build() {
+			
+			//runner = new Thread(this);
+			//runner.start();
+			run();
+			return noteXMLContent;
+		}
+		
+		public void run() {
+			
+			boolean successful = true;
+			
+			try {
+				// replace illegal XML characters with corresponding entities:
+				string plainText = noteContent.tostring();
+				TreeMap<string,string> replacements = new TreeMap<string,string>();
+				replacements.put( "&", "&amp;" ); replacements.put( "<", "&lt;" ); replacements.put( ">", "&gt;" );
+				for( Map.Entry<string,string> entry: replacements.entrySet() ) {
+					for( int currPos=plainText.length(); currPos>=0; currPos-- ){
+		 				currPos = plainText.lastIndexOf(entry.getKey(), currPos);
+		 				if(currPos < 0)
+		 				    break;
+		 				noteContent.replace( currPos, currPos+entry.getKey().length(), entry.getValue() );
+						TLog.d(TAG, "new xml content: {0}", noteContent.tostring());
+					}
+					plainText = noteContent.tostring(); // have to refresh!
 				}
-				plainText = noteContent.toString(); // have to refresh!
-			}
 
-			// translate spans into XML elements:
-			for( int prevPos=0, currPos=0, maxPos=noteContent.length(); 
-					currPos!=-1 && currPos<=maxPos && prevPos<maxPos;
-					prevPos=currPos, currPos=noteContent.nextSpanTransition(currPos, maxPos, Object.class) )
-			{
-				TreeMap<Integer,LinkedList<String>> elemStartsByEnd = new TreeMap<Integer,LinkedList<String>>();
-				TreeMap<Integer,LinkedList<String>> elemEndsByStart = new TreeMap<Integer,LinkedList<String>>();
-				Object[] spans = noteContent.getSpans(currPos, currPos, Object.class);
-				int bulletStart = 0, bulletEnd = 0, currentMargin = 0;
-				for( Object span: spans )
+				// translate spans into XML elements:
+				for( int prevPos=0, currPos=0, maxPos=noteContent.length(); 
+						currPos!=-1 && currPos<=maxPos && prevPos<maxPos;
+						prevPos=currPos, currPos=noteContent.nextSpanTransition(currPos, maxPos, Object.class) )
 				{
-					int spanStart = noteContent.getSpanStart(span);
-					int spanEnd = noteContent.getSpanEnd(span);
-					String elementName = "";
-					if( spanStart==currPos || spanEnd==currPos )
+					TreeMap<Integer,LinkedList<string>> elemStartsByEnd = new TreeMap<Integer,LinkedList<string>>();
+					TreeMap<Integer,LinkedList<string>> elemEndsByStart = new TreeMap<Integer,LinkedList<string>>();
+					Object[] spans = noteContent.getSpans(currPos, currPos, Object.class);
+					int bulletStart = 0, bulletEnd = 0, currentMargin = 0;
+					for( Object span: spans )
 					{
-						if( span instanceof StyleSpan )
+						int spanStart = noteContent.getSpanStart(span);
+						int spanEnd = noteContent.getSpanEnd(span);
+						string elementName = "";
+						if( spanStart==currPos || spanEnd==currPos )
 						{
-							StyleSpan style = (StyleSpan) span;
-							if( (style.getStyle()&Typeface.BOLD)>0 )
+							if( span instanceof StyleSpan )
 							{
-								elementName = "bold";
+								StyleSpan style = (StyleSpan) span;
+								if( (style.getStyle()&Typeface.BOLD)>0 )
+								{
+									elementName = "bold";
+								}
+								if( (style.getStyle()&Typeface.ITALIC)>0 )
+								{
+									elementName = "italic";
+								}
 							}
-							if( (style.getStyle()&Typeface.ITALIC)>0 )
+							else if( span instanceof StrikethroughSpan )
 							{
-								elementName = "italic";
+								elementName = "strikethrough";
 							}
-						}
-						else if( span instanceof StrikethroughSpan )
-						{
-							elementName = "strikethrough";
-						}
 
-						else if( span instanceof BackgroundColorSpan )
-						{
-							BackgroundColorSpan bgcolor = (BackgroundColorSpan) span;
-							if( bgcolor.getBackgroundColor()==Note.NOTE_HIGHLIGHT_COLOR )
+							else if( span instanceof BackgroundColorSpan )
 							{
-								elementName = "highlight";
-							}
-						}
-						else if( span instanceof TypefaceSpan )
-						{
-							TypefaceSpan typeface = (TypefaceSpan) span;
-							if( typeface.getFamily()==Note.NOTE_MONOSPACE_TYPEFACE )
-							{
-								elementName = "monospace";
-							}
-						}
-						else if( span instanceof RelativeSizeSpan )
-						{
-							RelativeSizeSpan size = (RelativeSizeSpan) span;
-							if( size.getSizeChange()==Note.NOTE_SIZE_SMALL_FACTOR )
-							{
-								elementName = "size:small";
-							}
-							else if( size.getSizeChange()==Note.NOTE_SIZE_LARGE_FACTOR )
-							{
-								elementName = "size:large";
-							}
-							else if( size.getSizeChange()==Note.NOTE_SIZE_HUGE_FACTOR )
-							{
-								elementName = "size:huge";
-							}
-						}
-						else if( span instanceof LeadingMarginSpan.Standard )
-						{
-							LeadingMarginSpan.Standard margin = (LeadingMarginSpan.Standard) span;
-							currentMargin = margin.getLeadingMargin(true);
-						}
-						else if( span instanceof LinkInternalSpan )
-						{
-							elementName = "link:internal";
-						}
-						else if( span instanceof BulletSpan )
-						{
-							elementName = "list-item";
-							bulletStart = spanStart;
-							bulletEnd = spanEnd;
-							int listLevelDiff = 0, marginFactor = 30;
-							int currentListLevel = currentMargin / marginFactor;
-							int prevListLevel = 0, nextListLevel = 0;
-							// compute indentation difference between current position and offset -1 for a starting transition
-							// or current position and offset +1 for an ending transition:
-							if( currPos==bulletStart )
-							{
-								elementName += " dir=\"ltr\""; // add unsupported (and unused by Tomboy?), fixed orientation attribute
-								prevListLevel = 0;
-								if( currPos > 0 )
+								BackgroundColorSpan bgcolor = (BackgroundColorSpan) span;
+								if( bgcolor.getBackgroundColor()==Note.NOTE_HIGHLIGHT_COLOR )
 								{
-									LeadingMarginSpan.Standard[] prevMargins = noteContent.getSpans( currPos-1, currPos-1, LeadingMarginSpan.Standard.class );
-									if( prevMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos-1).toString() );
-									for( LeadingMarginSpan.Standard prevMargin: prevMargins ) 
-										prevListLevel = prevMargin.getLeadingMargin(true) / marginFactor;
+									elementName = "highlight";
 								}
-								listLevelDiff = currentListLevel - prevListLevel;
 							}
-							else if( currPos==bulletEnd )
+							else if( span instanceof TypefaceSpan )
 							{
-								// most needed list tags are triggered by bullet start transitions, but we have
-								// to trigger some list end tags on special bullet end transitions...
-								nextListLevel = 0;
-								if( currPos < noteContent.length() )
+								TypefaceSpan typeface = (TypefaceSpan) span;
+								if( typeface.getFamily()==Note.NOTE_MONOSPACE_TYPEFACE )
 								{
-									LeadingMarginSpan.Standard[] nextMargins = noteContent.getSpans( currPos+1, currPos+1, LeadingMarginSpan.Standard.class );
-									if( nextMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos+1).toString() );;
-									for( LeadingMarginSpan.Standard nextMargin: nextMargins )
-										nextListLevel = nextMargin.getLeadingMargin(true) / marginFactor;
-									// force writing of missing list end tags before non-list content:
-									if( nextMargins.length==0 ) listLevelDiff = -currentListLevel;
+									elementName = "monospace";
 								}
-								// force writing of missing list end tags at the end of the note:
-								else listLevelDiff = -currentListLevel;
-								// suppress list-item end tag, as it has to enclose the following list element:
-								// FIXME: what happens if abs(listLevelDiff)>1?
-								if( currentListLevel < nextListLevel ) elementName = "";
 							}
-							// add needed number of list start or list end and list-item end tags to represent the observed indentation 
-							// difference at this position:
-							for( int i=0; i<Math.abs(listLevelDiff); i++ )
+							else if( span instanceof RelativeSizeSpan )
 							{
-								if( listLevelDiff<0)
+								RelativeSizeSpan size = (RelativeSizeSpan) span;
+								if( size.getSizeChange()==Note.NOTE_SIZE_SMALL_FACTOR )
 								{
-									// assume a growing negative fake start offset to force list and list-item end tags to appear behind all other end tags at this position:
-									if( elemEndsByStart.get(-1-i*2) == null ) elemEndsByStart.put( -1-i*2, new LinkedList<String>() );
-									elemEndsByStart.get(-1-i*2).add( "list" );
-									int levelCorrector = Math.abs(listLevelDiff)-i-1; 
-									if( nextListLevel+levelCorrector>0 || prevListLevel+levelCorrector>1 )
+									elementName = "size:small";
+								}
+								else if( size.getSizeChange()==Note.NOTE_SIZE_LARGE_FACTOR )
+								{
+									elementName = "size:large";
+								}
+								else if( size.getSizeChange()==Note.NOTE_SIZE_HUGE_FACTOR )
+								{
+									elementName = "size:huge";
+								}
+							}
+							else if( span instanceof LeadingMarginSpan.Standard )
+							{
+								LeadingMarginSpan.Standard margin = (LeadingMarginSpan.Standard) span;
+								currentMargin = margin.getLeadingMargin(true);
+							}
+							else if( span instanceof LinkInternalSpan )
+							{
+								elementName = "link:internal";
+							}
+							else if( span instanceof BulletSpan )
+							{
+								elementName = "list-item";
+								bulletStart = spanStart;
+								bulletEnd = spanEnd;
+								int listLevelDiff = 0, marginFactor = 30;
+								int currentListLevel = currentMargin / marginFactor;
+								int prevListLevel = 0, nextListLevel = 0;
+								// compute indentation difference between current position and offset -1 for a starting transition
+								// or current position and offset +1 for an ending transition:
+								if( currPos==bulletStart )
+								{
+									elementName += " dir=\"ltr\""; // add unsupported (and unused by Tomboy?), fixed orientation attribute
+									prevListLevel = 0;
+									if( currPos > 0 )
 									{
-										// explicitly add a previously suppressed list-items end tag after enclosed list element,
-										// but only if this was not the root list element of the list
-										// (assume a fake start offset of -2 to force list-item end to appear behind list end)
-										if( elemEndsByStart.get(-2-i*2) == null ) elemEndsByStart.put( -2-i*2, new LinkedList<String>() );
-										elemEndsByStart.get(-2-i*2).add( "list-item" );
+										LeadingMarginSpan.Standard[] prevMargins = noteContent.getSpans( currPos-1, currPos-1, LeadingMarginSpan.Standard.class );
+										if( prevMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos-1).tostring() );
+										for( LeadingMarginSpan.Standard prevMargin: prevMargins ) 
+											prevListLevel = prevMargin.getLeadingMargin(true) / marginFactor;
+									}
+									listLevelDiff = currentListLevel - prevListLevel;
+								}
+								else if( currPos==bulletEnd )
+								{
+									// most needed list tags are triggered by bullet start transitions, but we have
+									// to trigger some list end tags on special bullet end transitions...
+									nextListLevel = 0;
+									if( currPos < noteContent.length() )
+									{
+										LeadingMarginSpan.Standard[] nextMargins = noteContent.getSpans( currPos+1, currPos+1, LeadingMarginSpan.Standard.class );
+										if( nextMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos+1).tostring() );;
+										for( LeadingMarginSpan.Standard nextMargin: nextMargins )
+											nextListLevel = nextMargin.getLeadingMargin(true) / marginFactor;
+										// force writing of missing list end tags before non-list content:
+										if( nextMargins.length==0 ) listLevelDiff = -currentListLevel;
+									}
+									// force writing of missing list end tags at the end of the note:
+									else listLevelDiff = -currentListLevel;
+									// suppress list-item end tag, as it has to enclose the following list element:
+									// FIXME: what happens if abs(listLevelDiff)>1?
+									if( currentListLevel < nextListLevel ) elementName = "";
+								}
+								// add needed number of list start or list end and list-item end tags to represent the observed indentation 
+								// difference at this position:
+								for( int i=0; i<Math.abs(listLevelDiff); i++ )
+								{
+									if( listLevelDiff<0)
+									{
+										// assume a growing negative fake start offset to force list and list-item end tags to appear behind all other end tags at this position:
+										if( elemEndsByStart.get(-1-i*2) == null ) elemEndsByStart.put( -1-i*2, new LinkedList<string>() );
+										elemEndsByStart.get(-1-i*2).add( "list" );
+										int levelCorrector = Math.abs(listLevelDiff)-i-1; 
+										if( nextListLevel+levelCorrector>0 || prevListLevel+levelCorrector>1 )
+										{
+											// explicitly add a previously suppressed list-items end tag after enclosed list element,
+											// but only if this was not the root list element of the list
+											// (assume a fake start offset of -2 to force list-item end to appear behind list end)
+											if( elemEndsByStart.get(-2-i*2) == null ) elemEndsByStart.put( -2-i*2, new LinkedList<string>() );
+											elemEndsByStart.get(-2-i*2).add( "list-item" );
+										}
+									}
+									else
+									{
+										// assume a fake end offset of maxPos to force list starts to appear in front of all other start tags at this position:
+										if( elemStartsByEnd.get(maxPos) == null ) elemStartsByEnd.put( maxPos, new LinkedList<string>() );
+										elemStartsByEnd.get(maxPos).add( "list" );
 									}
 								}
-								else
-								{
-									// assume a fake end offset of maxPos to force list starts to appear in front of all other start tags at this position:
-									if( elemStartsByEnd.get(maxPos) == null ) elemStartsByEnd.put( maxPos, new LinkedList<String>() );
-									elemStartsByEnd.get(maxPos).add( "list" );
-								}
+							}
+						}
+						// add generic start/end tags defined above
+						if( elementName.length() != 0 )
+						{
+							if( spanStart==currPos ) 
+							{
+								if( elemStartsByEnd.get(spanEnd)==null ) elemStartsByEnd.put( spanEnd, new LinkedList<string>() );
+								elemStartsByEnd.get(spanEnd).add(elementName);
+							}
+							else if( spanEnd==currPos )
+							{
+								if( elemEndsByStart.get(spanStart)==null ) elemEndsByStart.put( spanStart, new LinkedList<string>() );
+								elemEndsByStart.get(spanStart).add(elementName);
 							}
 						}
 					}
-					// add generic start/end tags defined above
-					if( elementName.length() != 0 )
-					{
-						if( spanStart==currPos ) 
-						{
-							if( elemStartsByEnd.get(spanEnd)==null ) elemStartsByEnd.put( spanEnd, new LinkedList<String>() );
-							elemStartsByEnd.get(spanEnd).add(elementName);
-						}
-						else if( spanEnd==currPos )
-						{
-							if( elemEndsByStart.get(spanStart)==null ) elemEndsByStart.put( spanStart, new LinkedList<String>() );
-							elemEndsByStart.get(spanStart).add(elementName);
+					// write plain character content from previous to current (relevant) span transition:
+					noteXMLContent += noteContent.subSequence( prevPos, currPos );
+
+					// API 3 compat - is this reversal really necessary?  I think it should be reversed in the for(string elementName...)
+					
+					ListIterator<Integer> iter = new ArrayList<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.size());
+
+					// write needed end tags for the current span transition in the correct order, depending on the corresponding span start positions:
+
+					while (iter.hasPrevious()) {
+					    Integer key = iter.previous();
+						for( string elementName: elemEndsByStart.get(key) ) {
+							closeTags.add(elementName); // add for comparing with later ones
+						}				    
+					}
+					
+					iter = new ArrayList<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.size());
+
+					// write needed start tags for the current span transition in the correct order, depending on the corresponding span end positions:
+					
+					while (iter.hasPrevious()) {
+					    Integer key = iter.previous();
+						for( string elementName: elemStartsByEnd.get(key) ) {
+							tagsToOpen.add(elementName); // add for comparing with later ones
 						}
 					}
+
+				    noteXMLContent += addTags(currPos == maxPos); 
+
 				}
-				// write plain character content from previous to current (relevant) span transition:
-				noteXMLContent += noteContent.subSequence( prevPos, currPos );
-
-				// API 3 compat - is this reversal really necessary?  I think it should be reversed in the for(String elementName...)
-				
-				ListIterator<Integer> iter = new ArrayList<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.size());
-
-				// write needed end tags for the current span transition in the correct order, depending on the corresponding span start positions:
-
-				while (iter.hasPrevious()) {
-				    Integer key = iter.previous();
-					for( String elementName: elemEndsByStart.get(key) ) {
-						closeTags.add(elementName); // add for comparing with later ones
-					}				    
-				}
-				
-				iter = new ArrayList<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.size());
-
-				// write needed start tags for the current span transition in the correct order, depending on the corresponding span end positions:
-				
-				while (iter.hasPrevious()) {
-				    Integer key = iter.previous();
-					for( String elementName: elemStartsByEnd.get(key) ) {
-						tagsToOpen.add(elementName); // add for comparing with later ones
-					}
-				}
-
-			    noteXMLContent += addTags(currPos == maxPos); 
-
+			} catch (Exception e) {
+				e.printStackTrace();
+				// TODO handle error in a more granular way
+				TLog.e(TAG, "There was an error parsing the note.");
+				successful = false;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO handle error in a more granular way
-			TLog.e(TAG, "There was an error parsing the note.");
-			successful = false;
-		}
-		if(!openTags.isEmpty()) {
-			for(int x = 0; x < openTags.size(); x++) {
-				String tag = openTags.get(openTags.size()-x-1);
-				TLog.d(TAG, "Closed final tag: {0}","</"+tag+">");
-				noteXMLContent += "</"+tag+">";
-			}
-		}
-		
-		
-		warnHandler(successful);
-	}
-	
-    private String addTags(boolean end) {
-    	String tags = "";
-		if(!openTags.isEmpty()) { 
-			if(!closeTags.isEmpty()) { // check for mismatch
-				String tag = openTags.get(openTags.size()-1);
-				tags += "</"+tag+">";
-				if(closeTags.get(closeTags.size()-1).equals(tag)) { // match, close tag
-					closeTags.remove(closeTags.size()-1);
-					openTags.remove(openTags.size()-1);
-				}
-				else { // mismatch, close for reopening, reiterate for closing
-					openTags.remove(openTags.size()-1);
-					tagsToOpen.add(tag);
-					tags += addTags(end);
+			if(!openTags.isEmpty()) {
+				for(int x = 0; x < openTags.size(); x++) {
+					string tag = openTags.get(openTags.size()-x-1);
+					TLog.d(TAG, "Closed readonly tag: {0}","</"+tag+">");
+					noteXMLContent += "</"+tag+">";
 				}
 			}
-		}
-		if(!end) {
-			for(String tag : tagsToOpen) {
-				if(TextUtils.join(",", openTags).contains(tag)) // already opened
-					continue;
-				tags+="<"+tag+">";
-				openTags.add(tag);
-			}
-		}
-		tagsToOpen.clear();
-		
-		return tags;
-	}
-
-	private void warnHandler(boolean successful) {
-		
-		// notify the main UI that we are done here (sending an ok along with the note's title)
-		Message msg = Message.obtain();
-		if (successful) {
-			msg.what = PARSE_OK;
-		} else {
 			
-			msg.what = PARSE_ERROR;
+			
+			warnHandler(successful);
 		}
 		
-		parentHandler.sendMessage(msg);
-    }
+	    private string addTags(boolean end) {
+	    	string tags = "";
+			if(!openTags.isEmpty()) { 
+				if(!closeTags.isEmpty()) { // check for mismatch
+					string tag = openTags.get(openTags.size()-1);
+					tags += "</"+tag+">";
+					if(closeTags.get(closeTags.size()-1).equals(tag)) { // match, close tag
+						closeTags.remove(closeTags.size()-1);
+						openTags.remove(openTags.size()-1);
+					}
+					else { // mismatch, close for reopening, reiterate for closing
+						openTags.remove(openTags.size()-1);
+						tagsToOpen.add(tag);
+						tags += addTags(end);
+					}
+				}
+			}
+			if(!end) {
+				for(string tag : tagsToOpen) {
+					if(TextUtils.join(",", openTags).contains(tag)) // already opened
+						continue;
+					tags+="<"+tag+">";
+					openTags.add(tag);
+				}
+			}
+			tagsToOpen.clear();
+			
+			return tags;
+		}
+
+		private void warnHandler(boolean successful) {
+			
+			// notify the main UI that we are done here (sending an ok along with the note's title)
+			Message msg = Message.obtain();
+			if (successful) {
+				msg.what = PARSE_OK;
+			} else {
+				
+				msg.what = PARSE_ERROR;
+			}
+			
+			parentHandler.sendMessage(msg);
+	    }
+	}
 }

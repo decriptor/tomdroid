@@ -20,45 +20,48 @@
  You should have received a copy of the GNU General Public License
  along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.ui;
 
-import android.database.Cursor;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import org.tomdroid.NoteManager;
-import org.tomdroid.R;
-import org.tomdroid.ui.actionbar.ActionBarListActivity;
-import org.tomdroid.util.NoteViewShortcutsHelper;
-import org.tomdroid.util.Preferences;
-import org.tomdroid.util.TLog;
+using Android.Database;
+using Android.OS;
+using Android.Views;
+using Android.Widget;
 
-/**
- * @author Piotr Adamski <mcveat@gmail.com>
- */
-public class ShortcutActivity extends ActionBarListActivity {
-    private final String TAG = ShortcutActivity.class.getName();
-    private ListAdapter adapter;
+using TomDroidSharp.NoteManager;
+using TomDroidSharp.R;
+using TomDroidSharp.ui.actionbar.ActionBarListActivity;
+using TomDroidSharp.util.NoteViewShortcutsHelper;
+using TomDroidSharp.util.Preferences;
+using TomDroidSharp.util.TLog;
 
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
-        TLog.d(TAG, "creating shortcut...");
-        setContentView(R.layout.shortcuts_list);
-        setTitle(R.string.shortcuts_view_caption);
-        adapter = NoteManager.getListAdapter(this);
-        setListAdapter(adapter);
-        getListView().setEmptyView(findViewById(R.id.list_empty));
 
-    }
+namespace TomDroidSharp.ui
+{
+	/**
+	 * @author Piotr Adamski <mcveat@gmail.com>
+	 */
+	public class ShortcutActivity : ActionBarListActivity {
+	    private readonly string TAG = ShortcutActivity.class.getName();
+	    private ListAdapter adapter;
 
-    @Override
-    protected void onListItemClick(final ListView l, final View v, final int position, final long id) {
-        final Cursor item = (Cursor) adapter.getItem(position);
-        final NoteViewShortcutsHelper helper = new NoteViewShortcutsHelper(this);
-        setResult(RESULT_OK, helper.getCreateShortcutIntent(item));
-        finish();
-    }
+	    @Override
+	    protected void onCreate(final Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
+	        TLog.d(TAG, "creating shortcut...");
+	        setContentView(R.layout.shortcuts_list);
+	        setTitle(R.string.shortcuts_view_caption);
+	        adapter = NoteManager.getListAdapter(this);
+	        setListAdapter(adapter);
+	        getListView().setEmptyView(findViewById(R.id.list_empty));
+
+	    }
+
+	    @Override
+	    protected void onListItemClick(final ListView l, View v, int position, long id) {
+	        Cursor item = (Cursor) adapter.getItem(position);
+	        NoteViewShortcutsHelper helper = new NoteViewShortcutsHelper(this);
+	        setResult(RESULT_OK, helper.getCreateShortcutIntent(item));
+	        finish();
+	    }
+	}
 }

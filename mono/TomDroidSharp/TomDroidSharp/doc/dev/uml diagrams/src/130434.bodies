@@ -2,11 +2,11 @@ class NoteHandler
 !!!132994.java!!!	NoteHandler(inout note : Note)
 		this.note = note;
 		
-		// we will use the SpannableStringBuilder from the note
+		// we will use the SpannablestringBuilder from the note
 		this.ssb = note.getNoteContent();
-!!!133122.java!!!	startElement(in uri : String, in localName : String, in name : String, inout attributes : Attributes) : void
+!!!133122.java!!!	startElement(in uri : string, in localName : string, in name : string, inout attributes : Attributes) : void
 		
-		// Log.i(this.toString(), "startElement: uri: " + uri + " local: " + localName + " name: " + name);
+		// Log.i(this.tostring(), "startElement: uri: " + uri + " local: " + localName + " name: " + name);
 		if (localName.equals(NOTE_CONTENT)) {
 
 			// we are under the note-content tag
@@ -47,9 +47,9 @@ class NoteHandler
 			}
 		}
 
-!!!133250.java!!!	endElement(in uri : String, in localName : String, in name : String) : void
+!!!133250.java!!!	endElement(in uri : string, in localName : string, in name : string) : void
 
-		// Log.i(this.toString(), "endElement: uri: " + uri + " local: " + localName + " name: " + name);
+		// Log.i(this.tostring(), "endElement: uri: " + uri + " local: " + localName + " name: " + name);
 		
 		if (localName.equals(NOTE_CONTENT)) {
 			
@@ -90,22 +90,22 @@ class NoteHandler
 		}
 !!!133378.java!!!	characters(in ch : char, in start : int, in length : int) : void
 		
-		String currentString = new String(ch, start, length);
+		string currentstring = new string(ch, start, length);
 		
 		// TODO remove this call when we will be done
-		// Log.i(this.toString(), "char string: " + currentString);
+		// Log.i(this.tostring(), "char string: " + currentstring);
 		
 		if (inTitleTag) {
-			note.setTitle(currentString);
+			note.setTitle(currentstring);
 		} else if (inLastChangeDateTag) {
 			//TODO there is probably a parsing error here we should trap 
 			DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-			note.setLastChangeDate(fmt.parseDateTime(currentString));
+			note.setLastChangeDate(fmt.parseDateTime(currentstring));
 		}
 
 		if (inNoteContentTag) {
 			// while we are in note-content, append
-			ssb.append(currentString, start, length);
+			ssb.append(currentstring, start, length);
 			int strLenStart = ssb.length()-length;
 			int strLenEnd = ssb.length();
 			

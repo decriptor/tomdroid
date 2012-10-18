@@ -14,251 +14,251 @@
  * limitations under the License.
  */
 
-package org.tomdroid.ui.actionbar;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.view.ActionProvider;
-import android.view.ContextMenu;
-import android.view.MenuItem;
-import android.view.SubMenu;
-import android.view.View;
+using Android.Content;
+using Android.Graphics;
+using Android.Views;
 
-/**
- * A <em>really</em> dumb implementation of the {@link android.view.MenuItem} interface, that's only
- * useful for our actionbar-compat purposes. See
- * <code>com.android.internal.view.menu.MenuItemImpl</code> in AOSP for a more complete
- * implementation.
- */
-public class SimpleMenuItem implements MenuItem {
+//import android.annotation.TargetApi;
 
-    private SimpleMenu mMenu;
+namespace TomDroidSharp.ui.actionbar
+{
 
-    private final int mId;
-    private final int mOrder;
-    private CharSequence mTitle;
-    private CharSequence mTitleCondensed;
-    private Drawable mIconDrawable;
-    private int mIconResId = 0;
-    private boolean mEnabled = true;
+	/**
+	 * A <em>really</em> dumb implementation of the {@link android.view.MenuItem} interface, that's only
+	 * useful for our actionbar-compat purposes. See
+	 * <code>com.android.internal.view.menu.MenuItemImpl</code> in AOSP for a more complete
+	 * implementation.
+	 */
+	public class SimpleMenuItem : MenuItem {
 
-    public SimpleMenuItem(SimpleMenu menu, int id, int order, CharSequence title) {
-        mMenu = menu;
-        mId = id;
-        mOrder = order;
-        mTitle = title;
-    }
+	    private SimpleMenu mMenu;
 
-    public int getItemId() {
-        return mId;
-    }
+	    private readonly int mId;
+	    private readonly int mOrder;
+	    private CharSequence mTitle;
+	    private CharSequence mTitleCondensed;
+	    private Drawable mIconDrawable;
+	    private int mIconResId = 0;
+	    private boolean mEnabled = true;
 
-    public int getOrder() {
-        return mOrder;
-    }
+	    public SimpleMenuItem(SimpleMenu menu, int id, int order, CharSequence title) {
+	        mMenu = menu;
+	        mId = id;
+	        mOrder = order;
+	        mTitle = title;
+	    }
 
-    public MenuItem setTitle(CharSequence title) {
-        mTitle = title;
-        return this;
-    }
+	    public int getItemId() {
+	        return mId;
+	    }
 
-    public MenuItem setTitle(int titleRes) {
-        return setTitle(mMenu.getContext().getString(titleRes));
-    }
+	    public int getOrder() {
+	        return mOrder;
+	    }
 
-    public CharSequence getTitle() {
-        return mTitle;
-    }
+	    public MenuItem setTitle(CharSequence title) {
+	        mTitle = title;
+	        return this;
+	    }
 
-    public MenuItem setTitleCondensed(CharSequence title) {
-        mTitleCondensed = title;
-        return this;
-    }
+	    public MenuItem setTitle(int titleRes) {
+	        return setTitle(mMenu.getContext().getstring(titleRes));
+	    }
 
-    public CharSequence getTitleCondensed() {
-        return mTitleCondensed != null ? mTitleCondensed : mTitle;
-    }
+	    public CharSequence getTitle() {
+	        return mTitle;
+	    }
 
-    public MenuItem setIcon(Drawable icon) {
-        mIconResId = 0;
-        mIconDrawable = icon;
-        return this;
-    }
+	    public MenuItem setTitleCondensed(CharSequence title) {
+	        mTitleCondensed = title;
+	        return this;
+	    }
 
-    public MenuItem setIcon(int iconResId) {
-        mIconDrawable = null;
-        mIconResId = iconResId;
-        return this;
-    }
+	    public CharSequence getTitleCondensed() {
+	        return mTitleCondensed != null ? mTitleCondensed : mTitle;
+	    }
 
-    public Drawable getIcon() {
-        if (mIconDrawable != null) {
-            return mIconDrawable;
-        }
+	    public MenuItem setIcon(Drawable icon) {
+	        mIconResId = 0;
+	        mIconDrawable = icon;
+	        return this;
+	    }
 
-        if (mIconResId != 0) {
-            return mMenu.getResources().getDrawable(mIconResId);
-        }
+	    public MenuItem setIcon(int iconResId) {
+	        mIconDrawable = null;
+	        mIconResId = iconResId;
+	        return this;
+	    }
 
-        return null;
-    }
+	    public Drawable getIcon() {
+	        if (mIconDrawable != null) {
+	            return mIconDrawable;
+	        }
 
-    public MenuItem setEnabled(boolean enabled) {
-        mEnabled = enabled;
-        return this;
-    }
+	        if (mIconResId != 0) {
+	            return mMenu.getResources().getDrawable(mIconResId);
+	        }
 
-    public boolean isEnabled() {
-        return mEnabled;
-    }
+	        return null;
+	    }
 
-    // No-op operations. We use no-ops to allow inflation from menu XML.
+	    public MenuItem setEnabled(boolean enabled) {
+	        mEnabled = enabled;
+	        return this;
+	    }
 
-    public int getGroupId() {
-        // Noop
-        return 0;
-    }
+	    public boolean isEnabled() {
+	        return mEnabled;
+	    }
 
-    public View getActionView() {
-        // Noop
-        return null;
-    }
+	    // No-op operations. We use no-ops to allow inflation from menu XML.
 
-    @TargetApi(14)
-	public MenuItem setActionProvider(ActionProvider actionProvider) {
-        // Noop
-        return this;
-    }
+	    public int getGroupId() {
+	        // Noop
+	        return 0;
+	    }
 
-    @TargetApi(14)
-	public ActionProvider getActionProvider() {
-        // Noop
-        return null;
-    }
+	    public View getActionView() {
+	        // Noop
+	        return null;
+	    }
 
-    public boolean expandActionView() {
-        // Noop
-        return false;
-    }
+	    @TargetApi(14)
+		public MenuItem setActionProvider(ActionProvider actionProvider) {
+	        // Noop
+	        return this;
+	    }
 
-    public boolean collapseActionView() {
-        // Noop
-        return false;
-    }
+	    @TargetApi(14)
+		public ActionProvider getActionProvider() {
+	        // Noop
+	        return null;
+	    }
 
-    public boolean isActionViewExpanded() {
-        // Noop
-        return false;
-    }
+	    public boolean expandActionView() {
+	        // Noop
+	        return false;
+	    }
 
-    @TargetApi(14)
-	public MenuItem setOnActionExpandListener(OnActionExpandListener onActionExpandListener) {
-        // Noop
-        return this;
-    }
+	    public boolean collapseActionView() {
+	        // Noop
+	        return false;
+	    }
 
-    public MenuItem setIntent(Intent intent) {
-        // Noop
-        return this;
-    }
+	    public boolean isActionViewExpanded() {
+	        // Noop
+	        return false;
+	    }
 
-    public Intent getIntent() {
-        // Noop
-        return null;
-    }
+	    @TargetApi(14)
+		public MenuItem setOnActionExpandListener(OnActionExpandListener onActionExpandListener) {
+	        // Noop
+	        return this;
+	    }
 
-    public MenuItem setShortcut(char c, char c1) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setIntent(Intent intent) {
+	        // Noop
+	        return this;
+	    }
 
-    public MenuItem setNumericShortcut(char c) {
-        // Noop
-        return this;
-    }
+	    public Intent getIntent() {
+	        // Noop
+	        return null;
+	    }
 
-    public char getNumericShortcut() {
-        // Noop
-        return 0;
-    }
+	    public MenuItem setShortcut(char c, char c1) {
+	        // Noop
+	        return this;
+	    }
 
-    public MenuItem setAlphabeticShortcut(char c) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setNumericShortcut(char c) {
+	        // Noop
+	        return this;
+	    }
 
-    public char getAlphabeticShortcut() {
-        // Noop
-        return 0;
-    }
+	    public char getNumericShortcut() {
+	        // Noop
+	        return 0;
+	    }
 
-    public MenuItem setCheckable(boolean b) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setAlphabeticShortcut(char c) {
+	        // Noop
+	        return this;
+	    }
 
-    public boolean isCheckable() {
-        // Noop
-        return false;
-    }
+	    public char getAlphabeticShortcut() {
+	        // Noop
+	        return 0;
+	    }
 
-    public MenuItem setChecked(boolean b) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setCheckable(boolean b) {
+	        // Noop
+	        return this;
+	    }
 
-    public boolean isChecked() {
-        // Noop
-        return false;
-    }
+	    public boolean isCheckable() {
+	        // Noop
+	        return false;
+	    }
 
-    public MenuItem setVisible(boolean b) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setChecked(boolean b) {
+	        // Noop
+	        return this;
+	    }
 
-    public boolean isVisible() {
-        // Noop
-        return true;
-    }
+	    public boolean isChecked() {
+	        // Noop
+	        return false;
+	    }
 
-    public boolean hasSubMenu() {
-        // Noop
-        return false;
-    }
+	    public MenuItem setVisible(boolean b) {
+	        // Noop
+	        return this;
+	    }
 
-    public SubMenu getSubMenu() {
-        // Noop
-        return null;
-    }
+	    public boolean isVisible() {
+	        // Noop
+	        return true;
+	    }
 
-    public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
-        // Noop
-        return this;
-    }
+	    public boolean hasSubMenu() {
+	        // Noop
+	        return false;
+	    }
 
-    public ContextMenu.ContextMenuInfo getMenuInfo() {
-        // Noop
-        return null;
-    }
+	    public SubMenu getSubMenu() {
+	        // Noop
+	        return null;
+	    }
 
-    public void setShowAsAction(int i) {
-        // Noop
-    }
+	    public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
+	        // Noop
+	        return this;
+	    }
 
-    public MenuItem setShowAsActionFlags(int i) {
-        // Noop
-        return null;
-    }
+	    public ContextMenu.ContextMenuInfo getMenuInfo() {
+	        // Noop
+	        return null;
+	    }
 
-    public MenuItem setActionView(View view) {
-        // Noop
-        return this;
-    }
+	    public void setShowAsAction(int i) {
+	        // Noop
+	    }
 
-    public MenuItem setActionView(int i) {
-        // Noop
-        return this;
-    }
+	    public MenuItem setShowAsActionFlags(int i) {
+	        // Noop
+	        return null;
+	    }
+
+	    public MenuItem setActionView(View view) {
+	        // Noop
+	        return this;
+	    }
+
+	    public MenuItem setActionView(int i) {
+	        // Noop
+	        return this;
+	    }
+	}
 }

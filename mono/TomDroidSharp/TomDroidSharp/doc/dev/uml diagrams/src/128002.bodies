@@ -1,22 +1,22 @@
 class Note
-!!!128002.java!!!	Note(inout hdl : Handler, in url : String)
+!!!128002.java!!!	Note(inout hdl : Handler, in url : string)
 		this.parentHandler = hdl;
 		this.url = url;
 !!!128130.java!!!	Note(inout hdl : Handler, inout file : File)
 		this.parentHandler = hdl;
 		this.file = file;
 		this.fileName = file.getName();
-!!!128258.java!!!	getUrl() : String
+!!!128258.java!!!	getUrl() : string
 		return url;
-!!!128386.java!!!	setUrl(in url : String) : void
+!!!128386.java!!!	setUrl(in url : string) : void
 		this.url = url;
-!!!128514.java!!!	getFileName() : String
+!!!128514.java!!!	getFileName() : string
 		return fileName;
-!!!128642.java!!!	setFileName(in fileName : String) : void
+!!!128642.java!!!	setFileName(in fileName : string) : void
 		this.fileName = fileName;
-!!!128770.java!!!	getTitle() : String
+!!!128770.java!!!	getTitle() : string
 		return title;
-!!!128898.java!!!	setTitle(in title : String) : void
+!!!128898.java!!!	setTitle(in title : string) : void
 		this.title = title;
 !!!129026.java!!!	getLastChangeDate() : DateTime
 		return lastChangeDate;
@@ -36,18 +36,18 @@ class Note
 
 		// asynchronous call to get the note's content
 		notesDAO.getContent();
-!!!129538.java!!!	getNoteContent() : SpannableStringBuilder
+!!!129538.java!!!	getNoteContent() : SpannablestringBuilder
 		return noteContent;
-!!!129666.java!!!	setNoteContent(inout noteContent : SpannableStringBuilder) : void
+!!!129666.java!!!	setNoteContent(inout noteContent : SpannablestringBuilder) : void
 		this.noteContent = noteContent;
-!!!129794.java!!!	getDisplayableNoteContent() : SpannableStringBuilder
-		SpannableStringBuilder sNoteContent = new SpannableStringBuilder(getNoteContent());
+!!!129794.java!!!	getDisplayableNoteContent() : SpannablestringBuilder
+		SpannablestringBuilder sNoteContent = new SpannablestringBuilder(getNoteContent());
 		
 		sNoteContent.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 17, 35, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return sNoteContent;
-!!!129922.java!!!	buildNote(in noteStream : String) : void
+!!!129922.java!!!	buildNote(in noteStream : string) : void
     	//TODO this will have to properly build the note, splitting metadata and content et al.
-    	String note = noteStream;
+    	string note = noteStream;
     	
     	// XML 
     	// Get a SAXParser from the SAXPArserFactory
@@ -61,17 +61,17 @@ class Note
         NoteHandler xmlHandler = new NoteHandler(this);
         xr.setContentHandler(xmlHandler);
         
-        // Parse the xml-data from the note String and it will take care of loading the note
-        xr.parse(new InputSource(new StringReader(noteStream)));
+        // Parse the xml-data from the note string and it will take care of loading the note
+        xr.parse(new InputSource(new stringReader(noteStream)));
 !!!130050.java!!!	warnHandler() : void
 		Message msg = Message.obtain();
 		
-		Log.i(this.toString(), "warnHandler: sending ok to NoteView");
+		Log.i(this.tostring(), "warnHandler: sending ok to NoteView");
 		
 		// notify UI that we are done here and sending an ok 
 		parentHandler.sendEmptyMessage(NOTE_RECEIVED_AND_VALID);
 
-!!!130178.java!!!	toString() : String
+!!!130178.java!!!	tostring() : string
 		// format date time according to XML standard
 		DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-		return new String("Note: "+ getTitle() + " (" + fmt.print(getLastChangeDate()) + ")");
+		return new string("Note: "+ getTitle() + " (" + fmt.print(getLastChangeDate()) + ")");

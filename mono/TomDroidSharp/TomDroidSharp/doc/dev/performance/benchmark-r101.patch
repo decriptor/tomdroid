@@ -2,7 +2,7 @@
 --- src/org/tomdroid/ui/Tomdroid.java	2009-06-17 05:00:43 +0000
 +++ src/org/tomdroid/ui/Tomdroid.java	2009-06-21 17:12:19 +0000
 @@ -81,6 +81,11 @@
- 	private ArrayAdapter<String> notesListAdapter;
+ 	private ArrayAdapter<string> notesListAdapter;
  	private TextView listEmptyView;
  	
 +	// benchmark related
@@ -11,7 +11,7 @@
 +	int numNote = 0;
 +	
  	// Bundle keys for saving state
- 	private static final String WARNING_SHOWN = "w";
+ 	private static readonly string WARNING_SHOWN = "w";
  	
 @@ -124,6 +129,7 @@
          

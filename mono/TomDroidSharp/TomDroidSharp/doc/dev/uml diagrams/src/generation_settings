@@ -17,7 +17,7 @@
     "ulong" "unsigned long" "long" "unsigned long" "${type}" "${type} &" "${type} &" "${type}"
     "float" "float" "float" "float" "${type}" "${type} &" "${type} &" "${type}"
     "double" "double" "double" "double" "${type}" "${type} &" "${type} &" "${type}"
-    "string" "string" "String" "string" "${type}" "${type} &" "${type} &" "${type}"
+    "string" "string" "string" "string" "${type}" "${type} &" "${type} &" "${type}"
   
   relations_stereotypes 5 // uml cpp java pythonidl
     "sequence" "vector" "Vector" "list" "sequence"
@@ -127,7 +127,7 @@ ${members}}
 "
   java_default_enum_decl "${comment}${@}${visibility}final class ${name} {
 ${members}
-  private final int value;
+  private readonly int value;
 
   public int value() {
     return value;
@@ -149,8 +149,8 @@ ${cases}    default: throw new Error();
   "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type}${multiplicity} ${name}${value};
 " // multiplicity N
   java5_default_enum_item_declaration "  ${@}${name}${value},${comment}"
-  java_default_enum_item_declaration "  ${comment}${@}public static final int _${name}${value};
-public static final ${class} ${name} = new ${class}(_${name});
+  java_default_enum_item_declaration "  ${comment}${@}public static readonly int _${name}${value};
+public static readonly ${class} ${name} = new ${class}(_${name});
 "
   java_default_enum_case "    case _${name}: return ${name};
 "
@@ -161,7 +161,7 @@ public static final ${class} ${name} = new ${class}(_${name});
 " // multiplicity * a..b
     "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type}${multiplicity} ${name}${value};
 " // multiplicity N
-  java_get "get${Name}" final public
+  java_get "get${Name}" readonly public
   java_set "set${Name}" public
   java_default_operation_definition "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
   ${body}}

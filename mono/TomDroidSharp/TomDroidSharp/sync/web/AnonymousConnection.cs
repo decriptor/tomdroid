@@ -20,43 +20,45 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.sync.web;
 
-import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
+//import java.io.UnsupportedEncodingException;
+//import java.net.UnknownHostException;
+//
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.methods.HttpGet;
+//import org.apache.http.client.methods.HttpPut;
+//import org.apache.http.entity.stringEntity;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
+namespace TomDroidSharp.sync.web
+{
+	public class AnonymousConnection : WebConnection {
 
-public class AnonymousConnection extends WebConnection {
-
-	@Override
-	public String get(String uri) throws UnknownHostException
-	{
-		// Prepare a request object
-		HttpGet httpGet = new HttpGet(uri);
-		HttpResponse response = execute(httpGet);
-		return parseResponse(response);
-	}
-	
-	@Override
-	public String put(String uri, String data) throws UnknownHostException {
-		
-		// Prepare a request object
-		HttpPut httpPut = new HttpPut(uri);
-		
-		try {
-			// The default http content charset is ISO-8859-1, JSON requires UTF-8
-			httpPut.setEntity(new StringEntity(data, "UTF-8"));
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-			return null;
+		@Override
+		public string get(string uri) throws UnknownHostException
+		{
+			// Prepare a request object
+			HttpGet httpGet = new HttpGet(uri);
+			HttpResponse response = execute(httpGet);
+			return parseResponse(response);
 		}
 		
-		httpPut.setHeader("Content-Type", "application/json");
-		HttpResponse response = execute(httpPut);
-		return parseResponse(response);
+		@Override
+		public string put(string uri, string data) throws UnknownHostException {
+			
+			// Prepare a request object
+			HttpPut httpPut = new HttpPut(uri);
+			
+			try {
+				// The default http content charset is ISO-8859-1, JSON requires UTF-8
+				httpPut.setEntity(new stringEntity(data, "UTF-8"));
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+				return null;
+			}
+			
+			httpPut.setHeader("Content-Type", "application/json");
+			HttpResponse response = execute(httpPut);
+			return parseResponse(response);
+		}
 	}
 }

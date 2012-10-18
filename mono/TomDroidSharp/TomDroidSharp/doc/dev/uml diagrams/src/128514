@@ -89,7 +89,7 @@ ${members}}
 	public explicit_return_type ""
 	nparams 2
 	  param inout name "handler" explicit_type "Handler"
-	  param in name "url" explicit_type "String"
+	  param in name "url" explicit_type "string"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${synchronized}${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${throws}${staticnl}{
   ${body}}
@@ -128,7 +128,7 @@ ${members}}
       end
 
       operation 132866 "fetchContent"
-	private explicit_return_type "String"
+	private explicit_return_type "string"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -159,7 +159,7 @@ ${members}}
       java_src "${comment}
 ${package}
 ${imports}
-import org.tomdroid.dao.NoteDAO;
+using TomDroidSharp.dao.NoteDAO;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;

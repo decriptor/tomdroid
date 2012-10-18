@@ -20,66 +20,72 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-import android.util.Log;
 
-import static java.text.MessageFormat.format;
+using Android.Util;
+//import static java.text.MessageFormat.format;
 
-/**
- * @author Piotr Adamski <mcveat@gmail.com>
- */
-public class TLog {
-    // Logging should be disabled for release builds
-    private static final boolean LOGGING_ENABLED = true;
 
-    public static void v(String tag, Throwable t, String msg, Object... args) {
-        if (LOGGING_ENABLED) Log.v(tag, format(msg, args), t);
-    }
+namespace TomDroidSharp.util
+{
 
-    public static void v(String tag, String msg, Object... args) {
-    	if (LOGGING_ENABLED) Log.v(tag, format(msg, args));
-    }
 
-    public static void d(String tag, Throwable t, String msg, Object... args) {
-        if (LOGGING_ENABLED) Log.d(tag, format(msg, args), t);
-    }
+	/**
+	 * @author Piotr Adamski <mcveat@gmail.com>
+	 */
+	public class TLog
+	{
+	    // Logging should be disabled for release builds
+	    private static readonly boolean LOGGING_ENABLED = true;
 
-    public static void d(String tag, String msg, Object... args) {
-    	if (LOGGING_ENABLED) Log.d(tag, format(msg, args));
-    }
+	    public static void v(string tag, Throwable t, string msg, Object... args) {
+	        if (LOGGING_ENABLED) Log.v(tag, format(msg, args), t);
+	    }
 
-    public static void i(String tag, Throwable t, String msg, Object... args) {
-        Log.i(tag, format(msg, args), t);
-    }
+	    public static void v(string tag, string msg, Object... args) {
+	    	if (LOGGING_ENABLED) Log.v(tag, format(msg, args));
+	    }
 
-    public static void i(String tag, String msg, Object... args) {
-        Log.i(tag, format(msg, args));
-    }
+	    public static void d(string tag, Throwable t, string msg, Object... args) {
+	        if (LOGGING_ENABLED) Log.d(tag, format(msg, args), t);
+	    }
 
-    public static void w(String tag, Throwable t, String msg, Object... args) {
-        Log.w(tag, format(msg, args), t);
-    }
+	    public static void d(string tag, string msg, Object... args) {
+	    	if (LOGGING_ENABLED) Log.d(tag, format(msg, args));
+	    }
 
-    public static void w(String tag, String msg, Object... args) {
-        Log.w(tag, format(msg, args));
-    }
+	    public static void i(string tag, Throwable t, string msg, Object... args) {
+	        Log.i(tag, format(msg, args), t);
+	    }
 
-    public static void e(String tag, Throwable t, String msg, Object... args) {
-        Log.e(tag, format(msg, args), t);
-    }
+	    public static void i(string tag, string msg, Object... args) {
+	        Log.i(tag, format(msg, args));
+	    }
 
-    public static void e(String tag, String msg, Object... args) {
-        Log.e(tag, format(msg, args));
-    }
-/**
- * FIXME disabled since they were introduced in API level 8 and we target lower
-    public static void wtf(String tag, Throwable t, String msg, Object... args) {
-        Log.wtf(tag, format(msg, args), t);
-    }
+	    public static void w(string tag, Throwable t, string msg, Object... args) {
+	        Log.w(tag, format(msg, args), t);
+	    }
 
-    public static void wtf(String tag, String msg, Object... args) {
-        Log.wtf(tag, format(msg, args));
-    }
- */
+	    public static void w(string tag, string msg, Object... args) {
+	        Log.w(tag, format(msg, args));
+	    }
+
+	    public static void e(string tag, Throwable t, string msg, Object... args) {
+	        Log.e(tag, format(msg, args), t);
+	    }
+
+	    public static void e(string tag, string msg, Object... args) {
+	        Log.e(tag, format(msg, args));
+	    }
+	/**
+	 * FIXME disabled since they were introduced in API level 8 and we target lower
+	    public static void wtf(string tag, Throwable t, string msg, Object... args) {
+	        Log.wtf(tag, format(msg, args), t);
+	    }
+
+	    public static void wtf(string tag, string msg, Object... args) {
+	        Log.wtf(tag, format(msg, args));
+	    }
+	 */
+	}
 }

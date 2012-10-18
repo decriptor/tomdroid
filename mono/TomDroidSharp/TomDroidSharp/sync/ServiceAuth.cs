@@ -20,14 +20,17 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.sync;
 
-import android.net.Uri;
-import android.os.Handler;
+using Android.Net;
+using Android.OS;
 
-public interface ServiceAuth {
-	
-	public boolean isConfigured();
-	public void getAuthUri(final String server, Handler handler);
-	public void remoteAuthComplete(Uri uri, Handler handler);
+namespace TomDroidSharp.sync
+{
+
+	public interface ServiceAuth {
+		
+		public bool isConfigured();
+		public void getAuthUri(string server, Handler handler);
+		public void remoteAuthComplete(Uri uri, Handler handler);
+	}
 }

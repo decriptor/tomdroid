@@ -20,18 +20,20 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-public class StringConverter {
-	public static String encode(String text) {
-		return text.replace("&", "&amp;")
-		           .replace("%", "&pct;")
-		           .replace("_", "&und;");
-	}
-	
-	public static String decode(String text) {
-		return text.replace("&und;", "_")
-		           .replace("&pct;", "%")
-		           .replace("&amp;", "&");
+namespace TomDroidSharp.util
+{
+	public class stringConverter {
+		public static string encode(string text) {
+			return text.replace("&", "&amp;")
+			           .replace("%", "&pct;")
+			           .replace("_", "&und;");
+		}
+		
+		public static string decode(string text) {
+			return text.replace("&und;", "_")
+			           .replace("&pct;", "%")
+			           .replace("&amp;", "&");
+		}
 	}
 }

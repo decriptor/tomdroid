@@ -20,31 +20,34 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.xml;
+.xml;
 
-import org.tomdroid.NoteManager;
-import org.tomdroid.ui.Tomdroid;
-import org.tomdroid.util.TLog;
+using TomDroidSharp.NoteManager;
+using TomDroidSharp.ui.Tomdroid;
+using TomDroidSharp.util.TLog;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.text.SpannableStringBuilder;
+import android.text.SpannablestringBuilder;
 import android.text.style.ClickableSpan;
 import android.text.util.Linkify.MatchFilter;
 import android.view.View;
 
+namespace TomDroidSharp.xml
+{
+
 /*
  * This class is responsible for parsing the xml note content
- * and formatting the contents in a SpannableStringBuilder
+ * and formatting the contents in a SpannablestringBuilder
  */
-public class LinkInternalSpan extends ClickableSpan {
+public class LinkInternalSpan string  ClickableSpan {
 
 	// Logging info
-	private static final String TAG = "LinkInternalSpan";
+	private static readonly string TAG = "LinkInternalSpan";
 	
-	private String title;
-	public LinkInternalSpan(String title) {
+	private string title;
+	public LinkInternalSpan(string title) {
 		super();
 		this.title = title;
 	}
@@ -55,7 +58,7 @@ public class LinkInternalSpan extends ClickableSpan {
 		int id = NoteManager.getNoteId(act, title);
 		Uri intentUri;
 		if(id != 0) {
-			intentUri = Uri.parse(Tomdroid.CONTENT_URI.toString()+"/"+id);
+			intentUri = Uri.parse(Tomdroid.CONTENT_URI.tostring()+"/"+id);
 		} else {
 			/* TODO: open new note */
 			TLog.d(TAG, "link: {0} was clicked", title);
@@ -65,7 +68,7 @@ public class LinkInternalSpan extends ClickableSpan {
 		act.startActivity(i);
 	}
 	
-	public static MatchFilter getNoteLinkMatchFilter(final SpannableStringBuilder noteContent, final LinkInternalSpan[] links) {
+	public static MatchFilter getNoteLinkMatchFilter(final SpannablestringBuilder noteContent, readonly LinkInternalSpan[] links) {
 		
 		return new MatchFilter() {
 			
@@ -82,4 +85,5 @@ public class LinkInternalSpan extends ClickableSpan {
 			}
 		};
 	}
+}
 }

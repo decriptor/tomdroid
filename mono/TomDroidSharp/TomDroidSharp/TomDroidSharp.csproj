@@ -15,6 +15,7 @@
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AssemblyName>TomDroidSharp</AssemblyName>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -26,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
     <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidSupportedAbis>armeabi-v7a</AndroidSupportedAbis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -44,9 +46,55 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Activity1.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="sync\sd\NoteHandler.cs" />
+    <Compile Include="sync\sd\SdCardSyncService.cs" />
+    <Compile Include="sync\web\AnonymousConnection.cs" />
+    <Compile Include="sync\web\OAuthConnection.cs" />
+    <Compile Include="sync\web\SnowySyncService.cs" />
+    <Compile Include="sync\web\WebConnection.cs" />
+    <Compile Include="sync\ServiceAuth.cs" />
+    <Compile Include="sync\SyncManager.cs" />
+    <Compile Include="sync\SyncService.cs" />
+    <Compile Include="ui\actionbar\ActionBarActivity.cs" />
+    <Compile Include="ui\actionbar\ActionBarHelper.cs" />
+    <Compile Include="ui\actionbar\ActionBarHelperBase.cs" />
+    <Compile Include="ui\actionbar\ActionBarHelperHoneycomb.cs" />
+    <Compile Include="ui\actionbar\ActionBarHelperICS.cs" />
+    <Compile Include="ui\actionbar\ActionBarListActivity.cs" />
+    <Compile Include="ui\actionbar\ActionBarPreferenceActivity.cs" />
+    <Compile Include="ui\actionbar\SimpleMenu.cs" />
+    <Compile Include="ui\actionbar\SimpleMenuItem.cs" />
+    <Compile Include="ui\CompareNotes.cs" />
+    <Compile Include="ui\EditNote.cs" />
+    <Compile Include="ui\FilePickerActivity.cs" />
+    <Compile Include="ui\PreferencesActivity.cs" />
+    <Compile Include="ui\ShortcutActivity.cs" />
+    <Compile Include="ui\Tomdroid.cs" />
+    <Compile Include="ui\ViewNote.cs" />
+    <Compile Include="util\ErrorList.cs" />
+    <Compile Include="util\FirstNote.cs" />
+    <Compile Include="util\Honeycomb.cs" />
+    <Compile Include="util\LinkifyPhone.cs" />
+    <Compile Include="util\NavButtonAdapter.cs" />
+    <Compile Include="util\NewNote.cs" />
+    <Compile Include="util\NoteContentBuilder.cs" />
+    <Compile Include="util\NoteListCursorAdapter.cs" />
+    <Compile Include="util\NoteViewShortcutsHelper.cs" />
+    <Compile Include="util\NoteXMLContentBuilder.cs" />
+    <Compile Include="util\Preferences.cs" />
+    <Compile Include="util\Receive.cs" />
+    <Compile Include="util\SearchSuggestionProvider.cs" />
+    <Compile Include="util\Send.cs" />
+    <Compile Include="util\StringConverter.cs" />
+    <Compile Include="util\TLog.cs" />
+    <Compile Include="util\XmlUtils.cs" />
+    <Compile Include="Note.cs" />
+    <Compile Include="NoteManager.cs" />
+    <Compile Include="NoteProvider.cs" />
+    <Compile Include="xml\LinkInternalSpan.cs" />
+    <Compile Include="xml\NoteContentHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -204,53 +252,7 @@
     <None Include="doc\dev\uml diagrams\src\python_imports" />
     <None Include="doc\dev\uml diagrams\src\stereotypes" />
     <None Include="doc\dev\uml diagrams\src\tools" />
-    <None Include="Note.cs" />
-    <None Include="NoteManager.cs" />
-    <None Include="NoteProvider.cs" />
-    <None Include="sync\sd\NoteHandler.cs" />
-    <None Include="sync\sd\SdCardSyncService.cs" />
-    <None Include="sync\web\AnonymousConnection.cs" />
-    <None Include="sync\web\OAuthConnection.cs" />
-    <None Include="sync\web\SnowySyncService.cs" />
-    <None Include="sync\web\WebConnection.cs" />
-    <None Include="sync\ServiceAuth.cs" />
-    <None Include="sync\SyncManager.cs" />
-    <None Include="sync\SyncService.cs" />
-    <None Include="ui\actionbar\ActionBarActivity.cs" />
-    <None Include="ui\actionbar\ActionBarHelper.cs" />
-    <None Include="ui\actionbar\ActionBarHelperBase.cs" />
-    <None Include="ui\actionbar\ActionBarHelperHoneycomb.cs" />
-    <None Include="ui\actionbar\ActionBarHelperICS.cs" />
-    <None Include="ui\actionbar\ActionBarListActivity.cs" />
-    <None Include="ui\actionbar\ActionBarPreferenceActivity.cs" />
-    <None Include="ui\actionbar\SimpleMenu.cs" />
-    <None Include="ui\actionbar\SimpleMenuItem.cs" />
-    <None Include="ui\CompareNotes.cs" />
-    <None Include="ui\EditNote.cs" />
-    <None Include="ui\FilePickerActivity.cs" />
-    <None Include="ui\PreferencesActivity.cs" />
-    <None Include="ui\ShortcutActivity.cs" />
-    <None Include="ui\Tomdroid.cs" />
-    <None Include="ui\ViewNote.cs" />
-    <None Include="util\ErrorList.cs" />
-    <None Include="util\FirstNote.cs" />
-    <None Include="util\Honeycomb.cs" />
-    <None Include="util\LinkifyPhone.cs" />
-    <None Include="util\NavButtonAdapter.cs" />
-    <None Include="util\NewNote.cs" />
-    <None Include="util\NoteContentBuilder.cs" />
-    <None Include="util\NoteListCursorAdapter.cs" />
-    <None Include="util\NoteViewShortcutsHelper.cs" />
-    <None Include="util\NoteXMLContentBuilder.cs" />
-    <None Include="util\Preferences.cs" />
-    <None Include="util\Receive.cs" />
-    <None Include="util\SearchSuggestionProvider.cs" />
-    <None Include="util\Send.cs" />
-    <None Include="util\StringConverter.cs" />
-    <None Include="util\TLog.cs" />
-    <None Include="util\XmlUtils.cs" />
-    <None Include="xml\LinkInternalSpan.cs" />
-    <None Include="xml\NoteContentHandler.cs" />
+    <None Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Icon.png" />

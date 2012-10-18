@@ -1,11 +1,13 @@
-package org.tomdroid.util;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
+using Android.App;
+//import android.annotation.TargetApi;
 
-public class Honeycomb {
-	@TargetApi(11)
-	public static void invalidateOptionsMenuWrapper(Activity activity) {
-		activity.invalidateOptionsMenu();
+namespace TomDroidSharp.Util
+{
+	public class Honeycomb {
+		@TargetApi(11)
+		public static void invalidateOptionsMenuWrapper(Activity activity) {
+			activity.invalidateOptionsMenu();
+		}
 	}
 }

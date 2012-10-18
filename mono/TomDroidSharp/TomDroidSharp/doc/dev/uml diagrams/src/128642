@@ -248,7 +248,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137218 "TITLE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"title\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -262,7 +262,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137346 "LAST_CHANGE_DATE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"last-change-date\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -273,7 +273,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137474 "NOTE_CONTENT"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"note-content\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -286,7 +286,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137602 "BOLD"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"bold\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -297,7 +297,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137730 "ITALIC"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"italic\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -308,7 +308,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137858 "STRIKETHROUGH"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"strikethrough\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -319,7 +319,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 137986 "HIGHLIGHT"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"highlight\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -330,7 +330,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138114 "MONOSPACE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"monospace\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -341,7 +341,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138242 "NS_SIZE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"http://beatniksoftware.com/tomboy/size\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -354,7 +354,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138370 "SMALL"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"small\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -365,7 +365,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138498 "LARGE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"large\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -376,7 +376,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138626 "HUGE"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"huge\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -387,7 +387,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138754 "LIST"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"list\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -402,7 +402,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 138882 "LIST_ITEM"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"list-item\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -413,7 +413,7 @@ the coupling involved won't do much damage. I guess time will tell.
       end
 
       attribute 139010 "ssb"
-	private explicit_type "SpannableStringBuilder"
+	private explicit_type "SpannablestringBuilder"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -451,9 +451,9 @@ the coupling involved won't do much damage. I guess time will tell.
       operation 133122 "startElement"
 	public explicit_return_type "void"
 	nparams 4
-	  param in name "uri" explicit_type "String"
-	  param in name "localName" explicit_type "String"
-	  param in name "name" explicit_type "String"
+	  param in name "uri" explicit_type "string"
+	  param in name "localName" explicit_type "string"
+	  param in name "name" explicit_type "string"
 	  param inout name "attributes" explicit_type "Attributes"
 	nexceptions 1
 	  explicit_exception "SAXException"
@@ -471,9 +471,9 @@ the coupling involved won't do much damage. I guess time will tell.
       operation 133250 "endElement"
 	public explicit_return_type "void"
 	nparams 3
-	  param in name "uri" explicit_type "String"
-	  param in name "localName" explicit_type "String"
-	  param in name "name" explicit_type "String"
+	  param in name "uri" explicit_type "string"
+	  param in name "localName" explicit_type "string"
+	  param in name "name" explicit_type "string"
 	nexceptions 1
 	  explicit_exception "SAXException"
 	
@@ -520,12 +520,12 @@ ${package}
 ${imports}
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.tomdroid.Note;
+using TomDroidSharp.Note;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.text.SpannablestringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.BulletSpan;
 import android.text.style.RelativeSizeSpan;

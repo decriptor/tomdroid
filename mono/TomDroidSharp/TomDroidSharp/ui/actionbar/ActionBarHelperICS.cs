@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package org.tomdroid.ui.actionbar;
+using Android.App;
+using Android.Content;
 
-import android.app.Activity;
-import android.content.Context;
+namespace TomDroidSharp.ui.actionbar
+{
+	/**
+	 * An extension of {@link com.example.android.actionbarcompat.ActionBarHelper} that provides Android
+	 * 4.0-specific functionality for IceCreamSandwich devices. It thus requires API level 14.
+	 */
+	public class ActionBarHelperICS : ActionBarHelperHoneycomb {
+	    protected ActionBarHelperICS(Activity activity) {
+	        super(activity);
+	    }
 
-/**
- * An extension of {@link com.example.android.actionbarcompat.ActionBarHelper} that provides Android
- * 4.0-specific functionality for IceCreamSandwich devices. It thus requires API level 14.
- */
-public class ActionBarHelperICS extends ActionBarHelperHoneycomb {
-    protected ActionBarHelperICS(Activity activity) {
-        super(activity);
-    }
-
-    @Override
-    protected Context getActionBarThemedContext() {
-        return mActivity.getActionBar().getThemedContext();
-    }
+	    @Override
+	    protected Context getActionBarThemedContext() {
+	        return mActivity.getActionBar().getThemedContext();
+	    }
+	}
 }

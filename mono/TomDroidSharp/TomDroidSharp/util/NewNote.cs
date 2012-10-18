@@ -20,38 +20,40 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-import org.tomdroid.Note;
-import java.util.UUID;
-import android.content.Context;
+using Android.Content;
 
+using TomDroidSharp.Note;
+//import java.util.UUID;
 
-/**
- * Creates a new note object 
- *
- */
-public class NewNote {
+namespace TomDroidSharp.util
+{
+	/**
+	 * Creates a new note object 
+	 *
+	 */
+	public class NewNote {
 
-	// Logging info
-	private static final String	TAG = "NewNote";
-	// indicates, if note was never saved before (for dismiss dialogue)
-	public static boolean neverSaved;
-	
-	public static Note createNewNote(Context context, String title, String xmlContent) {
-		TLog.v(TAG, "Creating new note");
+		// Logging info
+		private static readonly string	TAG = "NewNote";
+		// indicates, if note was never saved before (for dismiss dialogue)
+		public static boolean neverSaved;
 		
-		Note note = new Note();
-		neverSaved = true;
-		
-		note.setTitle(title);
+		public static Note createNewNote(Context context, string title, string xmlContent) {
+			TLog.v(TAG, "Creating new note");
+			
+			Note note = new Note();
+			neverSaved = true;
+			
+			note.setTitle(title);
 
-		UUID newid = UUID.randomUUID();
-		note.setGuid(newid.toString());
-		note.setLastChangeDate();
-		note.setXmlContent(xmlContent);
-		
-		return note;
+			UUID newid = UUID.randomUUID();
+			note.setGuid(newid.tostring());
+			note.setLastChangeDate();
+			note.setXmlContent(xmlContent);
+			
+			return note;
+		}
+
 	}
-
 }

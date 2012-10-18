@@ -9,10 +9,10 @@ class NoteView
 		// get url or file to fetch from Intent
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			url = extras.getString(Note.URL);
-			file = extras.getString(Note.FILE);
+			url = extras.getstring(Note.URL);
+			file = extras.getstring(Note.FILE);
 		} else {
-			Log.i(this.toString(), "info: Bundle was empty.");
+			Log.i(this.tostring(), "info: Bundle was empty.");
 		}
 		
 		// Based on what is sent in the bundle, we either load from file or url

@@ -3,7 +3,7 @@
 +++ src/org/tomdroid/ui/Tomdroid.java	2009-04-20 22:16:47 +0000
 @@ -80,7 +80,11 @@
  	// UI to data model glue
- 	private ArrayAdapter<String> notesListAdapter;
+ 	private ArrayAdapter<string> notesListAdapter;
  	private TextView listEmptyView;
 -
 +	

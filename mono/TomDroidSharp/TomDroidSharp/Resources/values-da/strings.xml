@@ -309,7 +309,7 @@
 	<!-- 500 chars max -->
         <string name="market_recent_changes">0.6 \"Small World\" release\n* Create home-screen shortcuts to notes\n* Specify a folder to use for SD Card sync\n* Reload current note after sync\n* A lot of new translations: ar, bs, ca, cs, da, de, el, en-rGB, eo, es, eu, fa, fi, fo, fr, gd, hi, hu, it, ja, ko, ms, nb, pl, pt, pt-rBR, ru, si, sv, ta, te, tr, ug, uk, zh, zh-rCN\n* Several bugfixes\n</string>
 
-	<!-- Launchpad Translation String -->
+	<!-- Launchpad Translation string -->
 	<string name="about_translators">Launchpad Contributions:
   Mads Boserup Lauritsen https://launchpad.net/~madsbola</string>
 </resources>

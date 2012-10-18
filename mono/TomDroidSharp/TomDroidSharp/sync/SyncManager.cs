@@ -20,89 +20,92 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.sync;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
-import org.tomdroid.sync.sd.SdCardSyncService;
-import org.tomdroid.sync.web.SnowySyncService;
-import org.tomdroid.util.Preferences;
-import android.app.Activity;
-import android.os.Handler;
+using TomDroidSharp.sync.sd.SdCardSyncService;
+using TomDroidSharp.sync.web.SnowySyncService;
+using TomDroidSharp.util.Preferences;
+using Android.App;
+using Android.OS;
+
+namespace TomDroidSharp.sync
+{
 
 public class SyncManager {
-	
-	private static ArrayList<SyncService> services = new ArrayList<SyncService>();
-	private SyncService service;
-	
-	public SyncManager() {
-		createServices();
-	}
-
-	public ArrayList<SyncService> getServices() {
-		return services;
-	}
-	
-	public static SyncService getService(String name) {
 		
-		for (int i = 0; i < services.size(); i++) {
-			SyncService service = services.get(i);			
-			if (name.equals(service.getName()))
-				return service;
+		private static ArrayList<SyncService> services = new ArrayList<SyncService>();
+		private SyncService service;
+		
+		public SyncManager() {
+			createServices();
+		}
+
+		public ArrayList<SyncService> getServices() {
+			return services;
 		}
 		
-		return null;
-	}
-	
-	public void startSynchronization(boolean push) {
+		public static SyncService getService(string name) {
+			
+			for (int i = 0; i < services.size(); i++) {
+				SyncService service = services.get(i);			
+				if (name.equals(service.getName()))
+					return service;
+			}
+			
+			return null;
+		}
 		
-		service = getCurrentService();
-		service.setCancelled(false);
-		service.startSynchronization(push);
-	}
-	
-	public SyncService getCurrentService() {
-		String serviceName = Preferences.getString(Preferences.Key.SYNC_SERVICE);
-		return getService(serviceName);
-	}
-	
-	private static SyncManager instance = null;
-	private static Activity activity;
-	private static Handler handler;
-	
-	public static SyncManager getInstance() {
+		public void startSynchronization(boolean push) {
+			
+			service = getCurrentService();
+			service.setCancelled(false);
+			service.startSynchronization(push);
+		}
 		
-		if (instance == null)
-			instance = new SyncManager();
+		public SyncService getCurrentService() {
+			string serviceName = Preferences.getstring(Preferences.Key.SYNC_SERVICE);
+			return getService(serviceName);
+		}
 		
-		return instance;
-	}
-	
-	public static void setActivity(Activity a) {
-		activity = a;
-		getInstance().createServices();
-	}
-	
-	public static void setHandler(Handler h) {
-		handler = h;
-		getInstance().createServices();
-	}
+		private static SyncManager instance = null;
+		private static Activity activity;
+		private static Handler handler;
+		
+		public static SyncManager getInstance() {
+			
+			if (instance == null)
+				instance = new SyncManager();
+			
+			return instance;
+		}
+		
+		public static void setActivity(Activity a) {
+			activity = a;
+			getInstance().createServices();
+		}
+		
+		public static void setHandler(Handler h) {
+			handler = h;
+			getInstance().createServices();
+		}
 
-	private void createServices() {
-		services.clear();
+		private void createServices() {
+			services.clear();
+			
+			services.add(new SnowySyncService(activity, handler));
+			services.add(new SdCardSyncService(activity, handler));
+		}
+
+		// new methods to TEdit
 		
-		services.add(new SnowySyncService(activity, handler));
-		services.add(new SdCardSyncService(activity, handler));
-	}
+		public void pullNote(string guid) {
+			SyncService service = getCurrentService();
+			service.pullNote(guid);		
+		}
 
-	// new methods to TEdit
-	
-	public void pullNote(String guid) {
-		SyncService service = getCurrentService();
-		service.pullNote(guid);		
-	}
-
-	public void cancel() {
-		service.setCancelled(true);
+		public void cancel() {
+			service.setCancelled(true);
+		}
 	}
 }

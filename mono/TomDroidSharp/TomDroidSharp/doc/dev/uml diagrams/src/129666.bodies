@@ -14,10 +14,10 @@ class tomdroid
         	
             public void onClick(View v)
             {
-                Log.i(tomdroid.this.toString(), "info: Button clicked. URL requested: "+txtURL.getText().toString());
+                Log.i(tomdroid.this.tostring(), "info: Button clicked. URL requested: "+txtURL.getText().tostring());
             	
             	Intent i = new Intent(tomdroid.this, NoteView.class);
-                i.putExtra(Note.URL, txtURL.getText().toString());
+                i.putExtra(Note.URL, txtURL.getText().tostring());
                 startActivityForResult(i, ACTIVITY_VIEW);
             }
         });
@@ -29,7 +29,7 @@ class tomdroid
         	
             public void onClick(View v)
             {
-                Log.i(tomdroid.this.toString(), "info: Button clicked. Loading local notes");
+                Log.i(tomdroid.this.tostring(), "info: Button clicked. Loading local notes");
             	
             	Intent i = new Intent(tomdroid.this, NoteList.class);
                 startActivityForResult(i, ACTIVITY_VIEW);

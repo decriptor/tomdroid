@@ -21,15 +21,18 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-import android.content.SearchRecentSuggestionsProvider;
+using Android.Content;
 
-public class SearchSuggestionProvider extends SearchRecentSuggestionsProvider {
-    public final static String AUTHORITY = "org.tomdroid.util.SearchSuggestionProvider";
-    public final static int MODE = DATABASE_MODE_QUERIES;
+namespace TomDroidSharp.util
+{
+	public class SearchSuggestionProvider : SearchRecentSuggestionsProvider
+	{
+	    public readonly static string AUTHORITY = "org.tomdroid.util.SearchSuggestionProvider";
+	    public readonly static int MODE = DATABASE_MODE_QUERIES;
 
-    public SearchSuggestionProvider() {
-        setupSuggestions(AUTHORITY, MODE);
-    }
+	    public SearchSuggestionProvider() {
+	        setupSuggestions(AUTHORITY, MODE);
+	    }
+	}
 }

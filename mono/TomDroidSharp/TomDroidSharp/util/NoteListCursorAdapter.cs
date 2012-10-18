@@ -20,148 +20,147 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.util;
 
-import java.text.DateFormat;
-import java.util.Date;
+//import java.text.DateFormat;
+//import java.util.Date;
 
-import org.tomdroid.Note;
-import org.tomdroid.R;
+using Android.Content;
+using Android.Database;
+using Android.Graphics;
+using Android.Text;
+using Android.Views;
+using Android.Widget;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Paint;
-import android.text.format.DateUtils;
-import android.text.format.Time;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
+using TomDroidSharp.Note;
+using TomDroidSharp.R;
 
 /* Provides a custom ListView layout for Note List */
 
-public class NoteListCursorAdapter extends SimpleCursorAdapter {
+namespace TomDroidSharp.util
+{
 
-	// static properties
-	private static final String TAG = "NoteListCursorAdapter";
+	public class NoteListCursorAdapter : SimpleCursorAdapter {
 
-	
-    private int layout;
-    private Context context;
+		// static properties
+		private static readonly string TAG = "NoteListCursorAdapter";
 
-    private DateFormat localeDateFormat;
-    private DateFormat localeTimeFormat;
-    
-    private int selectedIndex;
+		
+	    private int layout;
+	    private Context context;
+
+	    private DateFormat localeDateFormat;
+	    private DateFormat localeTimeFormat;
+	    
+	    private int selectedIndex;
 
 
-    public NoteListCursorAdapter (Context context, int layout, Cursor c, String[] from, int[] to, int selectedIndex) {
-        super(context, layout, c, from, to);
-        this.layout = layout;
-        this.context = context;
-        this.selectedIndex = selectedIndex;
-        
-        localeDateFormat = android.text.format.DateFormat.getDateFormat(context);
-        localeTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
-    }
-    
+	    public NoteListCursorAdapter (Context context, int layout, Cursor c, string[] from, int[] to, int selectedIndex) {
+	        super(context, layout, c, from, to);
+	        this.layout = layout;
+	        this.context = context;
+	        this.selectedIndex = selectedIndex;
+	        
+	        localeDateFormat = android.text.format.DateFormat.getDateFormat(context);
+	        localeTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+	    }
+	    
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+	    @Override
+	    public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
-        Cursor c = getCursor();
+	        Cursor c = getCursor();
 
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(layout, parent, false);
+	        readonly LayoutInflater inflater = LayoutInflater.from(context);
+	        View v = inflater.inflate(layout, parent, false);
 
-        populateFields(v, c);
+	        populateFields(v, c);
 
-        return v;
-    }
+	        return v;
+	    }
 
-    @Override
-    public void bindView(View v, Context context, Cursor c) {
+	    @Override
+	    public void bindView(View v, Context context, Cursor c) {
 
-        populateFields(v, c);
-    }
-    
-    @Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-    	View v = super.getView(position, convertView, parent);
-    	if(this.selectedIndex == position) {
-            TextView note_title = (TextView) v.findViewById(R.id.note_title);
-            if (note_title != null) {
-            	note_title.setTextColor(0xFFFFFFFF);
-            }
-            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
-            if (note_modified != null) {
-            	note_modified.setTextColor(0xFFFFFFFF);
-            }
-    		v.setBackgroundResource(R.drawable.drop_shadow_selected);
-    		v.findViewById(R.id.triangle).setBackgroundResource(R.drawable.white_triangle);
-    	}
-    	else {
-            TextView note_title = (TextView) v.findViewById(R.id.note_title);
-            if (note_title != null) {
-            	note_title.setTextColor(0xFF000000);
-            }
-            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
-            if (note_modified != null) {
-            	note_modified.setTextColor(0xFF000000);
-            }
-    		v.setBackgroundResource(0);
-    		v.findViewById(R.id.triangle).setBackgroundResource(0);
-    	}
-    	return v;
+	        populateFields(v, c);
+	    }
+	    
+	    @Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+	    	View v = super.getView(position, convertView, parent);
+	    	if(this.selectedIndex == position) {
+	            TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	            if (note_title != null) {
+	            	note_title.setTextColor(0xFFFFFFFF);
+	            }
+	            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	            if (note_modified != null) {
+	            	note_modified.setTextColor(0xFFFFFFFF);
+	            }
+	    		v.setBackgroundResource(R.drawable.drop_shadow_selected);
+	    		v.findViewById(R.id.triangle).setBackgroundResource(R.drawable.white_triangle);
+	    	}
+	    	else {
+	            TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	            if (note_title != null) {
+	            	note_title.setTextColor(0xFF000000);
+	            }
+	            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	            if (note_modified != null) {
+	            	note_modified.setTextColor(0xFF000000);
+	            }
+	    		v.setBackgroundResource(0);
+	    		v.findViewById(R.id.triangle).setBackgroundResource(0);
+	    	}
+	    	return v;
+		}
+	    
+	    private void populateFields(View v, Cursor c){
+
+	        int nameCol = c.getColumnIndex(Note.TITLE);
+	        int modifiedCol = c.getColumnIndex(Note.MODIFIED_DATE);
+	        int tagCol = c.getColumnIndex(Note.TAGS);
+	        
+	        string title = c.getstring(nameCol);
+	        string tags = c.getstring(tagCol);
+	        
+	        //Format last modified dates to be similar to desktop Tomboy
+	        //TODO this is messy - must be a better way than having 3 separate date types
+	        Time lastModified = new Time();
+	        lastModified.parse3339(c.getstring(modifiedCol));
+	        Long lastModifiedMillis = lastModified.toMillis(false);
+	        Date lastModifiedDate = new Date(lastModifiedMillis);
+	        
+	        string strModified = this.context.getstring(R.string.textModified)+" ";
+	        //TODO this is very inefficient
+	        if (DateUtils.isToday(lastModifiedMillis)){
+	        	strModified += this.context.getstring(R.string.textToday) +", " + localeTimeFormat.format(lastModifiedDate);
+	        } else {
+	        	// Add a day to the last modified date - if the date is now today, it means the note was edited yesterday
+	        	Time yesterdayTest = lastModified;
+	        	yesterdayTest.monthDay += 1;
+	        	if (DateUtils.isToday(yesterdayTest.toMillis(false))){
+	        		strModified += this.context.getstring(R.string.textYexterday) +", " + localeTimeFormat.format(lastModifiedDate);
+	        	} else {
+	        		strModified += localeDateFormat.format(lastModifiedDate) + ", " + localeTimeFormat.format(lastModifiedDate);
+	        	}
+	        }
+
+	        /**
+	         * Next set the name of the entry.
+	         */
+	        TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	        if (note_title != null) {
+	        	note_title.setText(title);
+	            if(tags.contains("system:deleted"))
+	            	note_title.setPaintFlags(note_title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+	            else
+	            	note_title.setPaintFlags(note_title.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+	        }
+	        TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	        if (note_modified != null) {
+	        	note_modified.setText(strModified);
+	        }
+	    }
+
 	}
-    
-    private void populateFields(View v, Cursor c){
-
-        int nameCol = c.getColumnIndex(Note.TITLE);
-        int modifiedCol = c.getColumnIndex(Note.MODIFIED_DATE);
-        int tagCol = c.getColumnIndex(Note.TAGS);
-        
-        String title = c.getString(nameCol);
-        String tags = c.getString(tagCol);
-        
-        //Format last modified dates to be similar to desktop Tomboy
-        //TODO this is messy - must be a better way than having 3 separate date types
-        Time lastModified = new Time();
-        lastModified.parse3339(c.getString(modifiedCol));
-        Long lastModifiedMillis = lastModified.toMillis(false);
-        Date lastModifiedDate = new Date(lastModifiedMillis);
-        
-        String strModified = this.context.getString(R.string.textModified)+" ";
-        //TODO this is very inefficient
-        if (DateUtils.isToday(lastModifiedMillis)){
-        	strModified += this.context.getString(R.string.textToday) +", " + localeTimeFormat.format(lastModifiedDate);
-        } else {
-        	// Add a day to the last modified date - if the date is now today, it means the note was edited yesterday
-        	Time yesterdayTest = lastModified;
-        	yesterdayTest.monthDay += 1;
-        	if (DateUtils.isToday(yesterdayTest.toMillis(false))){
-        		strModified += this.context.getString(R.string.textYexterday) +", " + localeTimeFormat.format(lastModifiedDate);
-        	} else {
-        		strModified += localeDateFormat.format(lastModifiedDate) + ", " + localeTimeFormat.format(lastModifiedDate);
-        	}
-        }
-
-        /**
-         * Next set the name of the entry.
-         */
-        TextView note_title = (TextView) v.findViewById(R.id.note_title);
-        if (note_title != null) {
-        	note_title.setText(title);
-            if(tags.contains("system:deleted"))
-            	note_title.setPaintFlags(note_title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            else
-            	note_title.setPaintFlags(note_title.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-        }
-        TextView note_modified = (TextView) v.findViewById(R.id.note_date);
-        if (note_modified != null) {
-        	note_modified.setText(strModified);
-        }
-    }
-
 }

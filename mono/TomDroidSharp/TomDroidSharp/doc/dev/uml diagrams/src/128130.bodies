@@ -30,10 +30,10 @@ class NoteList
 		}
 		
 		// listAdapter
-		ArrayAdapter<String> notesListAdapter = new ArrayAdapter<String>(this, R.layout.note_list_item, notesNamesList);
+		ArrayAdapter<string> notesListAdapter = new ArrayAdapter<string>(this, R.layout.note_list_item, notesNamesList);
         setListAdapter(notesListAdapter);
 !!!130818.java!!!	onListItemClick(inout l : ListView, inout v : View, in position : int, in id : long) : void
-		Log.i(this.toString(),"Position: " + position + " id:" + id + " Note file:" + notes.get(position).getFileName());
+		Log.i(this.tostring(),"Position: " + position + " id:" + id + " Note file:" + notes.get(position).getFileName());
 		
 		
 		Intent i = new Intent(NoteList.this, NoteView.class);

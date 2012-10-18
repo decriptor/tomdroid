@@ -1,5 +1,5 @@
 class NoteNetworkDAOMock
-!!!132482.java!!!	NoteNetworkDAOMock(inout handler : Handler, in url : String)
+!!!132482.java!!!	NoteNetworkDAOMock(inout handler : Handler, in url : string)
 
 		parentHandler = handler;
 !!!132610.java!!!	getContent() : void
@@ -12,12 +12,12 @@ class NoteNetworkDAOMock
 		
 		// Load the message object with the note
 		Bundle bundle = new Bundle();
-		bundle.putString(NoteDAO.NOTE, fetchContent());
+		bundle.putstring(NoteDAO.NOTE, fetchContent());
 		msg.setData(bundle);
 		
 		// notify UI that we are done here and send result 
 		parentHandler.sendMessage(msg);
-!!!132866.java!!!	fetchContent() : String
+!!!132866.java!!!	fetchContent() : string
 
 		try {
 			// simulate delay

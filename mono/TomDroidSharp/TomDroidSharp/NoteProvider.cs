@@ -41,7 +41,6 @@
  * This file was inspired by com.example.android.notepad.NotePadProvider 
  * available in the Android SDK. 
  */
-package org.tomdroid;
 
 import android.content.*;
 import android.content.res.Resources;
@@ -53,37 +52,39 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.Html;
 import android.text.TextUtils;
-import org.tomdroid.ui.Tomdroid;
-import org.tomdroid.util.Preferences;
-import org.tomdroid.util.StringConverter;
-import org.tomdroid.util.TLog;
+using TomDroidSharp.ui.Tomdroid;
+using TomDroidSharp.util.Preferences;
+using TomDroidSharp.util.stringConverter;
+using TomDroidSharp.util.TLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class NoteProvider extends ContentProvider {
+namespace TomDroidSharp
+{
+public class NoteProvider string  ContentProvider {
 	
 	// ContentProvider stuff
 	// --	
-	private static final String DATABASE_NAME = "tomdroid-notes.db";
-	private static final String DB_TABLE_NOTES = "notes";
-	private static final int DB_VERSION = 4;
+	private static readonly string DATABASE_NAME = "tomdroid-notes.db";
+	private static readonly string DB_TABLE_NOTES = "notes";
+	private static readonly int DB_VERSION = 4;
 	
-    private static HashMap<String, String> notesProjectionMap;
+    private static HashMap<string, string> notesProjectionMap;
 
-    private static final int NOTES = 1;
-    private static final int NOTE_ID = 2;
-    private static final int NOTE_TITLE = 3;
+    private static readonly int NOTES = 1;
+    private static readonly int NOTE_ID = 2;
+    private static readonly int NOTE_TITLE = 3;
 
-    private static final UriMatcher uriMatcher;
+    private static readonly UriMatcher uriMatcher;
     
     // Logging info
-    private static final String TAG = "NoteProvider";
+    private static readonly string TAG = "NoteProvider";
        
     // List of each version's columns
-	private static final String[][] COLUMNS_VERSION = {
+	private static readonly string[][] COLUMNS_VERSION = {
 		{ Note.TITLE, Note.FILE, Note.MODIFIED_DATE },
 		{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE },
 		{ Note.GUID, Note.TITLE, Note.FILE, Note.NOTE_CONTENT, Note.MODIFIED_DATE, Note.TAGS },
@@ -93,7 +94,7 @@ public class NoteProvider extends ContentProvider {
     /**
      * This class helps open, create, and upgrade the database file.
      */
-    private static class DatabaseHelper extends SQLiteOpenHelper {
+    private static class DatabaseHelper string  SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DB_VERSION);
@@ -108,8 +109,8 @@ public class NoteProvider extends ContentProvider {
                     + Note.FILE + " TEXT,"
                     + Note.NOTE_CONTENT + " TEXT,"
                     + Note.NOTE_CONTENT_PLAIN + " TEXT,"
-                    + Note.MODIFIED_DATE + " STRING,"
-                    + Note.TAGS + " STRING"
+                    + Note.MODIFIED_DATE + " string,"
+                    + Note.TAGS + " string"
                     + ");");
         }
 
@@ -118,7 +119,7 @@ public class NoteProvider extends ContentProvider {
         	TLog.d(TAG, "Upgrading database from version {0} to {1}",
                     oldVersion, newVersion);
         	Cursor notesCursor;
-        	ArrayList<Map<String, String>> db_list = new ArrayList<Map<String, String>>();
+        	ArrayList<Map<string, string>> db_list = new ArrayList<Map<string, string>>();
         	notesCursor = db.query(DB_TABLE_NOTES, COLUMNS_VERSION[oldVersion - 1], null, null, null, null, null);
         	notesCursor.moveToFirst();
 
@@ -132,9 +133,9 @@ public class NoteProvider extends ContentProvider {
 
 			// Get old datas from the SQL
 			while(!notesCursor.isAfterLast()) {
-				Map<String, String> row = new HashMap<String, String>();
+				Map<string, string> row = new HashMap<string, string>();
 				for(int i = 0; i < COLUMNS_VERSION[oldVersion - 1].length; i++) {
-					row.put(COLUMNS_VERSION[oldVersion - 1][i], notesCursor.getString(i));
+					row.put(COLUMNS_VERSION[oldVersion - 1][i], notesCursor.getstring(i));
 				}
 
 				// create new columns
@@ -142,7 +143,7 @@ public class NoteProvider extends ContentProvider {
 					row.put(Note.TAGS, "");
 				}
 				if (oldVersion <= 3) {
-					row.put(Note.NOTE_CONTENT_PLAIN, StringConverter.encode(Html.fromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).toString()));
+					row.put(Note.NOTE_CONTENT_PLAIN, stringConverter.encode(Html.fromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).tostring()));
 				}
 
 				db_list.add(row);
@@ -172,8 +173,8 @@ public class NoteProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
-            String sortOrder) {
+    public Cursor query(Uri uri, string[] projection, string selection, string[] selectionArgs,
+            string sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (uriMatcher.match(uri)) {
@@ -191,7 +192,7 @@ public class NoteProvider extends ContentProvider {
         case NOTE_TITLE:
         	qb.setTables(DB_TABLE_NOTES);
         	qb.setProjectionMap(notesProjectionMap);
-        	// TODO appendWhere + whereArgs instead (new String[] whereArgs = uri.getLas..)?
+        	// TODO appendWhere + whereArgs instead (new string[] whereArgs = uri.getLas..)?
         	qb.appendWhere(Note.TITLE + " LIKE '" + uri.getLastPathSegment()+"'");
         	break;
 
@@ -200,10 +201,10 @@ public class NoteProvider extends ContentProvider {
         }
 
         // If no sort order is specified use the default
-        String orderBy;
+        string orderBy;
         if (TextUtils.isEmpty(sortOrder)) {
-      	    String defaultSortOrder;
-    	    defaultSortOrder = Preferences.getString(Preferences.Key.SORT_ORDER);
+      	    string defaultSortOrder;
+    	    defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
     	    if(defaultSortOrder.equals("sort_title")) {
     	        orderBy = Note.TITLE + " ASC";
     	    } else {
@@ -224,7 +225,7 @@ public class NoteProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public string getType(Uri uri) {
         switch (uriMatcher.match(uri)) {
         case NOTES:
             return Tomdroid.CONTENT_TYPE;
@@ -265,13 +266,13 @@ public class NoteProvider extends ContentProvider {
         
         // The guid is the unique identifier for a note so it has to be set.
         if (values.containsKey(Note.GUID) == false) {
-        	values.put(Note.GUID, UUID.randomUUID().toString());
+        	values.put(Note.GUID, UUID.randomUUID().tostring());
         }
 
         // TODO does this make sense?
         if (values.containsKey(Note.TITLE) == false) {
             Resources r = Resources.getSystem();
-            values.put(Note.TITLE, r.getString(android.R.string.untitled));
+            values.put(Note.TITLE, r.getstring(android.R.string.untitled));
         }
 
         if (values.containsKey(Note.FILE) == false) {
@@ -294,7 +295,7 @@ public class NoteProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
+    public int delete(Uri uri, string where, string[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         switch (uriMatcher.match(uri)) {
@@ -303,7 +304,7 @@ public class NoteProvider extends ContentProvider {
             break;
 
         case NOTE_ID:
-            String noteId = uri.getPathSegments().get(1);
+            string noteId = uri.getPathSegments().get(1);
             count = db.delete(DB_TABLE_NOTES, Note.ID + "=" + noteId
                     + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
             break;
@@ -317,7 +318,7 @@ public class NoteProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(Uri uri, ContentValues values, string where, string[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         switch (uriMatcher.match(uri)) {
@@ -326,7 +327,7 @@ public class NoteProvider extends ContentProvider {
             break;
 
         case NOTE_ID:
-            String noteId = uri.getPathSegments().get(1);
+            string noteId = uri.getPathSegments().get(1);
             count = db.update(DB_TABLE_NOTES, values, Note.ID + "=" + noteId
                     + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
             break;
@@ -345,7 +346,7 @@ public class NoteProvider extends ContentProvider {
         uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/#", NOTE_ID);
         uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/*", NOTE_TITLE);
 
-        notesProjectionMap = new HashMap<String, String>();
+        notesProjectionMap = new HashMap<string, string>();
         notesProjectionMap.put(Note.ID, Note.ID);
         notesProjectionMap.put(Note.GUID, Note.GUID);
         notesProjectionMap.put(Note.TITLE, Note.TITLE);
@@ -355,4 +356,5 @@ public class NoteProvider extends ContentProvider {
         notesProjectionMap.put(Note.TAGS, Note.TAGS);
         notesProjectionMap.put(Note.MODIFIED_DATE, Note.MODIFIED_DATE);
     }
+}
 }

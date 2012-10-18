@@ -56,7 +56,7 @@ ${members}}
       explicit_switch_type ""
       
       attribute 128002 "URL"
-	class_attribute const_attribute public explicit_type "String"
+	class_attribute const_attribute public explicit_type "string"
 	init_value "=  \"url\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -69,7 +69,7 @@ ${members}}
       end
 
       attribute 128130 "FILE"
-	class_attribute const_attribute public explicit_type "String"
+	class_attribute const_attribute public explicit_type "string"
 	init_value "=  \"file\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -80,7 +80,7 @@ ${members}}
       end
 
       attribute 128258 "NOTE_CONTENT"
-	class_attribute const_attribute public explicit_type "String"
+	class_attribute const_attribute public explicit_type "string"
 	init_value "=  \"note-content\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -116,7 +116,7 @@ ${members}}
       end
 
       attribute 128642 "NOTE_MONOSPACE_TYPEFACE"
-	class_attribute const_attribute public explicit_type "String"
+	class_attribute const_attribute public explicit_type "string"
 	init_value "=  \"monospace\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -160,8 +160,8 @@ ${members}}
       end
 
       attribute 129154 "noteContent"
-	private explicit_type "SpannableStringBuilder"
-	init_value "=  new SpannableStringBuilder()"
+	private explicit_type "SpannablestringBuilder"
+	init_value "=  new SpannablestringBuilder()"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -173,7 +173,7 @@ ${members}}
       end
 
       attribute 129282 "url"
-	private explicit_type "String"
+	private explicit_type "string"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -183,7 +183,7 @@ ${members}}
       end
 
       attribute 129410 "fileName"
-	private explicit_type "String"
+	private explicit_type "string"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -203,7 +203,7 @@ ${members}}
       end
 
       attribute 129666 "title"
-	private explicit_type "String"
+	private explicit_type "string"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -238,7 +238,7 @@ ${members}}
 	public explicit_return_type ""
 	nparams 2
 	  param inout name "hdl" explicit_type "Handler"
-	  param in name "url" explicit_type "String"
+	  param in name "url" explicit_type "string"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${synchronized}${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${throws}${staticnl}{
   ${body}}
@@ -264,7 +264,7 @@ ${members}}
       end
 
       operation 128258 "getUrl"
-	public explicit_return_type "String"
+	public explicit_return_type "string"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -278,7 +278,7 @@ ${members}}
       operation 128386 "setUrl"
 	public explicit_return_type "void"
 	nparams 1
-	  param in name "url" explicit_type "String"
+	  param in name "url" explicit_type "string"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${t0} ${p0}${)}${throws}${staticnl}{
   ${body}}
@@ -289,7 +289,7 @@ ${members}}
       end
 
       operation 128514 "getFileName"
-	public explicit_return_type "String"
+	public explicit_return_type "string"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -303,7 +303,7 @@ ${members}}
       operation 128642 "setFileName"
 	public explicit_return_type "void"
 	nparams 1
-	  param in name "fileName" explicit_type "String"
+	  param in name "fileName" explicit_type "string"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${t0} ${p0}${)}${throws}${staticnl}{
   ${body}}
@@ -314,7 +314,7 @@ ${members}}
       end
 
       operation 128770 "getTitle"
-	public explicit_return_type "String"
+	public explicit_return_type "string"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -328,7 +328,7 @@ ${members}}
       operation 128898 "setTitle"
 	public explicit_return_type "void"
 	nparams 1
-	  param in name "title" explicit_type "String"
+	  param in name "title" explicit_type "string"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${t0} ${p0}${)}${throws}${staticnl}{
   ${body}}
@@ -394,7 +394,7 @@ Asynchronously get the note from file system
       end
 
       operation 129538 "getNoteContent"
-	public explicit_return_type "SpannableStringBuilder"
+	public explicit_return_type "SpannablestringBuilder"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -408,7 +408,7 @@ Asynchronously get the note from file system
       operation 129666 "setNoteContent"
 	public explicit_return_type "void"
 	nparams 1
-	  param inout name "noteContent" explicit_type "SpannableStringBuilder"
+	  param inout name "noteContent" explicit_type "SpannablestringBuilder"
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${t0} ${p0}${)}${throws}${staticnl}{
   ${body}}
@@ -419,7 +419,7 @@ Asynchronously get the note from file system
       end
 
       operation 129794 "getDisplayableNoteContent"
-	public explicit_return_type "SpannableStringBuilder"
+	public explicit_return_type "SpannablestringBuilder"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -437,8 +437,8 @@ Asynchronously get the note from file system
         @Override
         public void handleMessage(Message msg) {
         	
-        	String noteStr = msg.getData().getString(NoteDAO.NOTE);
-        	Log.i(this.toString(), \"Note handler triggered.\");
+        	string noteStr = msg.getData().getstring(NoteDAO.NOTE);
+        	Log.i(this.tostring(), \"Note handler triggered.\");
         	
         	// TODO eeuuhhhh, see buildNote()'s todo regarding exceptions..
         	try {
@@ -471,7 +471,7 @@ Asynchronously get the note from file system
       operation 129922 "buildNote"
 	private explicit_return_type "void"
 	nparams 1
-	  param in name "noteStream" explicit_type "String"
+	  param in name "noteStream" explicit_type "string"
 	nexceptions 3
 	  explicit_exception "ParserConfigurationException"
 	  explicit_exception "SAXException"
@@ -498,8 +498,8 @@ Asynchronously get the note from file system
 	
       end
 
-      operation 130178 "toString"
-	public explicit_return_type "String"
+      operation 130178 "tostring"
+	public explicit_return_type "string"
 	nparams 0
 	
 	preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${)}${throws}${staticnl}{
@@ -617,7 +617,7 @@ ${members}}
       end
 
       attribute 130306 "NOTES_PATH"
-	class_attribute const_attribute private explicit_type "String"
+	class_attribute const_attribute private explicit_type "string"
 	init_value "=  \"/sdcard/tomdroid/\""
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
@@ -643,8 +643,8 @@ ${members}}
       end
 
       attribute 130434 "notesNamesList"
-	package explicit_type "String"
-	init_value "=  new ArrayList<String>()"
+	package explicit_type "string"
+	init_value "=  new ArrayList<string>()"
 	stereotype "List"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${stereotype}<${type}> ${name}${value};
@@ -741,7 +741,7 @@ ${members}}
 	  public explicit_return_type "boolean"
 	  nparams 2
 	    param inout name "dir" explicit_type "File"
-	    param in name "name" explicit_type "String"
+	    param in name "name" explicit_type "string"
 	  
 	  preserve_java_body_indent java_def "  ${comment}${@}${visibility}${final}${static}${abstract}${synchronized}${type} ${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${throws}${staticnl}{
   ${body}}
@@ -817,7 +817,7 @@ ${members}}
       end
 
       attribute 130690 "url"
-	private explicit_type "String"
+	private explicit_type "string"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -827,7 +827,7 @@ ${members}}
       end
 
       attribute 130818 "file"
-	private explicit_type "String"
+	private explicit_type "string"
 	cpp_decl ""
 	java_decl "  ${comment}${@}${visibility}${static}${final}${transient}${volatile}${type} ${name}${value};
 "
@@ -945,7 +945,7 @@ ${members}}
     class 128898 "R"
       visibility public 
       cpp_decl ""
-      final java_decl "${comment}${@}${visibility}${final}${abstract}class ${name}${extends}${implements} {
+      readonly java_decl "${comment}${@}${visibility}${final}${abstract}class ${name}${extends}${implements} {
 ${members}}
 "
       php_decl ""
@@ -1307,24 +1307,24 @@ ${package}
 ${imports}
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.stringReader;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.tomdroid.dao.NoteDAO;
-import org.tomdroid.dao.NoteFileSystemDAOImpl;
-import org.tomdroid.dao.NoteNetworkDAOImpl;
-import org.tomdroid.xml.NoteHandler;
+using TomDroidSharp.dao.NoteDAO;
+using TomDroidSharp.dao.NoteFileSystemDAOImpl;
+using TomDroidSharp.dao.NoteNetworkDAOImpl;
+using TomDroidSharp.xml.NoteHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.text.SpannablestringBuilder;
 import android.text.style.StyleSpan;
 import android.util.Log;
 ${definition}"

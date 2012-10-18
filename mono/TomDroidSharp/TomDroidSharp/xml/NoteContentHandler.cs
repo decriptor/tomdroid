@@ -21,18 +21,18 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomdroid.xml;
+.xml;
 
 import java.util.ArrayList;
 
-import org.tomdroid.Note;
-import org.tomdroid.util.TLog;
+using TomDroidSharp.Note;
+using TomDroidSharp.util.TLog;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.text.SpannablestringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
@@ -41,13 +41,16 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 
+namespace TomDroidSharp.xml
+{
+
 /*
  * This class is responsible for parsing the xml note content
- * and formatting the contents in a SpannableStringBuilder
+ * and formatting the contents in a SpannablestringBuilder
  */
-public class NoteContentHandler extends DefaultHandler {
+public class NoteContentHandler string  DefaultHandler {
 
-	private String TAG = "NoteContentHandler";
+	private string TAG = "NoteContentHandler";
 	
 	// position keepers
 	private boolean inNoteContentTag = false;
@@ -65,19 +68,19 @@ public class NoteContentHandler extends DefaultHandler {
 	
 	// -- Tomboy's notes XML tags names -- 
 	// Style related
-	private final static String NOTE_CONTENT = "note-content";
-	private final static String BOLD = "bold";
-	private final static String ITALIC = "italic";
-	private final static String STRIKETHROUGH = "strikethrough";
-	private final static String HIGHLIGHT = "highlight";
-	private final static String MONOSPACE = "monospace";
-	private final static String SMALL = "size:small";
-	private final static String LARGE = "size:large";
-	private final static String HUGE = "size:huge";
-	private final static String LINK_INTERNAL = "link:internal";
+	private readonly static string NOTE_CONTENT = "note-content";
+	private readonly static string BOLD = "bold";
+	private readonly static string ITALIC = "italic";
+	private readonly static string STRIKETHROUGH = "strikethrough";
+	private readonly static string HIGHLIGHT = "highlight";
+	private readonly static string MONOSPACE = "monospace";
+	private readonly static string SMALL = "size:small";
+	private readonly static string LARGE = "size:large";
+	private readonly static string HUGE = "size:huge";
+	private readonly static string LINK_INTERNAL = "link:internal";
 	// Bullet list-related
-	private final static String LIST = "list";
-	private final static String LIST_ITEM = "list-item";
+	private readonly static string LIST = "list";
+	private readonly static string LIST_ITEM = "list-item";
 	
 	// holding state for tags
 	private int boldStartPos = -1;
@@ -103,15 +106,15 @@ public class NoteContentHandler extends DefaultHandler {
 	private ArrayList<Boolean> listItemIsEmpty =  new ArrayList<Boolean>(0);
 	
 	// accumulate note-content in this var since it spans multiple xml tags
-	private SpannableStringBuilder ssb;
+	private SpannablestringBuilder ssb;
 	
-	public NoteContentHandler(SpannableStringBuilder noteContent) {
+	public NoteContentHandler(SpannablestringBuilder noteContent) {
 		
 		this.ssb = noteContent;
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String name,	Attributes attributes) throws SAXException {
+	public void startElement(string uri, string localName, string name,	Attributes attributes) throws SAXException {
 		
 		if (name.equals(NOTE_CONTENT)) {
 
@@ -172,7 +175,7 @@ public class NoteContentHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String name)
+	public void endElement(string uri, string localName, string name)
 			throws SAXException {
 
 		if (name.equals(NOTE_CONTENT)) {
@@ -183,7 +186,7 @@ public class NoteContentHandler extends DefaultHandler {
 		if (inNoteContentTag) {
 			if (name.equals(BOLD)) {
 				if(boldStartPos == boldEndPos) return;
-				//TLog.d(TAG, "Bold span: {0} to {1} is {2}",boldStartPos,boldEndPos, ssb.subSequence(boldStartPos, boldEndPos).toString());
+				//TLog.d(TAG, "Bold span: {0} to {1} is {2}",boldStartPos,boldEndPos, ssb.subSequence(boldStartPos, boldEndPos).tostring());
 				inBoldTag = false;
 				// apply style and reset position keepers
 				ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), boldStartPos, boldEndPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -191,7 +194,7 @@ public class NoteContentHandler extends DefaultHandler {
 				boldEndPos = -1;
 
 			} else if (name.equals(ITALIC)) {
-				TLog.d(TAG, "Italic span: {0} to {1} is {2}",italicStartPos,italicEndPos, ssb.subSequence(italicStartPos, italicEndPos).toString());
+				TLog.d(TAG, "Italic span: {0} to {1} is {2}",italicStartPos,italicEndPos, ssb.subSequence(italicStartPos, italicEndPos).tostring());
 				if(italicStartPos == italicEndPos) return;
 				inItalicTag = false;
 				// apply style and reset position keepers
@@ -252,7 +255,7 @@ public class NoteContentHandler extends DefaultHandler {
 				if(linkinternalStartPos == linkinternalEndPos) return;
 				inLinkInternalTag = false;
 				// apply style and reset position keepers
-				ssb.setSpan(new LinkInternalSpan(ssb.toString().substring(linkinternalStartPos, linkinternalEndPos)), linkinternalStartPos, linkinternalEndPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				ssb.setSpan(new LinkInternalSpan(ssb.tostring().substring(linkinternalStartPos, linkinternalEndPos)), linkinternalStartPos, linkinternalEndPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				linkinternalStartPos = -1;
 				linkinternalEndPos = -1;
 
@@ -287,11 +290,11 @@ public class NoteContentHandler extends DefaultHandler {
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
 		
-		String currentString = new String(ch, start, length);
+		string currentstring = new string(ch, start, length);
 
 		if (inNoteContentTag) {
 			// while we are in note-content, append
-			ssb.append(currentString, start, length);
+			ssb.append(currentstring, start, length);
 			int strLenStart = ssb.length()-length;
 			int strLenEnd = ssb.length();
 			
@@ -379,4 +382,5 @@ public class NoteContentHandler extends DefaultHandler {
 			}
 		}
 	}
+}
 }
