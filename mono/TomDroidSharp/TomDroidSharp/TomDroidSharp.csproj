@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4D7D3120-7C26-4D1B-99A7-0EA03FD641E8}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TomDroidSharp</RootNamespace>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AndroidApplication>True</AndroidApplication>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AssemblyName>TomDroidSharp</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <AndroidLinkMode>None</AndroidLinkMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Activity1.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+    <None Include="Assets\AboutAssets.txt" />
+    <None Include="Resources\layout\actionbar_compat.axml" />
+    <None Include="Resources\layout\file_picker_content_view.axml" />
+    <None Include="Resources\layout\file_picker_empty_view.axml" />
+    <None Include="Resources\layout\file_picker_list_item.axml" />
+    <None Include="Resources\layout\main.axml" />
+    <None Include="Resources\layout\main_list_item.axml" />
+    <None Include="Resources\layout\note_compare.axml" />
+    <None Include="Resources\layout\note_edit.axml" />
+    <None Include="Resources\layout\note_view.axml" />
+    <None Include="Resources\layout\shortcuts_list.axml" />
+    <None Include="Resources\layout\strings.axml" />
+    <None Include="Resources\layout-sw600dp-land\main.axml" />
+    <None Include="Resources\layout-v11\actionbar_indeterminate_progress.axml" />
+    <None Include="Resources\menu\edit_note.axml" />
+    <None Include="Resources\menu\main.axml" />
+    <None Include="Resources\menu\main_longclick.axml" />
+    <None Include="Resources\menu\main_longclick_deleted.axml" />
+    <None Include="Resources\menu\search.axml" />
+    <None Include="Resources\menu\view_note.axml" />
+    <None Include="Resources\menu-sw600dp-land\edit_note.axml" />
+    <None Include="Resources\menu-sw600dp-land\main.axml" />
+    <None Include="Resources\menu-sw600dp-land\search.axml" />
+    <None Include="Resources\menu-sw600dp-land\view_note.axml" />
+    <None Include="Resources\values-bs\strings.xml" />
+    <None Include="Resources\values-ca\strings.xml" />
+    <None Include="Resources\values-cs\strings.xml" />
+    <None Include="Resources\values-da\strings.xml" />
+    <None Include="Resources\values-de\strings.xml" />
+    <None Include="Resources\values-el\strings.xml" />
+    <None Include="Resources\values-en-rGB\strings.xml" />
+    <None Include="Resources\values-eo\strings.xml" />
+    <None Include="Resources\values-es\strings.xml" />
+    <None Include="Resources\values-eu\strings.xml" />
+    <None Include="Resources\values-fa\strings.xml" />
+    <None Include="Resources\values-fi\strings.xml" />
+    <None Include="Resources\values-fo\strings.xml" />
+    <None Include="Resources\values-fr\strings.xml" />
+    <None Include="Resources\values-gd\strings.xml" />
+    <None Include="Resources\values-hi\strings.xml" />
+    <None Include="Resources\values-hu\strings.xml" />
+    <None Include="Resources\values-it\strings.xml" />
+    <None Include="Resources\values-ja\strings.xml" />
+    <None Include="Resources\values-ko\strings.xml" />
+    <None Include="Resources\values-ms\strings.xml" />
+    <None Include="Resources\values-nb\strings.xml" />
+    <None Include="Resources\values-pl\strings.xml" />
+    <None Include="Resources\values-pt\strings.xml" />
+    <None Include="Resources\values-pt-rBR\strings.xml" />
+    <None Include="Resources\values-ru\strings.xml" />
+    <None Include="Resources\values-si\strings.xml" />
+    <None Include="Resources\values-sv\strings.xml" />
+    <None Include="Resources\values-sw600dp-land\dimen.xml" />
+    <None Include="Resources\values-sw800dp-land\dimen.xml" />
+    <None Include="Resources\values-ta\strings.xml" />
+    <None Include="Resources\values-te\strings.xml" />
+    <None Include="Resources\values-tr\strings.xml" />
+    <None Include="Resources\values-ug\strings.xml" />
+    <None Include="Resources\values-uk\strings.xml" />
+    <None Include="Resources\values-v11\styles.xml" />
+    <None Include="Resources\values-zh\strings.xml" />
+    <None Include="Resources\values-zh-rCN\strings.xml" />
+    <None Include="Resources\values-zh-rTW\strings.xml" />
+    <None Include="Resources\values\attrs.xml" />
+    <None Include="Resources\values\dimen.xml" />
+    <None Include="Resources\values\ids.xml" />
+    <None Include="Resources\values\strings.xml" />
+    <None Include="Resources\values\styles.xml" />
+    <None Include="Resources\xml\preferences.xml" />
+    <None Include="Resources\xml\searchable.xml" />
+    <None Include="Resources\xml\sync_provider.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Icon.png" />
+    <AndroidResource Include="Resources\drawable\actionbar_compat_item_focused.xml" />
+    <AndroidResource Include="Resources\drawable\actionbar_compat_item_pressed.xml" />
+    <AndroidResource Include="Resources\drawable\actionbar_compat_item.xml" />
+    <AndroidResource Include="Resources\drawable\btn_small_toggle.9.png" />
+    <AndroidResource Include="Resources\drawable\btn_small.9.png" />
+    <AndroidResource Include="Resources\drawable\button_toggle.xml" />
+    <AndroidResource Include="Resources\drawable\drop_shadow_selected.xml" />
+    <AndroidResource Include="Resources\drawable\drop_shadow_separator.xml" />
+    <AndroidResource Include="Resources\drawable\drop_shadow.xml" />
+    <AndroidResource Include="Resources\drawable\highlight.png" />
+    <AndroidResource Include="Resources\drawable\mono.png" />
+    <AndroidResource Include="Resources\drawable\size.png" />
+    <AndroidResource Include="Resources\drawable\tray_handle_normal.png" />
+    <AndroidResource Include="Resources\drawable\triangle_selector.xml" />
+    <AndroidResource Include="Resources\drawable\white_triangle.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\actionbar_shadow.9.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\file.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\folder.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_menu_sync.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_shortcut.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\icon.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\text.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\xml.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\actionbar_shadow.9.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\file.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\folder.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\ic_menu_sync.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\ic_shortcut.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\icon.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\text.png" />
+    <AndroidResource Include="Resources\drawable-ldpi\xml.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\actionbar_shadow.9.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\file.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\folder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_menu_sync.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_shortcut.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\icon.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\text.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\xml.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\actionbar_shadow.9.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_menu_sync.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_shortcut.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\icon.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\text.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\xml.png" />
+    <AndroidResource Include="Resources\values-ar\strings.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Resources\drawable-hdpi\" />
+    <Folder Include="Resources\drawable-ldpi\" />
+    <Folder Include="Resources\drawable-mdpi\" />
+    <Folder Include="Resources\drawable-xhdpi\" />
+    <Folder Include="Resources\values-ar\" />
+    <Folder Include="Resources\res\" />
+    <Folder Include="Resources\values\" />
+  </ItemGroup>
+</Project>
