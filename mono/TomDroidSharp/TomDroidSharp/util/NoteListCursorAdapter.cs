@@ -27,12 +27,9 @@
 using Android.Content;
 using Android.Database;
 using Android.Graphics;
-using Android.Text;
+using Android.Text.Format;
 using Android.Views;
 using Android.Widget;
-
-using TomDroidSharp.Note;
-using TomDroidSharp.R;
 
 /* Provides a custom ListView layout for Note List */
 
@@ -54,23 +51,21 @@ namespace TomDroidSharp.util
 	    private int selectedIndex;
 
 
-	    public NoteListCursorAdapter (Context context, int layout, Cursor c, string[] from, int[] to, int selectedIndex) {
-	        super(context, layout, c, from, to);
+	    public NoteListCursorAdapter (Context context, int layout, ICursor c, string[] from, int[] to, int selectedIndex) : base(context, layout, c, from, to) {
 	        this.layout = layout;
 	        this.context = context;
 	        this.selectedIndex = selectedIndex;
 	        
-	        localeDateFormat = android.text.format.DateFormat.getDateFormat(context);
-	        localeTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+	        localeDateFormat = DateFormat.getDateFormat(context);
+	        localeTimeFormat = DateFormat.getTimeFormat(context);
 	    }
 	    
 
-	    @Override
-	    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+	    public override View newView(Context context, ICursor cursor, ViewGroup parent) {
 
 	        Cursor c = getCursor();
 
-	        readonly LayoutInflater inflater = LayoutInflater.from(context);
+	        LayoutInflater inflater = LayoutInflater.From(context);
 	        View v = inflater.inflate(layout, parent, false);
 
 	        populateFields(v, c);
@@ -78,38 +73,36 @@ namespace TomDroidSharp.util
 	        return v;
 	    }
 
-	    @Override
-	    public void bindView(View v, Context context, Cursor c) {
+	    public override void bindView(View v, Context context, ICursor c) {
 
 	        populateFields(v, c);
 	    }
 	    
-	    @Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-	    	View v = super.getView(position, convertView, parent);
+		public override View getView(int position, View convertView, ViewGroup parent) {
+	    	View v = base.getView(position, convertView, parent);
 	    	if(this.selectedIndex == position) {
-	            TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	            TextView note_title = (TextView) v.FindViewById(Resource.Id.note_title);
 	            if (note_title != null) {
 	            	note_title.setTextColor(0xFFFFFFFF);
 	            }
-	            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	            TextView note_modified = (TextView) v.FindViewById(Resource.Id.note_date);
 	            if (note_modified != null) {
 	            	note_modified.setTextColor(0xFFFFFFFF);
 	            }
-	    		v.setBackgroundResource(R.drawable.drop_shadow_selected);
-	    		v.findViewById(R.id.triangle).setBackgroundResource(R.drawable.white_triangle);
+	    		v.setBackgroundResource(Resource.Drawable.drop_shadow_selected);
+	    		v.FindViewById(Resource.Id.triangle).setBackgroundResource(Resource.Drawable.white_triangle);
 	    	}
 	    	else {
-	            TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	            TextView note_title = (TextView) v.FindViewById(Resource.Id.note_title);
 	            if (note_title != null) {
 	            	note_title.setTextColor(0xFF000000);
 	            }
-	            TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	            TextView note_modified = (TextView) v.FindViewById(Resource.Id.note_date);
 	            if (note_modified != null) {
 	            	note_modified.setTextColor(0xFF000000);
 	            }
 	    		v.setBackgroundResource(0);
-	    		v.findViewById(R.id.triangle).setBackgroundResource(0);
+	    		v.FindViewById(Resource.Id.triangle).setBackgroundResource(0);
 	    	}
 	    	return v;
 		}
@@ -120,26 +113,26 @@ namespace TomDroidSharp.util
 	        int modifiedCol = c.getColumnIndex(Note.MODIFIED_DATE);
 	        int tagCol = c.getColumnIndex(Note.TAGS);
 	        
-	        string title = c.getstring(nameCol);
-	        string tags = c.getstring(tagCol);
+	        string title = c.GetString(nameCol);
+	        string tags = c.GetString(tagCol);
 	        
 	        //Format last modified dates to be similar to desktop Tomboy
 	        //TODO this is messy - must be a better way than having 3 separate date types
 	        Time lastModified = new Time();
-	        lastModified.parse3339(c.getstring(modifiedCol));
+	        lastModified.parse3339(c.GetString(modifiedCol));
 	        Long lastModifiedMillis = lastModified.toMillis(false);
 	        Date lastModifiedDate = new Date(lastModifiedMillis);
 	        
-	        string strModified = this.context.getstring(R.string.textModified)+" ";
+	        string strModified = this.context.GetString(Resource.String.textModified)+" ";
 	        //TODO this is very inefficient
 	        if (DateUtils.isToday(lastModifiedMillis)){
-	        	strModified += this.context.getstring(R.string.textToday) +", " + localeTimeFormat.format(lastModifiedDate);
+	        	strModified += this.context.GetString(Resource.String.textToday) +", " + localeTimeFormat.format(lastModifiedDate);
 	        } else {
 	        	// Add a day to the last modified date - if the date is now today, it means the note was edited yesterday
 	        	Time yesterdayTest = lastModified;
 	        	yesterdayTest.monthDay += 1;
 	        	if (DateUtils.isToday(yesterdayTest.toMillis(false))){
-	        		strModified += this.context.getstring(R.string.textYexterday) +", " + localeTimeFormat.format(lastModifiedDate);
+	        		strModified += this.context.GetString(Resource.String.textYexterday) +", " + localeTimeFormat.format(lastModifiedDate);
 	        	} else {
 	        		strModified += localeDateFormat.format(lastModifiedDate) + ", " + localeTimeFormat.format(lastModifiedDate);
 	        	}
@@ -148,17 +141,17 @@ namespace TomDroidSharp.util
 	        /**
 	         * Next set the name of the entry.
 	         */
-	        TextView note_title = (TextView) v.findViewById(R.id.note_title);
+	        TextView note_title = (TextView) v.FindViewById(Resource.Id.note_title);
 	        if (note_title != null) {
-	        	note_title.setText(title);
+	        	note_title.SetText(title);
 	            if(tags.contains("system:deleted"))
 	            	note_title.setPaintFlags(note_title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 	            else
 	            	note_title.setPaintFlags(note_title.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 	        }
-	        TextView note_modified = (TextView) v.findViewById(R.id.note_date);
+	        TextView note_modified = (TextView) v.FindViewById(Resource.Id.note_date);
 	        if (note_modified != null) {
-	        	note_modified.setText(strModified);
+	        	note_modified.SetText(strModified);
 	        }
 	    }
 

@@ -21,19 +21,18 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.util.List;
+using System.Collections.Generic;
 
-using TomDroidSharp.sync.sd.SdCardSyncService;
-using TomDroidSharp.sync.web.SnowySyncService;
-using TomDroidSharp.util.Preferences;
 using Android.App;
 using Android.OS;
 
-namespace TomDroidSharp.sync
-{
+using TomDroidSharp.sync.web;
+using TomDroidSharp.sync.sd;
 
-public class SyncManager {
-		
+namespace TomDroidSharp.Sync
+{
+	public class SyncManager
+	{	
 		private static List<SyncService> services = new List<SyncService>();
 		private SyncService service;
 		
@@ -47,9 +46,9 @@ public class SyncManager {
 		
 		public static SyncService getService(string name) {
 			
-			for (int i = 0; i < services.size(); i++) {
+			for (int i = 0; i < services.Count; i++) {
 				SyncService service = services.get(i);			
-				if (name.equals(service.getName()))
+				if (name.Equals(service.getName()))
 					return service;
 			}
 			
@@ -64,7 +63,7 @@ public class SyncManager {
 		}
 		
 		public SyncService getCurrentService() {
-			string serviceName = Preferences.getstring(Preferences.Key.SYNC_SERVICE);
+			string serviceName = Preferences.GetString(Preferences.Key.SYNC_SERVICE);
 			return getService(serviceName);
 		}
 		
@@ -91,10 +90,10 @@ public class SyncManager {
 		}
 
 		private void createServices() {
-			services.clear();
-			
-			services.add(new SnowySyncService(activity, handler));
-			services.add(new SdCardSyncService(activity, handler));
+			services.Clear();
+
+			services.Add(new SnowySyncService(activity, handler));
+			services.Add(new SdCardSyncService(activity, handler));
 		}
 
 		// new methods to TEdit

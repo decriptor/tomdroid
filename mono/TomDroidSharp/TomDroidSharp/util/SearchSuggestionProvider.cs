@@ -32,7 +32,7 @@ namespace TomDroidSharp.util
 	    public readonly static int MODE = DATABASE_MODE_QUERIES;
 
 	    public SearchSuggestionProvider() {
-	        setupSuggestions(AUTHORITY, MODE);
+	        SetupSuggestions(AUTHORITY, MODE);
 	    }
 	}
 }

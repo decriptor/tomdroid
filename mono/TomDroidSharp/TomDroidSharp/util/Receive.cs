@@ -35,15 +35,6 @@
 //import javax.xml.parsers.SAXParser;
 //import javax.xml.parsers.SAXParserFactory;
 
-using TomDroidSharp.Note;
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.R;
-using TomDroidSharp.sync.sd.NoteHandler;
-using TomDroidSharp.ui.CompareNotes;
-using TomDroidSharp.ui.EditNote;
-using TomDroidSharp.ui.Tomdroid;
-using TomDroidSharp.ui.actionbar.ActionBarActivity;
-using TomDroidSharp.xml.NoteContentHandler;
 //import org.xml.sax.InputSource;
 //import org.xml.sax.XMLReader;
 
@@ -54,6 +45,14 @@ using Android.OS;
 using Android.Text;
 using Android.Util;
 using Android.Widget;
+using TomDroidSharp.ui.actionbar;
+using Java.IO;
+using System;
+using TomDroidSharp.ui;
+using System.Text;
+using Android.Text.Format;
+using Java.Util.Regex;
+using Java.Util;
 
 namespace TomDroidSharp.util
 {
@@ -66,30 +65,30 @@ namespace TomDroidSharp.util
 		private long MAX_FILE_SIZE = 1048576; // 1MB 
 
 		protected void onCreate (Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
+			base.onCreate(savedInstanceState);
 
 			// init preferences
 			Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
 
 			// set intent, action, MIME type
-		    Intent intent = getIntent();
-		    string action = intent.getAction();
-		    string type = intent.getType();
+		    Intent intent = Intent;
+			string action = intent.Action;
+			string type = intent.Type;
 
 			TLog.v(TAG, "Receiving note of type {0}",type);
 			TLog.d(TAG, "Action type: {0}",action);
 		    
-	    	if(intent.getData() != null) {
-	    		TLog.d(TAG, "Receiving file from path: {0}",intent.getData().getPath());
-				File file = new File(intent.getData().getPath());
+	    	if(intent.Data != null) {
+	    		TLog.d(TAG, "Receiving file from path: {0}",intent.Data.Path);
+				File file = new File(intent.Data.Path);
 
-				if(file.length() > MAX_FILE_SIZE ) {
-		    		Toast.makeText(this, getstring(R.string.messageFileTooBig), Toast.LENGTH_SHORT).show();
-					finish();
+				if(file.Length > MAX_FILE_SIZE ) {
+		    		Toast.MakeText(this, GetString(Resource.String.messageFileTooBig), ToastLength.Short).Show();
+					Finish();
 				}
 				else {
 					
-					final char[] buffer = new char[0x1000];
+					char[] buffer = new char[0x1000];
 					
 					// Try reading the file first
 					string contents = "";
@@ -97,29 +96,29 @@ namespace TomDroidSharp.util
 		
 						contents = readFile(file,buffer);
 					} catch (IOException e) {
-						e.printStackTrace();
+						e.PrintStackTrace();
 						TLog.w(TAG, "Something went wrong trying to read the note");
-						finish();
+						Finish();
 					}
 					
 					useSendFile(file, contents);
 				}
 	    	}
-	    	else if (Intent.ACTION_SEND.equals(action) && type != null && "text/plain".equals(type)) {
+	    	else if (Intent.ActionSend.Equals(action) && type != null && "text/plain".Equals(type)) {
 	    		TLog.v(TAG, "receiving note as plain text");
-	    	    string sharedContent = intent.getstringExtra(Intent.EXTRA_TEXT);
-	    	    string sharedTitle = intent.getstringExtra(Intent.EXTRA_SUBJECT);
+	    	    string sharedContent = intent.GetStringExtra(Intent.ExtraText);
+	    	    string sharedTitle = intent.GetStringExtra(Intent.ExtraSubject);
 	            useSendText(sharedContent, sharedTitle); // use the text being sent
 	        }
 	    	else {
 	    		TLog.v(TAG, "received invalid note");
-				finish();
+				Finish();
 	    	}
 		}
 		void useSendFile(File file, string contents) {
 			Note remoteNote = new Note();
 
-			if(file.getPath().endsWith(".note") && contents.startsWith("<?xml")) { // xml note file
+			if(file.Path.EndsWith(".note") && contents.StartsWith("<?xml")) { // xml note file
 				
 				try {
 					// Parsing
@@ -137,25 +136,25 @@ namespace TomDroidSharp.util
 		
 			        // Create the proper input source
 			        stringReader sr = new stringReader(contents);
-			        InputSource is = new InputSource(sr);
+			        InputSource inputSource = new InputSource(sr);
 			        
 					TLog.d(TAG, "parsing note");
-					xr.parse(is);
+					xr.parse(inputSource);
 		
 				// TODO wrap and throw a new exception here
 				} catch (Exception e) {
-					e.printStackTrace();
+					e.PrintStackTrace();
 					if(e as TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
-					finish();
+					Finish();
 				}
 				// the note guid is not stored in the xml but in the filename
-				remoteNote.setGuid(file.getName().replace(".note", ""));
-				Pattern note_content = Pattern.compile("<note-content[^>]+>(.*)<\\/note-content>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
+				remoteNote.setGuid(file.Name.Replace(".note", ""));
+				Java.Util.Regex.Pattern note_content = Java.Util.Regex.Pattern.Compile("<note-content[^>]+>(.*)<\\/note-content>", Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
 
 				// FIXME here we are re-reading the whole note just to grab note-content out, there is probably a better way to do this (I'm talking to you xmlpull.org!)
-				Matcher m = note_content.matcher(contents);
-				if (m.find()) {
-					remoteNote.setXmlContent(NoteManager.stripTitleFromContent(m.group(1),remoteNote.getTitle()));
+				Matcher m = note_content.Matcher(contents);
+				if (m.Find()) {
+					remoteNote.setXmlContent(NoteManager.stripTitleFromContent(m.Group(1),remoteNote.getTitle()));
 				} else {
 					TLog.w(TAG, "Something went wrong trying to grab the note-content out of a note");
 					return;
@@ -165,32 +164,32 @@ namespace TomDroidSharp.util
 				remoteNote = NewNote.createNewNote(this, file.getName().replaceFirst("\\.[^.]+$", ""), XmlUtils.escape(contents));
 			}
 
-			remoteNote.setFileName(file.getAbsolutePath());
+			remoteNote.setFileName(file.AbsolutePath);
 
 			// check and see if the note already Exists; if so, send to conflict resolver
 			Note localNote = NoteManager.getNoteByGuid(this, remoteNote.getGuid()); 
 			
 			if(localNote != null) {
-				int compareBoth = Time.compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
+				int compareBoth = Time.Compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
 				
 				TLog.v(TAG, "note conflict... showing resolution dialog TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
 				
 				// send everything to Tomdroid so it can show Sync Dialog
 				
 			    Bundle bundle = new Bundle();	
-				bundle.putstring("title",remoteNote.getTitle());
-				bundle.putstring("file",remoteNote.getFileName());
-				bundle.putstring("guid",remoteNote.getGuid());
-				bundle.putstring("date",remoteNote.getLastChangeDate().Format3339(false));
-				bundle.putstring("content", remoteNote.getXmlContent());
-				bundle.putstring("tags", remoteNote.getTags());
-				bundle.putInt("datediff", compareBoth);
-				bundle.putBoolean("noRemote", true);
+				bundle.PutString("title",remoteNote.getTitle());
+				bundle.PutString("file",remoteNote.getFileName());
+				bundle.PutString("guid",remoteNote.getGuid());
+				bundle.PutString("date",remoteNote.getLastChangeDate().Format3339(false));
+				bundle.PutString("content", remoteNote.getXmlContent());
+				bundle.PutString("tags", remoteNote.getTags());
+				bundle.PutInt("datediff", compareBoth);
+				bundle.PutBoolean("noRemote", true);
 				
-				Intent cintent = new Intent(getApplicationContext(), CompareNotes.class);	
-				cintent.putExtras(bundle);
+				Intent cintent = new Intent(ApplicationContext, typeof(CompareNotes));	
+				cintent.PutExtras(bundle);
 		
-				startActivityForResult(cintent, 0);
+				StartActivityForResult(cintent, 0);
 				return;
 			}
 			
@@ -198,21 +197,21 @@ namespace TomDroidSharp.util
 			remoteNote.setTitle(NoteManager.validateNoteTitle(this, remoteNote.getTitle(), remoteNote.getGuid()));
 			
 	    	// add to content provider
-			Uri uri = NoteManager.putNote(this, remoteNote);
+			Android.Net.Uri uri = NoteManager.putNote(this, remoteNote);
 			
 			// view new note
-			Intent i = new Intent(Intent.ACTION_VIEW, uri, this, Tomdroid.class);
-			i.putExtra("view_note", true);
-			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			finish();		
+			Intent i = new Intent(Intent.ActionView, uri, this, typeof(Tomdroid));
+			i.PutExtra("view_note", true);
+			i.AddFlags(ActivityFlags.ClearTop);
+			StartActivity(i);
+			Finish();		
 		}
 
 		void useSendText(string sharedContent, string sharedTitle) {
 		    
 		    if (sharedContent != null) {
 				// parse XML
-				SpannablestringBuilder newNoteContent = new SpannablestringBuilder();
+				StringBuilder newNoteContent = new StringBuilder();
 				
 				string xmlContent = "<note-content version=\"1.0\">"+sharedContent+"</note-content>";
 		        InputSource noteContentIs = new InputSource(new stringReader(xmlContent));
@@ -229,79 +228,88 @@ namespace TomDroidSharp.util
 
 			        sp.parse(noteContentIs, new NoteContentHandler(newNoteContent));
 				} catch (Exception e) {
-					e.printStackTrace();
+					e.PrintStackTrace();
 					// TODO handle error in a more granular way
 					TLog.e(TAG, "There was an error parsing the note {0}", sharedTitle);
 				}
 				// store changed note content
 				string newXmlContent = new NoteXMLContentBuilder().setCaller(noteXMLWriteHandler).setInputSource(newNoteContent).build();
 				// validate title (duplicates, empty,...)
-				string validTitle = NoteManager.validateNoteTitle(this, sharedTitle, UUID.randomUUID().tostring());
+				string validTitle = NoteManager.validateNoteTitle(this, sharedTitle, UUID.RandomUUID().ToString());
 				
 		    	// add a new note
 				Note note = NewNote.createNewNote(this, validTitle, newXmlContent);
-				Uri uri = NoteManager.putNote(this, note);
+				Android.Net.Uri uri = NoteManager.putNote(this, note);
 				
 				// view new note
-				Intent i = new Intent(Intent.ACTION_VIEW, uri, this, EditNote.class);
-				startActivity(i);
-				finish();
+				Intent i = new Intent(Intent.ActionView, uri, this, typeof(EditNote));
+				StartActivity(i);
+				Finish();
 		    }
 		}
 		
-		private Handler noteXMLWriteHandler = new Handler() {
+//		private Handler noteXMLWriteHandler = new Handler() {
+//
+//			public override void handleMessage(Message msg) {
+//				
+//				//parsed ok - do nothing
+//				if(msg.what == NoteXMLContentBuilder.PARSE_OK) {
+//				//parsed not ok - error
+//				} else if(msg.what == NoteXMLContentBuilder.PARSE_ERROR) {
+//					
+//					// TODO put this string in a translatable resource
+//					new AlertDialog.Builder(Receive.this)
+//						.setMessage("The requested note could not be parsed. If you see this error " +
+//									" and you are able to replicate it, please file a bug!")
+//						.setTitle("Error")
+//						.setNeutralButton("Ok", new OnClickListener() {
+//							public void onClick(DialogInterface dialog, int which) {
+//								dialog.dismiss();
+//								Finish();
+//							}})
+//						.Show();
+//	        	}
+//			}
+//		};
 
-			@Override
-			public void handleMessage(Message msg) {
+		private string readFile(File file, char[] buffer)
+		{
+			StringBuilder outStuff = new StringBuilder();
+			try
+			{
 				
-				//parsed ok - do nothing
-				if(msg.what == NoteXMLContentBuilder.PARSE_OK) {
-				//parsed not ok - error
-				} else if(msg.what == NoteXMLContentBuilder.PARSE_ERROR) {
-					
-					// TODO put this string in a translatable resource
-					new AlertDialog.Builder(Receive.this)
-						.setMessage("The requested note could not be parsed. If you see this error " +
-									" and you are able to replicate it, please file a bug!")
-						.setTitle("Error")
-						.setNeutralButton("Ok", new OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								finish();
-							}})
-						.show();
-	        	}
+				int read;
+				Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+				
+				do {
+				  read = reader.Read(buffer, 0, buffer.Length);
+				  if (read > 0) {
+				    outStuff.Append(buffer, 0, read);
+				  }
+				}
+				while (read >= 0);
+				
+				reader.Close();
 			}
-		};
-		private string readFile(File file, char[] buffer) throws IOException {
-			stringBuilder out = new stringBuilder();
-			
-			int read;
-			Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
-			
-			do {
-			  read = reader.read(buffer, 0, buffer.length);
-			  if (read > 0) {
-			    out.append(buffer, 0, read);
-			  }
+			catch( IOException ex)
+			{
+
 			}
-			while (read >= 0);
-			
-			reader.close();
-			return out.tostring();
+			return outStuff.ToString();
 		}
+
 		protected void  onActivityResult (int requestCode, int resultCode, Intent  data) {
 			TLog.d(TAG, "onActivityResult called");
-			Uri uri = null;
-			if(data != null && data.hasExtra("uri"))
-				uri = Uri.parse(data.getstringExtra("uri"));
+			Android.Net.Uri uri = null;
+			if(data != null && data.HasExtra("uri"))
+				uri = Android.Net.Uri.Parse(data.GetStringExtra("uri"));
 			
 			// view new note
-			Intent i = new Intent(Intent.ACTION_VIEW, uri, this, Tomdroid.class);
-			i.putExtra("view_note", true);
-			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			finish();
+			Intent i = new Intent(Intent.ActionView, uri, this, typeof(Tomdroid));
+			i.PutExtra("view_note", true);
+			i.AddFlags(ActivityFlags.ClearTop);
+			StartActivity(i);
+			Finish();
 		}
 	}
 }

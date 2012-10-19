@@ -17,6 +17,7 @@
 using Android.App;
 using Android.OS;
 using Android.Views;
+using Android.Runtime;
 
 namespace TomDroidSharp.ui.actionbar
 {
@@ -41,22 +42,19 @@ namespace TomDroidSharp.ui.actionbar
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    public MenuInflater getMenuInflater() {
-	        return mActionBarHelper.getMenuInflater(super.getMenuInflater());
+	    public override MenuInflater getMenuInflater() {
+	        return mActionBarHelper.getMenuInflater(base.MenuInflater);
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    protected void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
+	    protected override void onCreate(Bundle savedInstanceState) {
+	        base.OnCreate(savedInstanceState);
 	        mActionBarHelper.onCreate(savedInstanceState);
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    protected void onPostCreate(Bundle savedInstanceState) {
-	        super.onPostCreate(savedInstanceState);
+	    protected override void onPostCreate(Bundle savedInstanceState) {
+	        base.OnPostCreate(savedInstanceState);
 	        mActionBarHelper.onPostCreate(savedInstanceState);
 	    }
 
@@ -66,19 +64,17 @@ namespace TomDroidSharp.ui.actionbar
 	     *
 	     * Note: marking menu items as invisible/visible is not currently supported.
 	     */
-	    @Override
-	    public bool onCreateOptionsMenu(Menu menu) {
+	    public override bool onCreateOptionsMenu(Menu menu) {
 	        bool retValue = false;
 	        retValue |= mActionBarHelper.onCreateOptionsMenu(menu);
-	        retValue |= super.onCreateOptionsMenu(menu);
+	        retValue |= base.OnCreateOptionsMenu(menu);
 	        return retValue;
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    protected void onTitleChanged(CharSequence title, int color) {
+	    protected override void onTitleChanged(CharSequence title, int color) {
 	        mActionBarHelper.onTitleChanged(title, color);
-	        super.onTitleChanged(title, color);
+	        base.OnTitleChanged(title, color);
 	    }
 	}
 }

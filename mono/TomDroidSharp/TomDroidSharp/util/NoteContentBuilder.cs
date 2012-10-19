@@ -25,12 +25,9 @@
 using Android.OS;
 using Android.Text;
 
-using TomDroidSharp.xml.NoteContentHandler;
-//import org.xml.sax.InputSource;
-//
-//import javax.xml.parsers.SAXParser;
-//import javax.xml.parsers.SAXParserFactory;
-//import java.io.stringReader;
+using System.Threading;
+using System.Text;
+using Java.Lang;
 
 
 namespace TomDroidSharp.util
@@ -44,7 +41,7 @@ namespace TomDroidSharp.util
 		private InputSource noteContentIs;
 		
 		// this is what we are building here
-		private SpannablestringBuilder noteContent = new SpannablestringBuilder();
+		private System.Text.StringBuilder noteContent = new System.Text.StringBuilder();
 		
 		private readonly string TAG = "NoteContentBuilder";
 		
@@ -81,53 +78,53 @@ namespace TomDroidSharp.util
 			return this;
 		}
 		
-		public SpannablestringBuilder build() {
+		public System.Text.StringBuilder build() {
 			
 			runner = new Runnable() {
 				
-				public void run() {
-					
-					
-					bool successful = true;
-					
-					try {
-						// Parsing
-				    	// XML 
-				    	// Get a SAXParser from the SAXPArserFactory
-				        SAXParserFactory spf = SAXParserFactory.newInstance();
-
-				        // trashing the namespaces but keep prefixes (since we don't have the xml header)
-				        spf.setFeature("http://xml.org/sax/features/namespaces", false);
-				        spf.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
-				        SAXParser sp = spf.newSAXParser();
-
-						TLog.v(TAG, "parsing note {0}", subjectName);
-						
-				        sp.parse(noteContentIs, new NoteContentHandler(noteContent));
-					} catch (Exception e) {
-						e.printStackTrace();
-						// TODO handle error in a more granular way
-						TLog.e(TAG, "There was an error parsing the note {0}", noteContentstring);
-						successful = false;
-					}
-					
-					warnHandler(successful);
-				}
+//				public void run() {
+//					
+//					
+//					bool successful = true;
+//					
+//					try {
+//						// Parsing
+//				    	// XML 
+//				    	// Get a SAXParser from the SAXPArserFactory
+//				        SAXParserFactory spf = SAXParserFactory.newInstance();
+//
+//				        // trashing the namespaces but keep prefixes (since we don't have the xml header)
+//				        spf.setFeature("http://xml.org/sax/features/namespaces", false);
+//				        spf.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
+//				        SAXParser sp = spf.newSAXParser();
+//
+//						TLog.v(TAG, "parsing note {0}", subjectName);
+//						
+//				        sp.parse(noteContentIs, new NoteContentHandler(noteContent));
+//					} catch (Exception e) {
+//						e.PrintStackTrace();
+//						// TODO handle error in a more granular way
+//						TLog.e(TAG, "There was an error parsing the note {0}", noteContentstring);
+//						successful = false;
+//					}
+//					
+//					warnHandler(successful);
+//				}
 			};
-			Thread thread = new Thread(runner);
-			thread.start();
+			System.Threading.Thread thread = new System.Threading.Thread(runner);
+			thread.Start();
 			return noteContent;
 		}
 
 	    private void warnHandler(bool successful) {
 			
 			// notify the main UI that we are done here (sending an ok along with the note's title)
-			Message msg = Message.obtain();
+			Message msg = Message.Obtain();
 			if (successful) {
-				msg.what = PARSE_OK;
+				msg.What = PARSE_OK;
 			} else {
 				
-				msg.what = PARSE_ERROR;
+				msg.What = PARSE_ERROR;
 			}
 			
 			parentHandler.SendMessage(msg);

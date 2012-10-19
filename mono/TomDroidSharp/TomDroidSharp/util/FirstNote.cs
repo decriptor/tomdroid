@@ -21,11 +21,10 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using TomDroidSharp.Note;
-using TomDroidSharp.R;
-
 using Android.App;
 using Android.Text;
+using TomDroidSharp.util;
+using Android.Content.Res;
 
 namespace TomDroidSharp.Util
 {
@@ -44,7 +43,7 @@ namespace TomDroidSharp.Util
 			
 			Note note = new Note();
 			
-			note.setTitle(activity.getstring(R.string.firstNoteTitle));
+			note.setTitle(activity.GetString(Resource.String.firstNoteTitle));
 			// FIXME as soon as we can create notes, make sure GUID is unique! - we are referencing this UUID elsewhere, don't forget to check! 
 			note.setGuid("8f837a99-c920-4501-b303-6a39af57a714");
 			note.setLastChangeDate("2010-10-09T16:50:12.219-04:00");
@@ -52,14 +51,14 @@ namespace TomDroidSharp.Util
 			
 			// reconstitute HTML in note content 
 
-			string[] contentarray = activity.getResources().getstringArray(R.array.firstNoteContent);
-			string content = TextUtils.join("\n", contentarray);
+			string[] contentarray = activity.Resources.GetStringArray(Resource.Array.firstNoteContent);
+			string content = TextUtils.Join("\n", contentarray);
 			
-			content = content.replaceAll("(?m)^=(.+)=$", "<size:large>$1</size:large>")
-					.replaceAll("(?m)^-(.+)$", "<list-item dir=\"ltr\">$1</list-item>")
-					.replaceAll("/list-item>\n<list-item", "/list-item><list-item")
-					.replaceAll("(<list-item.+</list-item>)", "<list>$1</list>")
-					.replaceAll("/list-item><list-item", "/list-item>\n<list-item");
+			content = content.Replace("(?m)^=(.+)=$", "<size:large>$1</size:large>")
+					.Replace("(?m)^-(.+)$", "<list-item dir=\"ltr\">$1</list-item>")
+					.Replace("/list-item>\n<list-item", "/list-item><list-item")
+					.Replace("(<list-item.+</list-item>)", "<list>$1</list>")
+					.Replace("/list-item><list-item", "/list-item>\n<list-item");
 			
 			note.setXmlContent(content);
 			

@@ -22,9 +22,7 @@
  */
 
 using Android.Content;
-
-using TomDroidSharp.Note;
-//import java.util.UUID;
+using Java.Util;
 
 namespace TomDroidSharp.util
 {
@@ -47,8 +45,8 @@ namespace TomDroidSharp.util
 			
 			note.setTitle(title);
 
-			UUID newid = UUID.randomUUID();
-			note.setGuid(newid.tostring());
+			UUID newid = UUID.RandomUUID();
+			note.setGuid(newid.ToString());
 			note.setLastChangeDate();
 			note.setXmlContent(xmlContent);
 			

@@ -42,7 +42,7 @@ using TomDroidSharp.util;
 //import java.io.UnsupportedEncodingException;
 //import java.net.UnknownHostException;
 
-namespace TomDroidSharp.sync.web
+namespace TomDroidSharp.Sync.web
 {
 	public class OAuthConnection : WebConnection {
 		
@@ -102,12 +102,12 @@ namespace TomDroidSharp.sync.web
 			try {
 				consumer.sign(request);
 			} catch (OAuthMessageSignerException e1) {
-				e1.printStackTrace();
+				e1.PrintStackTrace();
 			} catch (OAuthExpectationFailedException e1) {
-				e1.printStackTrace();
+				e1.PrintStackTrace();
 			} catch (OAuthCommunicationException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.PrintStackTrace();
 			}
 		}
 		
@@ -130,12 +130,12 @@ namespace TomDroidSharp.sync.web
 				try {
 					jsonResponse = new JSONObject (response);
 				
-					accessTokenUrl = jsonResponse.getstring ("oauth_access_token_url");
-					requestTokenUrl = jsonResponse.getstring ("oauth_request_token_url");
-					authorizeUrl = jsonResponse.getstring ("oauth_authorize_url");
+					accessTokenUrl = jsonResponse.GetString ("oauth_access_token_url");
+					requestTokenUrl = jsonResponse.GetString ("oauth_request_token_url");
+					authorizeUrl = jsonResponse.GetString ("oauth_authorize_url");
 				
 				} catch (JSONException e) {
-					e.printStackTrace ();
+					e.PrintStackTrace ();
 					return null;
 				}
 			
@@ -153,23 +153,23 @@ namespace TomDroidSharp.sync.web
 					saveConfiguration ();
 				
 				} catch (OAuthMessageSignerException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return null;
 				} catch (OAuthNotAuthorizedException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return null;
 				} catch (OAuthExpectationFailedException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return null;
 				} catch (OAuthCommunicationException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return null;
 				}
 			
 				TLog.i (TAG, "Authorization URL : {0}", url);
 			} catch (UnknownHostException ex) {
 			}
-			return Uri.parse(url);
+			return Uri.Parse(url);
 		}
 		
 		public bool getAccess (string verifier)
@@ -192,16 +192,16 @@ namespace TomDroidSharp.sync.web
 				try {
 					provider.retrieveAccessToken (consumer, verifier);
 				} catch (OAuthMessageSignerException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return false;
 				} catch (OAuthNotAuthorizedException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return false;
 				} catch (OAuthExpectationFailedException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return false;
 				} catch (OAuthCommunicationException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return false;
 				}
 			
@@ -216,10 +216,10 @@ namespace TomDroidSharp.sync.web
 					TLog.d (TAG, "Request: {0}", rootApi);
 			
 					// append a slash to the url, else the signature will fail
-					userApi = response.getJSONObject ("user-ref").getstring ("api-ref");
+					userApi = response.getJSONObject ("user-ref").GetString ("api-ref");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace ();
+					e.PrintStackTrace ();
 				}
 			
 				saveConfiguration ();
@@ -252,7 +252,7 @@ namespace TomDroidSharp.sync.web
 					// The default http content charset is ISO-8859-1, JSON requires UTF-8
 					httpPut.setEntity (new stringEntity (data, "UTF-8"));
 				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace ();
+					e1.PrintStackTrace ();
 					return null;
 				}
 			
@@ -268,16 +268,16 @@ namespace TomDroidSharp.sync.web
 		
 		public void saveConfiguration()
 		{
-			Preferences.putstring(Preferences.Key.ACCESS_TOKEN, accessToken);
-			Preferences.putstring(Preferences.Key.ACCESS_TOKEN_SECRET, accessTokenSecret);
-			Preferences.putstring(Preferences.Key.ACCESS_TOKEN_URL, accessTokenUrl);
-			Preferences.putstring(Preferences.Key.REQUEST_TOKEN, requestToken);
-			Preferences.putstring(Preferences.Key.REQUEST_TOKEN_SECRET, requestTokenSecret);
-			Preferences.putstring(Preferences.Key.REQUEST_TOKEN_URL, requestTokenUrl);
-			Preferences.putBoolean(Preferences.Key.OAUTH_10A, oauth10a);
-			Preferences.putstring(Preferences.Key.AUTHORIZE_URL, authorizeUrl);
-			Preferences.putstring(Preferences.Key.SYNC_SERVER_ROOT_API, rootApi);
-			Preferences.putstring(Preferences.Key.SYNC_SERVER_USER_API, userApi);
+			Preferences.PutString(Preferences.Key.ACCESS_TOKEN, accessToken);
+			Preferences.PutString(Preferences.Key.ACCESS_TOKEN_SECRET, accessTokenSecret);
+			Preferences.PutString(Preferences.Key.ACCESS_TOKEN_URL, accessTokenUrl);
+			Preferences.PutString(Preferences.Key.REQUEST_TOKEN, requestToken);
+			Preferences.PutString(Preferences.Key.REQUEST_TOKEN_SECRET, requestTokenSecret);
+			Preferences.PutString(Preferences.Key.REQUEST_TOKEN_URL, requestTokenUrl);
+			Preferences.PutBoolean(Preferences.Key.OAUTH_10A, oauth10a);
+			Preferences.PutString(Preferences.Key.AUTHORIZE_URL, authorizeUrl);
+			Preferences.PutString(Preferences.Key.SYNC_SERVER_ROOT_API, rootApi);
+			Preferences.PutString(Preferences.Key.SYNC_SERVER_USER_API, userApi);
 		}
 	}
 }

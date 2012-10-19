@@ -20,27 +20,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-//import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.FileWriter;
-//import java.io.IOException;
-//import java.io.PrintWriter;
-//import java.io.stringWriter;
-//import java.io.Writer;
-//import java.util.HashMap;
-//import java.util.LinkedList;
-
-using TomDroidSharp.Note;
-using TomDroidSharp.ui.Tomdroid;
+using System.Collections.Generic;
+using System;
+using Java.IO;
+using TomDroidSharp.ui;
 
 namespace TomDroidSharp.Util
 {
-	public class ErrorList : LinkedList<HashMap<string, Object>> {
+	public class ErrorList : LinkedList<Dictionary<string, Object>> {
 		
 		// Eclipse wants this, let's grant his wish
 		private static readonly long serialVersionUID = 2442181279736146737L;
 		
-		private static class Error : HashMap<string, Object> {
+		private class Error : Dictionary<string, Object> {
 			
 			// Eclipse wants this, let's grant his wish
 			private static readonly long serialVersionUID = -8279130686438869537L;
@@ -48,56 +40,56 @@ namespace TomDroidSharp.Util
 			public Error addError(Exception e ) {
 				Writer result = new stringWriter();
 				PrintWriter printWriter = new PrintWriter(result);
-				e.printStackTrace(printWriter);
-				this.put("error", result.tostring());
+				e.PrintStackTrace(printWriter);
+				this.Add("error", result.ToString());
 				return this;
 			}
-			
+
 			public Error addError(string message) {
-				this.put("error", message);
+				this.Add("error", message);
 				return this;
 			}
 			
 			public Error addNote(Note note) {
-				this.put("label", note.getTitle());
-				this.put("filename", new File(note.getFileName()).getName());
+				this.Add("label", note.getTitle());
+				this.Add("filename", new File(note.getFileName()).Name);
 				return this;
 			}
 			
 			public Error addObject(string key, Object o) {
-				this.put(key, o);
+				this.Add(key, o);
 				return this;
 			}
 		}
 		
-		public static HashMap<string, Object> createError(Note note, Exception e) {
+		public static Dictionary<string, Object> createError(Note note, Exception e) {
 			return new Error()
 				.addNote(note)
 				.addError(e);
 		}
 		
-		public static HashMap<string, Object> createError(string label, string filename, Exception e) {
+		public static Dictionary<string, Object> createError(string label, string filename, Exception e) {
 			return new Error()
 				.addError(e)
 				.addObject("label", label)
 				.addObject("filename", filename);
 		}
 		
-		public static HashMap<string, Object> createErrorWithContents(Note note, Exception e, string noteContents) {
+		public static Dictionary<string, Object> createErrorWithContents(Note note, Exception e, string noteContents) {
 			return new Error()
 				.addNote(note)
 				.addError(e)
 				.addObject("note-content", noteContents);
 		}
 		
-		public static HashMap<string, Object> createErrorWithContents(Note note, string message, string noteContents) {
+		public static Dictionary<string, Object> createErrorWithContents(Note note, string message, string noteContents) {
 			return new Error()
 				.addNote(note)
 				.addError(message)
 				.addObject("note-content", noteContents);
 		}
 		
-		public static HashMap<string, Object> createErrorWithContents(string label, string filename, Exception e, string noteContents) {
+		public static Dictionary<string, Object> createErrorWithContents(string label, string filename, Exception e, string noteContents) {
 			return new Error()
 				.addObject("label", label)
 				.addObject("filename", filename)
@@ -115,16 +107,16 @@ namespace TomDroidSharp.Util
 			
 			File fPath = new File(path);
 			if (!fPath.Exists()) {
-				fPath.mkdirs();
+				fPath.Mkdirs();
 				// Check a second time, if not the most likely cause is the volume doesn't exist
 				if(!fPath.Exists()) return false;
 			}
 			
-			if(this == null || this.isEmpty() || this.size() == 0)
+			if(this == null || this.isEmpty() || this.Count == 0)
 				return false;
 			
-			for(int i = 0; i < this.size(); i++) {
-				HashMap<string, Object> error = this.get(i);
+			for(int i = 0; i < this.Count; i++) {
+				Dictionary<string, Object> error = this.get(i);
 				if(error == null)
 					continue;
 				string filename = findFilename(path, (string)error.get("filename"), 0);
@@ -135,21 +127,21 @@ namespace TomDroidSharp.Util
 					
 					if(content != null) {
 						fileWriter = new FileWriter(path+filename);
-						fileWriter.write(content);
-						fileWriter.flush();
-						fileWriter.close();
+						fileWriter.Write(content);
+						fileWriter.Flush();
+						fileWriter.Close();
 					}
 					
 					fileWriter = new FileWriter(path+filename+".exception");
-					fileWriter.write((string)error.get("error"));
-					fileWriter.flush();
-					fileWriter.close();
+					fileWriter.Write((string)error.get("error"));
+					fileWriter.Flush();
+					fileWriter.Close();
 				} catch (FileNotFoundException e) {
 				 // TODO Auto-generated catch block
-					e.printStackTrace();
+					e.PrintStackTrace();
 				} catch (IOException e) {
 				 // TODO Auto-generated catch block
-					e.printStackTrace();
+					e.PrintStackTrace();
 				}
 			}
 			

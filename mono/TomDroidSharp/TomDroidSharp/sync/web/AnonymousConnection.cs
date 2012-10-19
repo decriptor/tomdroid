@@ -21,17 +21,13 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.io.UnsupportedEncodingException;
-//import java.net.UnknownHostException;
-//
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.client.methods.HttpPut;
-//import org.apache.http.entity.stringEntity;
 using Java.IO;
 using Java.Net;
 
-namespace TomDroidSharp.sync.web
+using System;
+using System.Net;
+
+namespace TomDroidSharp.Sync.web
 {
 	public class AnonymousConnection : WebConnection
 	{
@@ -41,7 +37,7 @@ namespace TomDroidSharp.sync.web
 			{
 				// Prepare a request object
 				HttpGet httpGet = new HttpGet(uri);
-				HttpResponse response = execute(httpGet);
+				HttpWebResponse response = execute(httpGet);
 			}
 			catch (UnknownHostException ex)
 			{

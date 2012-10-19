@@ -30,23 +30,14 @@ using Android.Text.Format;
 using Android.Webkit;
 using Android.Widget;
 
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.R;
-using TomDroidSharp.sync.SyncManager;
-using TomDroidSharp.sync.SyncService;
-using TomDroidSharp.sync.web.OAuthConnection;
-using TomDroidSharp.ui.actionbar.ActionBarPreferenceActivity;
-using TomDroidSharp.util.FirstNote;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.SearchSuggestionProvider;
-using TomDroidSharp.util.TLog;
-
-//import java.io.File;
-//import java.util.List;
+using TomDroidSharp.ui.actionbar;
+using Android.Views;
+using TomDroidSharp.util;
+using System.Collections.Generic;
 
 namespace TomDroidSharp.ui
 {
-
+	[Activity (Label = "PreferencesActivity")]
 	public class PreferencesActivity : ActionBarPreferenceActivity {
 		
 		private static readonly string TAG = "PreferencesActivity";
@@ -75,38 +66,38 @@ namespace TomDroidSharp.ui
 
 		private Activity activity;
 
-		private Handler	 preferencesMessageHandler	= new PreferencesMessageHandler(this);
+		private Handler preferencesMessageHandler = new PreferencesMessageHandler(this);
 
 
 
 		private static ProgressDialog syncProgressDialog;
 
 		
-		@SuppressWarnings("deprecation")
-		@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			if (Build.VERSION.SDK_INT < 11)
+		//@SuppressWarnings("deprecation")
+		protected override void onCreate(Bundle savedInstanceState)
+		{
+			if (Build.VERSION.SdkInt < 11)
 				requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); // added for actionbarcompat
 			
-			super.onCreate(savedInstanceState);
+			base.OnCreate(savedInstanceState);
 			
 			this.activity = this;
 			SyncManager.setActivity(this);
 			SyncManager.setHandler(this.preferencesMessageHandler);
 			
-			addPreferencesFromResource(R.xml.preferences);
+			addPreferencesFromResource(Resource.xml.preferences);
 			
 			// Fill the Preferences fields
-			baseSize = (EditTextPreference)findPreference(Preferences.Key.BASE_TEXT_SIZE.getName());
-			defaultSort = (ListPreference)findPreference(Preferences.Key.SORT_ORDER.getName());
-			syncServer = (EditTextPreference)findPreference(Preferences.Key.SYNC_SERVER.getName());
-			syncService = (ListPreference)findPreference(Preferences.Key.SYNC_SERVICE.getName());
-			sdLocation = (EditTextPreference)findPreference(Preferences.Key.SD_LOCATION.getName());
-			clearSearchHistory = (Preference)findPreference(Preferences.Key.CLEAR_SEARCH_HISTORY.getName());
-			delNotes = (Preference)findPreference(Preferences.Key.DEL_ALL_NOTES.getName());
-			delRemoteNotes = (Preference)findPreference(Preferences.Key.DEL_REMOTE_NOTES.getName());
-			backupNotes = (Preference)findPreference(Preferences.Key.BACKUP_NOTES.getName());
-			autoBackup = (Preference)findPreference(Preferences.Key.AUTO_BACKUP_NOTES.getName());
+			baseSize = FindPreference<EditTextPreference>(Preferences.Key.BASE_TEXT_SIZE.getName());
+			defaultSort = FindPreference<ListPreference>(Preferences.Key.SORT_ORDER.getName());
+			syncServer = FindPreference<EditTextPreference>(Preferences.Key.SYNC_SERVER.getName());
+			syncService = FindPreference<ListPreference>(Preferences.Key.SYNC_SERVICE.getName());
+			sdLocation = FindPreference<EditTextPreference>(Preferences.Key.SD_LOCATION.getName());
+			clearSearchHistory = FindPreference<Preference>(Preferences.Key.CLEAR_SEARCH_HISTORY.getName());
+			delNotes = FindPreference<Preference>(Preferences.Key.DEL_ALL_NOTES.getName());
+			delRemoteNotes = FindPreference<Preference>(Preferences.Key.DEL_REMOTE_NOTES.getName());
+			backupNotes = FindPreference<Preference>(Preferences.Key.BACKUP_NOTES.getName());
+			autoBackup = FindPreference<Preference>(Preferences.Key.AUTO_BACKUP_NOTES.getName());
 			
 			// Set the default values if nothing Exists
 			setDefaults();
@@ -120,152 +111,152 @@ namespace TomDroidSharp.ui
 			// Enable or disable the server field depending on the selected sync service
 			setServer(syncService.getValue());
 			
-			syncService.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-				
-				public bool onPreferenceChange(Preference preference, Object newValue) {
-					string selectedSyncServiceKey = (string)newValue;
-					
-					// did the selection change?
-					if (!syncService.getValue().contentEquals(selectedSyncServiceKey)) {
-						TLog.d(TAG, "preference change triggered");
-						
-						syncServiceChanged(selectedSyncServiceKey);
-					}
-					return true;
-				}
-			});
+//			syncService.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+//				
+//				public bool onPreferenceChange(Preference preference, Object newValue) {
+//					string selectedSyncServiceKey = (string)newValue;
+//					
+//					// did the selection change?
+//					if (!syncService.getValue().contentEquals(selectedSyncServiceKey)) {
+//						TLog.d(TAG, "preference change triggered");
+//						
+//						syncServiceChanged(selectedSyncServiceKey);
+//					}
+//					return true;
+//				}
+//			});
 	 		
 			// force reauthentication if the sync server changes
-			syncServer.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
-				public bool onPreferenceChange(Preference preference,
-						Object serverUri) {
-					
-					if (serverUri == null) {
-						Toast.makeText(PreferencesActivity.this,
-								getstring(R.string.prefServerEmpty),
-								Toast.LENGTH_SHORT).show();
-						return false;
-					}
-					
-					if (!URLUtil.isValidUrl(serverUri.tostring())){
-						noValidEntry(serverUri.tostring());
-						return false;
-					}
-					syncServer.setSummary((string)serverUri);
-					
-					// TODO is this necessary? hasn't it changed already?
-					Preferences.putstring(Preferences.Key.SYNC_SERVER, (string)serverUri);
-
-					reauthenticate();
-					return true;
-				}
-				
-			});
+//			syncServer.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+//
+//				public bool onPreferenceChange(Preference preference,
+//						Object serverUri) {
+//					
+//					if (serverUri == null) {
+//						Toast.MakeText(PreferencesActivity.this,
+//								GetString(Resource.String.prefServerEmpty),
+//								ToastLength.Short).Show();
+//						return false;
+//					}
+//					
+//					if (!URLUtil.isValidUrl(serverUri.ToString())){
+//						noValidEntry(serverUri.ToString());
+//						return false;
+//					}
+//					syncServer.setSummary((string)serverUri);
+//					
+//					// TODO is this necessary? hasn't it changed already?
+//					Preferences.putstring(Preferences.Key.SYNC_SERVER, (string)serverUri);
+//
+//					reauthenticate();
+//					return true;
+//				}
+//				
+//			});
 			
 			// Change the Folder Location
-			sdLocation.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
-				public bool onPreferenceChange(Preference preference, Object locationUri) {
-
-					if (locationUri.equals(Preferences.getstring(Preferences.Key.SD_LOCATION))) { 
-						return false;
-					}
-					if ((locationUri.tostring().contains("\t")) || (locationUri.tostring().contains("\n"))) { 
-						noValidEntry(locationUri.tostring());
-						return false;
-					}
-					
-					File path = new File(Environment.getExternalStorageDirectory()
-							+ "/" + locationUri + "/");
-
-					if(!path.Exists()) {
-						TLog.w(TAG, "Folder {0} does not exist.", path);
-						folderNotExisting(path.tostring());
-						return false;
-					}
-					
-					Preferences.putstring(Preferences.Key.SD_LOCATION, locationUri.tostring());
-					TLog.d(TAG, "Changed Folder to: " + path.tostring());
-
-					Tomdroid.NOTES_PATH = path.tostring();
-					sdLocation.setSummary(Tomdroid.NOTES_PATH);
-
-					resetLocalDatabase();
-					return true;
-				}
-			});
+//			sdLocation.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+//
+//				public bool onPreferenceChange(Preference preference, Object locationUri) {
+//
+//					if (locationUri.equals(Preferences.GetString(Preferences.Key.SD_LOCATION))) { 
+//						return false;
+//					}
+//					if ((locationUri.ToString().contains("\t")) || (locationUri.ToString().contains("\n"))) { 
+//						noValidEntry(locationUri.ToString());
+//						return false;
+//					}
+//					
+//					File path = new File(Environment.getExternalStorageDirectory()
+//							+ "/" + locationUri + "/");
+//
+//					if(!path.Exists()) {
+//						TLog.w(TAG, "Folder {0} does not exist.", path);
+//						folderNotExisting(path.ToString());
+//						return false;
+//					}
+//					
+//					Preferences.putstring(Preferences.Key.SD_LOCATION, locationUri.ToString());
+//					TLog.d(TAG, "Changed Folder to: " + path.ToString());
+//
+//					Tomdroid.NOTES_PATH = path.ToString();
+//					sdLocation.setSummary(Tomdroid.NOTES_PATH);
+//
+//					resetLocalDatabase();
+//					return true;
+//				}
+//			});
 			
 			//delete Search History
-			clearSearchHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-		        public bool onPreferenceClick(Preference preference) {
-		            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(PreferencesActivity.this,
-		                    SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
-		            suggestions.clearHistory();
-		            	
-		        	Toast.makeText(getBaseContext(),
-	                        getstring(R.string.deletedSearchHistory),
-	                        Toast.LENGTH_LONG).show();
-		        	TLog.d(TAG, "Deleted search history.");
-		        	
-		        	return true;
-		        }
-		    });
+//			clearSearchHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+//		        public bool onPreferenceClick(Preference preference) {
+//		            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(PreferencesActivity.this,
+//		                    SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
+//		            suggestions.clearHistory();
+//		            	
+//		        	Toast.MakeText(getBaseContext(),
+//	                        GetString(Resource.String.deletedSearchHistory),
+//	                        Toast.LENGTH_LONG).Show();
+//		        	TLog.d(TAG, "Deleted search history.");
+//		        	
+//		        	return true;
+//		        }
+//		    });
 
-			baseSize.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+//			baseSize.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 				
-				public bool onPreferenceChange(Preference preference, Object newValue) {
-					try {
-						Float.parseFloat((string)newValue);
-						Preferences.putstring(Preferences.Key.BASE_TEXT_SIZE, (string)newValue);
-					}
-					catch(Exception e) {
-			        	Toast.makeText(getBaseContext(),
-		                        getstring(R.string.illegalTextSize),
-		                        Toast.LENGTH_LONG).show();
-			        	TLog.e(TAG, "Illegal text size in preferences");
-			        	return false;
-					}
-					baseSize.setSummary((string)newValue);
-					return true;
-				}
-			});
-			defaultSort.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-				
-				public bool onPreferenceChange(Preference preference, Object newValue) {
-					string value = (string) newValue;
-					if(value.equals("sort_title"))
-						defaultSort.setSummary(getstring(R.string.sortByTitle));
-					else
-						defaultSort.setSummary(getstring(R.string.sortByDate));
-					return true;
-				}
-			});
-			delNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				
-		        public bool onPreferenceClick(Preference preference) {
-		        	showDialog(DIALOG_DELETE);
-					return true;
-				}
-			});
+//				public bool onPreferenceChange(Preference preference, Object newValue) {
+//					try {
+//						Float.parseFloat((string)newValue);
+//						Preferences.putstring(Preferences.Key.BASE_TEXT_SIZE, (string)newValue);
+//					}
+//					catch(Exception e) {
+//			        	Toast.MakeText(getBaseContext(),
+//		                        GetString(Resource.String.illegalTextSize),
+//		                        Toast.LENGTH_LONG).Show();
+//			        	TLog.e(TAG, "Illegal text size in preferences");
+//			        	return false;
+//					}
+//					baseSize.setSummary((string)newValue);
+//					return true;
+//				}
+//			});
+//			defaultSort.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+//				
+//				public bool onPreferenceChange(Preference preference, Object newValue) {
+//					string value = (string) newValue;
+//					if(value.equals("sort_title"))
+//						defaultSort.setSummary(GetString(Resource.String.sortByTitle));
+//					else
+//						defaultSort.setSummary(GetString(Resource.String.sortByDate));
+//					return true;
+//				}
+//			});
+//			delNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+//				
+//		        public bool onPreferenceClick(Preference preference) {
+//		        	ShowDialog(DIALOG_DELETE);
+//					return true;
+//				}
+//			});
 
-			delRemoteNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				
-		        public bool onPreferenceClick(Preference preference) {
-		        	showDialog(DIALOG_DEL_REMOTE);
-					return true;
-				}
-			});
-			
-			
-			backupNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				
-		        public bool onPreferenceClick(Preference preference) {
-		        	showDialog(DIALOG_BACKUP);
-
-					return true;
-				}
-			});		
+//			delRemoteNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+//				
+//		        public bool onPreferenceClick(Preference preference) {
+//		        	ShowDialog(DIALOG_DEL_REMOTE);
+//					return true;
+//				}
+//			});
+//			
+//			
+//			backupNotes.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+//				
+//		        public bool onPreferenceClick(Preference preference) {
+//		        	ShowDialog(DIALOG_BACKUP);
+//
+//					return true;
+//				}
+//			});		
 		}
 
 		private void reauthenticate() {
@@ -280,10 +271,10 @@ namespace TomDroidSharp.ui
 		private void fillServices()
 		{
 			List<SyncService> availableServices = SyncManager.getInstance().getServices();
-			CharSequence[] entries = new CharSequence[availableServices.size()];
-			CharSequence[] entryValues = new CharSequence[availableServices.size()];
+			CharSequence[] entries = new CharSequence[availableServices.Count];
+			CharSequence[] entryValues = new CharSequence[availableServices.Count];
 			
-			for (int i = 0; i < availableServices.size(); i++) {
+			for (int i = 0; i < availableServices.Count; i++) {
 				entries[i] = availableServices.get(i).getDescription();
 				entryValues[i] = availableServices.get(i).getName();
 			}
@@ -295,8 +286,8 @@ namespace TomDroidSharp.ui
 		
 		private void fillSortOrders()
 		{
-			final CharSequence[] entries = new CharSequence[] {getstring(R.string.prefSortDate), getstring(R.string.prefSortTitle)};
-			final CharSequence[] entryValues = new CharSequence[] {"sort_date", "sort_title"};
+			CharSequence[] entries = new CharSequence[] {GetString(Resource.String.prefSortDate), GetString(Resource.String.prefSortTitle)};
+			CharSequence[] entryValues = new CharSequence[] {"sort_date", "sort_title"};
 			
 			defaultSort.setEntries(entries);
 			defaultSort.setEntryValues(entryValues);
@@ -308,8 +299,8 @@ namespace TomDroidSharp.ui
 			string defaultServer = (string)Preferences.Key.SYNC_SERVER.getDefault();
 			syncServer.setDefaultValue(defaultServer);
 			if(syncServer.getText() == null)
-				syncServer.setText(defaultServer);
-			syncServer.setSummary(Preferences.getstring(Preferences.Key.SYNC_SERVER));
+				syncServer.SetText(defaultServer);
+			syncServer.setSummary(Preferences.GetString(Preferences.Key.SYNC_SERVER));
 
 			string defaultService = (string)Preferences.Key.SYNC_SERVICE.getDefault();
 			syncService.setDefaultValue(defaultService);
@@ -319,23 +310,23 @@ namespace TomDroidSharp.ui
 			string defaultLocation = (string)Preferences.Key.SD_LOCATION.getDefault();
 			sdLocation.setDefaultValue(defaultLocation);
 			if(sdLocation.getText() == null)
-				sdLocation.setText(defaultLocation);
+				sdLocation.SetText(defaultLocation);
 
 			string defaultSize = (string)Preferences.Key.BASE_TEXT_SIZE.getDefault();
 			baseSize.setDefaultValue(defaultSize);
-			baseSize.setSummary(Preferences.getstring(Preferences.Key.BASE_TEXT_SIZE));
+			baseSize.setSummary(Preferences.GetString(Preferences.Key.BASE_TEXT_SIZE));
 			if(baseSize.getText() == null)
-				baseSize.setText(defaultSize);
+				baseSize.SetText(defaultSize);
 			
 			string defaultOrder = (string)Preferences.Key.SORT_ORDER.getDefault();
-			string sortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
+			string sortOrder = Preferences.GetString(Preferences.Key.SORT_ORDER);
 			defaultSort.setDefaultValue(defaultOrder);
 			if(defaultSort.getValue() == null)
 				defaultSort.setValue(defaultOrder);
 			if(sortOrder.equals("sort_title"))
-				defaultSort.setSummary(getstring(R.string.sortByTitle));
+				defaultSort.setSummary(GetString(Resource.String.sortByTitle));
 			else
-				defaultSort.setSummary(getstring(R.string.sortByDate));
+				defaultSort.setSummary(GetString(Resource.String.sortByDate));
 		}
 
 		private void setServer(string syncServiceKey) {
@@ -354,30 +345,30 @@ namespace TomDroidSharp.ui
 		}
 			
 		private void folderNotExisting(string path) {
-			dialogstring = string.format(getstring(R.string.prefFolderCreated), path);
-			showDialog(DIALOG_FOLDER_ERROR);
+			dialogstring = string.Format(GetString(Resource.String.prefFolderCreated), path);
+			ShowDialog(DIALOG_FOLDER_ERROR);
 		}
 		
 		private void noValidEntry(string entry) {
-			dialogstring = string.format(getstring(R.string.prefNoValidEntry), entry);
-			showDialog(DIALOG_FOLDER_ERROR);
+			dialogstring = string.Format(GetString(Resource.String.prefNoValidEntry), entry);
+			ShowDialog(DIALOG_FOLDER_ERROR);
 		}
 
 		//TODO use LocalStorage wrapper from two-way-sync branch when it get's merged
 		private void resetLocalDatabase() {
-			ContentResolver.delete(Tomdroid.CONTENT_URI, null, null);
+			ContentResolver.Delete(Tomdroid.CONTENT_URI, null, null);
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
 			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
 			
 			// add a first explanatory note
 			NoteManager.putNote(this, FirstNote.createFirstNote(this));
 			
-			string text = getstring(R.string.messageDatabaseReset);
-			Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+			string text = GetString(Resource.String.messageDatabaseReset);
+			Toast.MakeText(activity, text, ToastLength.Short).Show();
 		}
 		
 		private void resetRemoteService() {
-			showDialog(DIALOG_SYNC);
+			ShowDialog(DIALOG_SYNC);
 			SyncManager.getInstance().getCurrentService().deleteAllNotes();
 		}
 		
@@ -404,7 +395,7 @@ namespace TomDroidSharp.ui
 
 		}
 
-		public class PreferencesMessageHandler string  Handler {
+		public class PreferencesMessageHandler : Handler {
 			
 			private Activity activity;
 			
@@ -412,136 +403,134 @@ namespace TomDroidSharp.ui
 				this.activity = activity;
 			}
 		
-			@Override
-			public void handleMessage(Message msg) {
+			public override void handleMessage(Message msg) {
 		
 				string serviceDescription = SyncManager.getInstance().getCurrentService().getDescription();
 				string text = "";
 
-				TLog.d(TAG, "PreferencesMessageHandler message: {0}",msg.what);
+				TLog.d(TAG, "PreferencesMessageHandler message: {0}",msg.What);
 
-				switch (msg.what) {
+				switch (msg.What) {
 					case SyncService.REMOTE_NOTES_DELETED:
-						text = getstring(R.string.messageRemoteNotesDeleted);
-						text = string.format(text,serviceDescription);
-						Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+						text = GetString(Resource.String.messageRemoteNotesDeleted);
+						text = string.Format(text,serviceDescription);
+						Toast.MakeText(activity, text, ToastLength.Short).Show();
 						break;
 					case SyncService.NOTES_BACKED_UP:
-						text = getstring(R.string.messageNotesBackedUp);
-						Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+						text = GetString(Resource.String.messageNotesBackedUp);
+						Toast.MakeText(activity, text, ToastLength.Short).Show();
 						break;
 					case SyncService.NOTES_RESTORED:
-						text = getstring(R.string.messageNotesRestored);
-						Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+						text = GetString(Resource.String.messageNotesRestored);
+						Toast.MakeText(activity, text, ToastLength.Short).Show();
 						break;
 				}
-				syncProgressDialog.dismiss();
+				syncProgressDialog.Dismiss();
 			}
 		}
 
-		@Override
-		public bool onOptionsItemSelected(MenuItem item) {
-			if(item.getItemId() == android.R.id.home) {
+		public override bool onOptionsItemSelected(IMenuItem item) {
+			if(item.ItemId == Resource.Id.home) {
 		        	// app icon in action bar clicked; go home
-	                Intent intent = new Intent(this, Tomdroid.class);
-	                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	                startActivity(intent);
+	                Intent intent = new Intent(this, typeof(Tomdroid));
+	                intent.AddFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	                StartActivity(intent);
 	            	return true;
 			}
-			return super.onOptionsItemSelected(item);
+			return base.OnOptionsItemSelected(item);
 		}
 		
-		protected Dialog onCreateDialog(int id) {
+		protected Dialog OnCreateDialog(int id) {
 		    Dialog dialog;
 	    	AlertDialog alertDialog; 
 		    switch(id) {
 			    case DIALOG_SYNC:
 					string serviceDescription = SyncManager.getInstance().getCurrentService().getDescription();
 					syncProgressDialog = new ProgressDialog(this);
-					syncProgressDialog.setTitle(string.format(getstring(R.string.syncing),serviceDescription));
-					syncProgressDialog.setMessage(getstring(R.string.syncing_connect));
+					syncProgressDialog.setTitle(string.format(GetString(Resource.String.syncing),serviceDescription));
+					syncProgressDialog.setMessage(GetString(Resource.String.syncing_connect));
 					syncProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-					syncProgressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, getstring(R.string.cancel), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							syncProgressDialog.cancel();
-						}
-					});
-					syncProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-						public void onCancel(DialogInterface dialog) {
-							SyncManager.getInstance().cancel();
-						}
-						
-					});
+//					syncProgressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, GetString(Resource.String.cancel), new DialogInterface.OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							syncProgressDialog.cancel();
+//						}
+//					});
+//					syncProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//
+//						public void onCancel(DialogInterface dialog) {
+//							SyncManager.getInstance().cancel();
+//						}
+//						
+//					});
 			        syncProgressDialog.setIndeterminate(true);
 			        return syncProgressDialog;
 			    case DIALOG_DELETE:
 			    	alertDialog = new AlertDialog.Builder(this)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.delete_all)
-			        .setMessage(R.string.delete_all_message)
-			        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			            	resetLocalDatabase();
-			           }
-
-			        })
-			        .setNegativeButton(R.string.no, null)
+			        .setIcon(android.Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.delete_all)
+			        .setMessage(Resource.String.delete_all_message)
+//			        .setPositiveButton(Resource.String.yes, new DialogInterface.OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			            	resetLocalDatabase();
+//			           }
+//
+//			        })
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 			        return alertDialog;
 
 			    case DIALOG_DEL_REMOTE:
 					alertDialog = new AlertDialog.Builder(this)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.delete_remote_notes)
-			        .setMessage(R.string.delete_remote_notes_message)
-			        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			            	resetRemoteService();
-			           }
-
-			        })
-			        .setNegativeButton(R.string.no, null)
+			        .setIcon(android.Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.delete_remote_notes)
+			        .setMessage(Resource.String.delete_remote_notes_message)
+//			        .setPositiveButton(Resource.String.yes, new DialogInterface.OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			            	resetRemoteService();
+//			           }
+//
+//			        })
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 					return alertDialog;
 					
 			    case DIALOG_BACKUP:
 					alertDialog = new AlertDialog.Builder(activity)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.backup_notes_title)
-			        .setMessage(R.string.backup_notes)
-			        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			        		showDialog(DIALOG_SYNC);
-			            	SyncManager.getService("sdcard").backupNotes();
-			           }
-
-			        })
-			        .setNegativeButton(R.string.no, null)
+			        .setIcon(android.Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.backup_notes_title)
+			        .setMessage(Resource.String.backup_notes)
+//			        .setPositiveButton(Resource.String.yes, new DialogInterface.OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			        		ShowDialog(DIALOG_SYNC);
+//			            	SyncManager.getService("sdcard").backupNotes();
+//			           }
+//
+//			        })
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 					return alertDialog;
 			    case DIALOG_CONNECT_FAILED:
 					alertDialog = new AlertDialog.Builder(this)
-					.setMessage(getstring(R.string.prefSyncConnectionFailed))
-					.setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}})
+					.setMessage(GetString(Resource.String.prefSyncConnectionFailed))
+//					.setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							dialog.dismiss();
+//						}})
 					.create();
 					return alertDialog;
 					
 			    case DIALOG_FOLDER_ERROR:
 			    case DIALOG_INVALID_ENTRY:
 					alertDialog = new AlertDialog.Builder(this)
-					.setTitle(getstring(R.string.error))
+					.setTitle(GetString(Resource.String.error))
 					.setMessage(dialogstring)
-					.setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}})
+//					.setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							dialog.dismiss();
+//						}})
 					.create();
 					return alertDialog;
 			    default:

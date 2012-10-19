@@ -25,15 +25,15 @@ namespace TomDroidSharp.util
 {
 	public class stringConverter {
 		public static string encode(string text) {
-			return text.replace("&", "&amp;")
-			           .replace("%", "&pct;")
-			           .replace("_", "&und;");
+			return text.Replace("&", "&amp;")
+			           .Replace("%", "&pct;")
+			           .Replace("_", "&und;");
 		}
 		
 		public static string decode(string text) {
-			return text.replace("&und;", "_")
-			           .replace("&pct;", "%")
-			           .replace("&amp;", "&");
+			return text.Replace("&und;", "_")
+			           .Replace("&pct;", "%")
+			           .Replace("&amp;", "&");
 		}
 	}
 }

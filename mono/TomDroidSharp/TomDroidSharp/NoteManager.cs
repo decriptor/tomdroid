@@ -37,6 +37,9 @@ using Android.Widget;
 //import java.util.regex.Pattern;
 using TomDroidSharp.ui;
 using TomDroidSharp.util;
+using Java.Util.Regex;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TomDroidSharp
 {
@@ -82,24 +85,24 @@ namespace TomDroidSharp
 			
 			// The note identifier is the guid
 			ContentResolver cr = activity.ContentResolver;
-			Cursor cursor = cr.Query(notes,
+			ICursor cursor = cr.Query(notes,
 	                FULL_PROJECTION,  
 	                Note.GUID + "= ?",
 	                whereArgs,
 	                null);
 			activity.StartManagingCursor(cursor);
-			if (cursor == null || cursor.getCount() == 0) {
-				cursor.close();
+			if (cursor == null || cursor.Count == 0) {
+				cursor.Close();
 				return null;
 			}
 			else {
-				cursor.moveToFirst();
-				string noteContent = cursor.getstring(cursor.getColumnIndexOrThrow(Note.NOTE_CONTENT));
-				string noteTitle = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE));
-				string noteChangeDate = cursor.getstring(cursor.getColumnIndexOrThrow(Note.MODIFIED_DATE));
-				string noteTags = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TAGS));
-				string noteGUID = cursor.getstring(cursor.getColumnIndexOrThrow(Note.GUID));
-				int noteDbid = cursor.getInt(cursor.getColumnIndexOrThrow(Note.ID));
+				cursor.MoveToFirst();
+				string noteContent = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.NOTE_CONTENT));
+				string noteTitle = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE));
+				string noteChangeDate = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.MODIFIED_DATE));
+				string noteTags = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TAGS));
+				string noteGUID = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.GUID));
+				int noteDbid = cursor.GetInt(cursor.GetColumnIndexOrThrow(Note.ID));
 				
 				Note note = new Note();
 				note.setTitle(noteTitle);
@@ -108,7 +111,7 @@ namespace TomDroidSharp
 				note.addTag(noteTags);
 				note.setGuid(noteGUID);
 				note.setDbId(noteDbid);
-				cursor.close();
+				cursor.Close();
 				return note;
 			}
 		}
@@ -119,18 +122,18 @@ namespace TomDroidSharp
 			Note note = null;
 			
 			// can we find a matching note?
-			Cursor cursor = activity.ManagedQuery(uri, FULL_PROJECTION, null, null, null);
+			ICursor cursor = activity.ManagedQuery(uri, FULL_PROJECTION, null, null, null);
 			// cursor must not be null and must return more than 0 entry 
-			if (!(cursor == null || cursor.getCount() == 0)) {
+			if (!(cursor == null || cursor.Count == 0)) {
 				
 				// create the note from the cursor
-				cursor.moveToFirst();
-				string noteContent = cursor.getstring(cursor.getColumnIndexOrThrow(Note.NOTE_CONTENT));
-				string noteTitle = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE));
-				string noteChangeDate = cursor.getstring(cursor.getColumnIndexOrThrow(Note.MODIFIED_DATE));
-				string noteTags = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TAGS));
-				string noteGUID = cursor.getstring(cursor.getColumnIndexOrThrow(Note.GUID));
-				int noteDbid = cursor.getInt(cursor.getColumnIndexOrThrow(Note.ID));
+				cursor.MoveToFirst();
+				string noteContent = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.NOTE_CONTENT));
+				string noteTitle = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE));
+				string noteChangeDate = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.MODIFIED_DATE));
+				string noteTags = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TAGS));
+				string noteGUID = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.GUID));
+				int noteDbid = cursor.GetInt(cursor.GetColumnIndexOrThrow(Note.ID));
 				
 				note = new Note();
 				note.setTitle(noteTitle);
@@ -140,7 +143,7 @@ namespace TomDroidSharp
 				note.setGuid(noteGUID);
 				note.setDbId(noteDbid);
 			}
-			cursor.close();
+			cursor.Close();
 			return note;
 		}
 
@@ -153,13 +156,13 @@ namespace TomDroidSharp
 
 			// The note identifier is the guid
 			ContentResolver cr = activity.ContentResolver;
-			Cursor cursor = cr.Query(notes,
+			ICursor cursor = cr.Query(notes,
 	                ID_PROJECTION,  
 	                Note.GUID + "= ?",
 	                whereArgs,
 	                null);
 			activity.StartManagingCursor(cursor);
-			return (cursor != null && cursor.getCount() != 0);
+			return (cursor != null && cursor.Count != 0);
 		}
 		
 		// puts a note in the content provider
@@ -175,7 +178,7 @@ namespace TomDroidSharp
 			
 			// The note identifier is the guid
 			ContentResolver cr = activity.ContentResolver;
-			Cursor managedCursor = cr.Query(notes,
+			ICursor managedCursor = cr.Query(notes,
 	                LIST_PROJECTION,  
 	                Note.GUID + "= ?",
 	                whereArgs,
@@ -184,7 +187,7 @@ namespace TomDroidSharp
 
 			string title = note.getTitle();
 			string xmlContent = note.getXmlContent();
-			string plainContent = stringConverter.encode(Html.fromHtml(title + "\n" + xmlContent).tostring());
+			string plainContent = stringConverter.encode(Html.FromHtml(title + "\n" + xmlContent).ToString());
 			
 			// Preparing the values to be either inserted or updated
 			// depending on the result of the previous Query
@@ -200,7 +203,7 @@ namespace TomDroidSharp
 			
 			Uri uri = null;
 			
-			if (managedCursor == null || managedCursor.getCount() == 0) {
+			if (managedCursor == null || managedCursor.Count == 0) {
 
 				// This note is not in the database yet we need to insert it
 				TLog.v(TAG, "A new note has been detected (not yet in db)");
@@ -219,7 +222,7 @@ namespace TomDroidSharp
 
 				TLog.v(TAG, "Note updated in content provider: TITLE:{0} GUID:{1} TAGS:{2}", note.getTitle(), note.getGuid(), note.getTags());
 			}
-			managedCursor.close();
+			managedCursor.Close();
 			note = getNote(activity, uri);
 			return uri;
 		}
@@ -229,7 +232,7 @@ namespace TomDroidSharp
 		{
 			note.removeTag("system:deleted");
 			Time now = new Time();
-			now.setToNow();
+			now.SetToNow();
 			note.setLastChangeDate(now);
 			putNote(activity,note);
 		}
@@ -239,7 +242,7 @@ namespace TomDroidSharp
 		{
 			note.addTag("system:deleted");
 			Time now = new Time();
-			now.setToNow();
+			now.SetToNow();
 			note.setLastChangeDate(now);
 			putNote(activity,note);
 		}
@@ -252,10 +255,10 @@ namespace TomDroidSharp
 		// this function actually deletes the note locally, called when syncing
 		public static bool deleteNote(Activity activity, int id)
 		{
-			Uri uri = Uri.parse(Tomdroid.CONTENT_URI+"/"+id);
+			Uri uri = Uri.Parse(Tomdroid.CONTENT_URI+"/"+id);
 
 			ContentResolver cr = activity.ContentResolver;
-			int result = cr.delete(uri, null, null);
+			int result = cr.Delete(uri, null, null);
 			
 			if(result > 0) {
 				return true;
@@ -272,7 +275,7 @@ namespace TomDroidSharp
 			Uri notes = Tomdroid.CONTENT_URI;
 			string where = Note.TAGS + " LIKE '%system:deleted%'";
 			ContentResolver cr = activity.ContentResolver;
-			int rows = cr.delete(notes, where, null);
+			int rows = cr.Delete(notes, where, null);
 			TLog.v(TAG, "Deleted {0} local notes based on system:deleted tag",rows);
 		}
 
@@ -283,18 +286,18 @@ namespace TomDroidSharp
 			// get a cursor representing all deleted notes from the NoteProvider
 			Uri notes = Tomdroid.CONTENT_URI;
 			ContentResolver cr = activity.ContentResolver;
-			int rows = cr.delete(notes, null, null);
+			int rows = cr.Delete(notes, null, null);
 			TLog.v(TAG, "Deleted {0} local notes",rows);
 		}
 
-		public static Cursor getAllNotes(Activity activity, bool includeNotebookTemplates) {
+		public static ICursor getAllNotes(Activity activity, bool includeNotebookTemplates) {
 			// get a cursor representing all notes from the NoteProvider
 			Uri notes = Tomdroid.CONTENT_URI;
 			string where = "("+Note.TAGS + " NOT LIKE '%" + "system:deleted" + "%')";
 			if (!includeNotebookTemplates) {
 				where += " AND (" + Note.TAGS + " NOT LIKE '%" + "system:template" + "%')";
 			}
-			return activity.managedQuery(notes, LIST_PROJECTION, where, null, sortOrder);		
+			return activity.ManagedQuery(notes, LIST_PROJECTION, where, null, sortOrder);		
 		}
 
 		// this function gets all non-deleted notes as notes in an array
@@ -307,23 +310,23 @@ namespace TomDroidSharp
 				where += " AND (" + Note.TAGS + " NOT LIKE '%" + "system:template" + "%')";
 			}
 			orderBy = Note.MODIFIED_DATE + " DESC";
-			Cursor cursor = activity.managedQuery(uri, FULL_PROJECTION, where, null, orderBy);
-			if (cursor == null || cursor.getCount() == 0) {
+			ICursor cursor = activity.ManagedQuery(uri, FULL_PROJECTION, where, null, orderBy);
+			if (cursor == null || cursor.Count == 0) {
 				TLog.d(TAG, "no notes in cursor");
 				return null;
 			}
-			TLog.d(TAG, "{0} notes in cursor",cursor.getCount());
-			Note[] notes = new Note[cursor.getCount()];
-			cursor.moveToFirst();
+			TLog.d(TAG, "{0} notes in cursor",cursor.Count);
+			Note[] notes = new Note[cursor.Count];
+			cursor.MoveToFirst();
 			int key = 0;
 
-			while(!cursor.isAfterLast()) {
-				string noteContent = cursor.getstring(cursor.getColumnIndexOrThrow(Note.NOTE_CONTENT));
-				string noteTitle = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE));
-				string noteChangeDate = cursor.getstring(cursor.getColumnIndexOrThrow(Note.MODIFIED_DATE));
-				string noteTags = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TAGS));
-				string noteGUID = cursor.getstring(cursor.getColumnIndexOrThrow(Note.GUID));
-				int noteDbid = cursor.getInt(cursor.getColumnIndexOrThrow(Note.ID));
+			while(!cursor.IsAfterLast) {
+				string noteContent = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.NOTE_CONTENT));
+				string noteTitle = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE));
+				string noteChangeDate = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.MODIFIED_DATE));
+				string noteTags = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TAGS));
+				string noteGUID = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.GUID));
+				int noteDbid = cursor.GetInt(cursor.GetColumnIndexOrThrow(Note.ID));
 				
 				Note note = new Note();
 				note.setTitle(noteTitle);
@@ -333,16 +336,16 @@ namespace TomDroidSharp
 				note.setGuid(noteGUID);
 				note.setDbId(noteDbid);
 				notes[key++] = note;
-				cursor.moveToNext();
+				cursor.MoveToNext();
 			}
-			cursor.close();
+			cursor.Close();
 			return notes;
 		}	
 
-		public static ListAdapter getListAdapter(Activity activity, string querys, int selectedIndex) {
+		public static IListAdapter getListAdapter(Activity activity, string querys, int selectedIndex) {
 			
-			bool includeNotebookTemplates = Preferences.getBoolean(Preferences.Key.INCLUDE_NOTE_TEMPLATES);
-			bool includeDeletedNotes = Preferences.getBoolean(Preferences.Key.INCLUDE_DELETED_NOTES);
+			bool includeNotebookTemplates = Preferences.GetBoolean(Preferences.Key.INCLUDE_NOTE_TEMPLATES);
+			bool includeDeletedNotes = Preferences.GetBoolean(Preferences.Key.INCLUDE_DELETED_NOTES);
 			
 			int optionalQueries = 0;
 			if(!includeNotebookTemplates)
@@ -356,22 +359,22 @@ namespace TomDroidSharp
 			
 			if (querys != null ) {
 				// sql statements to search notes
-				string[] Query = querys.split(" ");
-				qargs = new string[Query.length+optionalQueries];
-				for (string str : Query) {
+				string[] Query = querys.Split(" ");
+				qargs = new string[Query.Length+optionalQueries];
+				foreach (string str in Query) {
 					qargs[count++] = "%"+stringConverter.encode(str)+"%"; 
-					where = where + (where.length() > 0? " AND ":"")+"("+Note.NOTE_CONTENT_PLAIN+" LIKE ?)";
+					where = where + (where.Length > 0? " AND ":"")+"("+Note.NOTE_CONTENT_PLAIN+" LIKE ?)";
 				}	
 			}
 			else
 				qargs = new string[optionalQueries];
-			
+
 			if (!includeDeletedNotes) {
-				where += (where.length() > 0? " AND ":"")+"(" + Note.TAGS + " NOT LIKE ?)";
+				where += (where.Length > 0? " AND ":"")+"(" + Note.TAGS + " NOT LIKE ?)";
 				qargs[count++] = "%system:deleted%";
 			}
 			if (!includeNotebookTemplates) {
-				where += (where.length() > 0? " AND ":"")+"(" + Note.TAGS + " NOT LIKE ?)";
+				where += (where.Length > 0? " AND ":"")+"(" + Note.TAGS + " NOT LIKE ?)";
 				qargs[count++] = "%system:template%";
 			}
 
@@ -379,45 +382,45 @@ namespace TomDroidSharp
 			Uri notes = Tomdroid.CONTENT_URI;
 
 			ContentResolver cr = activity.ContentResolver;
-			Cursor notesCursor = cr.Query(notes,
+			ICursor notesCursor = cr.Query(notes,
 					LIST_PROJECTION,  
 					where,
 					qargs,
 					sortOrder);
 			activity.StartManagingCursor(notesCursor);
-			
+
 			// set up an adapter binding the TITLE field of the cursor to the list item
 			string[] from = new string[] { Note.TITLE };
-			int[] to = new int[] { R.id.note_title };
-			return new NoteListCursorAdapter(activity, R.layout.main_list_item, notesCursor, from, to, selectedIndex);
+			int[] to = new int[] { Resource.Id.note_title };
+			return new NoteListCursorAdapter(activity, Resource.layout.main_list_item, notesCursor, from, to, selectedIndex);
 		}
 		
-		public static ListAdapter getListAdapter(Activity activity, int selectedIndex) {
+		public static IListAdapter getListAdapter(Activity activity, int selectedIndex) {
 			
 			return getListAdapter(activity, null, selectedIndex);
 		}
-		public static ListAdapter getListAdapter(Activity activity, string querys) {
+		public static IListAdapter getListAdapter(Activity activity, string querys) {
 			
 			return getListAdapter(activity, querys, -1);
 		}
-		public static ListAdapter getListAdapter(Activity activity) {
+		public static IListAdapter getListAdapter(Activity activity) {
 			
 			return getListAdapter(activity, null, -1);
 		}
 
 		// gets the titles of the notes present in the db, used in ViewNote.buildLinkifyPattern()
-		public static Cursor getTitles(Activity activity) {
+		public static ICursor getTitles(Activity activity) {
 			
 			string where = Note.TAGS + " NOT LIKE '%system:deleted%'";
 			// get a cursor containing the notes titles
-			return activity.managedQuery(Tomdroid.CONTENT_URI, TITLE_PROJECTION, where, null, null);
+			return activity.ManagedQuery(Tomdroid.CONTENT_URI, TITLE_PROJECTION, where, null, null);
 		}
 		
 		// gets the ids of the notes present in the db, used in SyncService.deleteNotes()
-		public static Cursor getGuids(Activity activity) {
+		public static ICursor getGuids(Activity activity) {
 			
 			// get a cursor containing the notes guids
-			return activity.managedQuery(Tomdroid.CONTENT_URI, GUID_PROJECTION, null, null, null);
+			return activity.ManagedQuery(Tomdroid.CONTENT_URI, GUID_PROJECTION, null, null, null);
 		}
 		
 		public static int getNoteId(Activity activity, string title) {
@@ -425,14 +428,14 @@ namespace TomDroidSharp
 			int id = 0;
 			
 			// get the notes ids
-			string[] whereArgs = { title.toUpperCase() };
-			Cursor cursor = activity.managedQuery(Tomdroid.CONTENT_URI, ID_PROJECTION, "UPPER("+Note.TITLE+")=?", whereArgs, null);
+			string[] whereArgs = { title.ToUpper() };
+			ICursor cursor = activity.ManagedQuery(Tomdroid.CONTENT_URI, ID_PROJECTION, "UPPER("+Note.TITLE+")=?", whereArgs, null);
 			
 			// cursor must not be null and must return more than 0 entry 
-			if (!(cursor == null || cursor.getCount() == 0)) {
+			if (!(cursor == null || cursor.Count == 0)) {
 				
-				cursor.moveToFirst();
-				id = cursor.getInt(cursor.getColumnIndexOrThrow(Note.ID));
+				cursor.MoveToFirst();
+				id = cursor.GetInt(cursor.GetColumnIndexOrThrow(Note.ID));
 			}
 			else {
 				// TODO send an error to the user
@@ -447,13 +450,13 @@ namespace TomDroidSharp
 			
 			// get the notes ids
 			string[] whereArgs = { guid };
-			Cursor cursor = activity.managedQuery(Tomdroid.CONTENT_URI, ID_PROJECTION, Note.GUID+"=?", whereArgs, null);
+			ICursor cursor = activity.ManagedQuery(Tomdroid.CONTENT_URI, ID_PROJECTION, Note.GUID+"=?", whereArgs, null);
 			
 			// cursor must not be null and must return more than 0 entry 
-			if (!(cursor == null || cursor.getCount() == 0)) {
+			if (!(cursor == null || cursor.Count == 0)) {
 				
-				cursor.moveToFirst();
-				id = cursor.getInt(cursor.getColumnIndexOrThrow(Note.ID));
+				cursor.MoveToFirst();
+				id = cursor.GetInt(cursor.GetColumnIndexOrThrow(Note.ID));
 			}
 			else {
 				// TODO send an error to the user
@@ -473,11 +476,11 @@ namespace TomDroidSharp
 		public static string stripTitleFromContent(string xmlContent, string title) {
 			// get rid of the title that is doubled in the note's content
 			// using quote to escape potential regexp chars in pattern
-			Pattern stripTitle = Pattern.compile("^\\s*"+Pattern.quote(XmlUtils.escape(title))+"\\n\\n"); 
+			Pattern stripTitle = Pattern.Compile("^\\s*"+Pattern.Quote(XmlUtils.escape(title))+"\\n\\n"); 
 
-			Matcher m = stripTitle.matcher(xmlContent);
-			if (m.find()) {
-				xmlContent = xmlContent.substring(m.end(), xmlContent.length());
+			Matcher m = stripTitle.Matcher(xmlContent);
+			if (m.Find()) {
+				xmlContent = xmlContent.Substring(m.End(), xmlContent.Length);
 				TLog.d(TAG, "stripped the title from note-content");
 			}
 			
@@ -489,8 +492,8 @@ namespace TomDroidSharp
 		 * get a guid list of notes that are newer than latest sync date 
 		 * @param activity
 		 */
-		public static Cursor getNewNotes(Activity activity) {
-			Cursor cursor = activity.managedQuery(Tomdroid.CONTENT_URI, DATE_PROJECTION, "strftime('%s', "+Note.MODIFIED_DATE+") > strftime('%s', '"+Preferences.getstring(Preferences.Key.LATEST_SYNC_DATE)+"')", null, null);	
+		public static ICursor getNewNotes(Activity activity) {
+			ICursor cursor = activity.ManagedQuery(Tomdroid.CONTENT_URI, DATE_PROJECTION, "strftime('%s', "+Note.MODIFIED_DATE+") > strftime('%s', '"+Preferences.GetString(Preferences.Key.LATEST_SYNC_DATE)+"')", null, null);	
 					
 			return cursor;
 		}
@@ -507,38 +510,38 @@ namespace TomDroidSharp
 
 			string origTitle = noteTitle;
 
-			// check for empty titles, set to R.string.NewNoteTitle
+			// check for empty titles, set to Resource.String.NewNoteTitle
 			
-			if (noteTitle == null || noteTitle.replace(" ","").equals("")) {
-				noteTitle = activity.getstring(R.string.NewNoteTitle);
+			if (noteTitle == null || noteTitle.Replace(" ","").Equals("")) {
+				noteTitle = activity.GetString(Resource.String.NewNoteTitle);
 				origTitle = noteTitle; // have to set this too!
 			}
 
 			// check for duplicate titles - add number to end
 
-			Cursor cursor = getTitles(activity);
+			ICursor cursor = getTitles(activity);
 			
 			// cursor must not be null and must return more than 0 entry 
-			if (!(cursor == null || cursor.getCount() == 0)) {
+			if (!(cursor == null || cursor.Count == 0)) {
 				
 				List<string> titles = new List<string>();
-				
-				cursor.moveToFirst();
+
+				cursor.MoveToFirst();
 				do {
-					string aguid = cursor.getstring(cursor.getColumnIndexOrThrow(Note.GUID));
-					if(!guid.equals(aguid)) // skip this note
-						titles.add(cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE)));
-				} while (cursor.moveToNext());
+					string aguid = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.GUID));
+					if(!guid.Equals(aguid)) // skip this note
+						titles.Add(cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE)));
+				} while (cursor.MoveToNext());
 				
 				// sort to get {"Note","Note 2", "Note 3", ... }
 				Collections.sort(titles);
-				
+
 				int inc = 2;
 				foreach(string atitle in titles) {
-					if(atitle.length() == 0)
+					if(atitle.Length == 0)
 						continue;
 					
-					if(atitle.equalsIgnoreCase(noteTitle)) {
+					if(atitle.EqualsIgnoreCase(noteTitle)) {
 						if(inc == 1)  // first match, matching "Note", set to "Note 2"
 							noteTitle = noteTitle + " 2";
 						else // later match, matching "Note X", set to "Note X+1"
@@ -559,34 +562,34 @@ namespace TomDroidSharp
 		 */
 		public static Pattern buildNoteLinkifyPattern(Activity activity, string noteTitle)  {
 		
-			stringBuilder sb = new stringBuilder();
-			Cursor cursor = getTitles(activity);
+			StringBuilder sb = new StringBuilder();
+			ICursor cursor = getTitles(activity);
 		
 			// cursor must not be null and must return more than 0 entry
-			if (!(cursor == null || cursor.getCount() == 0)) {
+			if (!(cursor == null || cursor.Count == 0)) {
 		
 				string title;
 		
-				cursor.moveToFirst();
+				cursor.MoveToFirst();
 		
 				do {
-					title = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE));
-					if(title.length() == 0 || title.equals(noteTitle))
+					title = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE));
+					if(title.Length == 0 || title.Equals(noteTitle))
 						continue;
 					// Pattern.quote() here make sure that special characters in the note's title are properly escaped
-					sb.append("("+Pattern.quote(title)+")|");
+					sb.Append("("+Pattern.Quote(title)+")|");
 		
-				} while (cursor.moveToNext());
+				} while (cursor.MoveToNext());
 				
 				// if only empty titles, return
-				if (sb.length() == 0)
+				if (sb.Length == 0)
 					return null;
 				
 				// get rid of the last | that is not needed (I know, its ugly.. better idea?)
-				string pt = sb.substring(0, sb.length()-1);
+				string pt = sb.ToString().Substring(0, sb.Length-1);
 		
 				// return a compiled match pattern
-				return Pattern.compile(pt, Pattern.CASE_INSENSITIVE);
+				return Pattern.Compile(pt, Pattern.CaseInsensitive);
 		
 			} else {
 		
@@ -601,7 +604,7 @@ namespace TomDroidSharp
 			string orderBy = getSortOrder();
 			if(orderBy == null) {
 				orderBy = "sort_title";
-			} else if(orderBy.equals("sort_title")) {
+			} else if(orderBy.Equals("sort_title")) {
 				orderBy = "sort_date";
 			} else {
 				orderBy = "sort_title";

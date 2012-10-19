@@ -4,15 +4,16 @@
 //import java.io.IOException;
 //import java.io.OutputStreamWriter;
 
+using System;
+using System.Text;
+
 using Android.App;
 using Android.Content;
 using Android.Net;
 using Android.OS;
 using Android.Text;
 
-using TomDroidSharp.Note;
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.ui.Tomdroid;
+using Java.IO;
 
 namespace TomDroidSharp.util
 {
@@ -22,11 +23,11 @@ namespace TomDroidSharp.util
 
 		private Activity activity;
 		private Note note;
-		private SpannablestringBuilder noteContent;
+		private StringBuilder noteContent;
 		private int DIALOG_CHOOSE = 0;
-		private bool sendAsFile;;
+		private bool sendAsFile;
 		
-		public Send(Activity activity, Uri uri, bool sendAsFile) {
+		public Send(Activity activity, Android.Net.Uri uri, bool sendAsFile) {
 			this.activity = activity;
 			this.sendAsFile = sendAsFile;
 			this.note = NoteManager.getNote(activity, uri);
@@ -38,25 +39,24 @@ namespace TomDroidSharp.util
 			}
 		}
 		
-		private Handler noteContentHandler = new Handler() {
-
-			@Override
-			public void handleMessage(Message msg) {
-				
-				//parsed ok - show
-				if(msg.what == NoteContentBuilder.PARSE_OK) {
-					if(sendAsFile)
-						sendNoteAsFile();
-					else
-						sendNoteAsText();
-
-				//parsed not ok - error
-				} else if(msg.what == NoteContentBuilder.PARSE_ERROR) {
-					activity.showDialog(Tomdroid.DIALOG_PARSE_ERROR);
-
-	        	}
-			}
-		};
+//		private Handler noteContentHandler = new Handler() {
+//
+//			public override void handleMessage(Message msg) {
+//				
+//				//parsed ok - show
+//				if(msg.what == NoteContentBuilder.PARSE_OK) {
+//					if(sendAsFile)
+//						sendNoteAsFile();
+//					else
+//						sendNoteAsText();
+//
+//				//parsed not ok - error
+//				} else if(msg.what == NoteContentBuilder.PARSE_ERROR) {
+//					activity.ShowDialog(Tomdroid.DIALOG_PARSE_ERROR);
+//
+//	        	}
+//			}
+//		};
 		
 		private void sendNoteAsFile() {
 			note.cursorPos = 0;
@@ -65,28 +65,28 @@ namespace TomDroidSharp.util
 			note.X = -1;
 			note.Y = -1;
 			
-			string xmlOutput = note.getXmlFilestring();	
+			string xmlOutput = note.GetXmlFilestring();	
 			
 			FileOutputStream outFile = null;
-			Uri noteUri = null;
+			Android.Net.Uri noteUri = null;
 			try {
 				clearFilesDir();
 				
-				outFile = activity.openFileOutput(note.getGuid()+".note", activity.MODE_WORLD_READABLE);
+				outFile = activity.OpenFileOutput(note.getGuid()+".note", FileCreationMode.WorldReadable);
 				OutputStreamWriter osw = new OutputStreamWriter(outFile);
-				osw.write(xmlOutput);
-				osw.flush();
-				osw.close();
-				
-				File noteFile = activity.getFileStreamPath(note.getGuid()+".note");
-				noteUri = Uri.fromFile(noteFile);
+				osw.Write(xmlOutput);
+				osw.Flush();
+				osw.Close();
+
+				File noteFile = activity.GetFileStreamPath(note.getGuid()+".note");
+				noteUri = Android.Net.Uri.FromFile(noteFile);
 				 
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.PrintStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.PrintStackTrace();
 			}
 			if(noteUri == null) {
 				TLog.e(TAG, "Unable to create note to send");
@@ -94,39 +94,39 @@ namespace TomDroidSharp.util
 			}
 			
 		    // Create a new Intent to send messages
-		    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+		    Intent sendIntent = new Intent(Intent.ActionSend);
 
 		    // Add attributes to the intent
-		    sendIntent.putExtra(Intent.EXTRA_STREAM, noteUri);
-		    sendIntent.setType("text/plain");
+		    sendIntent.PutExtra(Intent.ExtraStream, noteUri);
+		    sendIntent.Type = "text/plain";
 
-		    activity.startActivity(Intent.createChooser(sendIntent, note.getTitle()));
+		    activity.StartActivity(Intent.CreateChooser(sendIntent, note.getTitle()));
 			return;
 		}
 		
 		private void sendNoteAsText() {
-			string body = noteContent.tostring();
+			string body = noteContent.ToString();
 			
 		    // Create a new Intent to send messages
-		    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+		    Intent sendIntent = new Intent(Intent.ActionSend);
 		    // Add attributes to the intent
 
-		    sendIntent.putExtra(Intent.EXTRA_SUBJECT, note.getTitle());
-		    sendIntent.putExtra(Intent.EXTRA_TEXT, body);
-		    sendIntent.setType("text/plain");
+		    sendIntent.PutExtra(Intent.ExtraSubject, note.getTitle());
+		    sendIntent.PutExtra(Intent.ExtraText, body);
+		    sendIntent.Type = "text/plain";
 
-		    activity.startActivity(Intent.createChooser(sendIntent, note.getTitle()));
+		    activity.StartActivity(Intent.CreateChooser(sendIntent, note.getTitle()));
 		}
 
 		private void clearFilesDir() {
-			File dir = activity.getFilesDir();
+			File dir = activity.FilesDir;
 			if(dir == null || !dir.Exists())
 				return;
-	        string[] children = dir.list();
-	        for (string s : children) {
+	        string[] children = dir.List();
+	        foreach (string s in children) {
 	            File f = new File(dir, s);
-	            if(f.getName().endsWith(".note"))
-	            	f.delete();
+	            if(f.Name.EndsWith(".note"))
+	            	f.Delete();
 	        }
 		}
 	}

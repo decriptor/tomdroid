@@ -34,9 +34,9 @@ namespace TomDroidSharp.util
 		 */
 		public static string escape(string input) {
 			return input
-				.replace("&", "&amp;")
-				.replace("<", "&lt;")
-				.replace(">", "&gt;");
+				.Replace("&", "&amp;")
+				.Replace("<", "&lt;")
+				.Replace(">", "&gt;");
 				//.replace("\"", "&quot;")
 				//.replace("\'", "&apos;");
 		}
@@ -50,9 +50,9 @@ namespace TomDroidSharp.util
 		 */
 		public static string unescape(string input) {
 			return input
-				.replace("&amp;", "&")
-				.replace("&lt;", "<")
-				.replace("&gt;", ">");
+				.Replace("&amp;", "&")
+				.Replace("&lt;", "<")
+				.Replace("&gt;", ">");
 				//.replace("&quot;", "\"")
 				//.replace("&apos;", "\'");
 		}

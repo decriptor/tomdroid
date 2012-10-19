@@ -24,18 +24,15 @@
 
 using System;
 using System.Text;
+using System.Xml;
 
 using TomDroidSharp;
-//import org.xml.sax.Attributes;
-//import org.xml.sax.SAXException;
-//import org.xml.sax.helpers.DefaultHandler;
-
 using Android.Util;
 
-namespace TomDroidSharp.sync.sd
+namespace TomDroidSharp.Sync.sd
 {
-	public class NoteHandler : DefaultHandler {
-
+	public class NoteHandler
+	{
 		private string TAG = "NoteHandler";
 
 		// position keepers
@@ -81,100 +78,100 @@ namespace TomDroidSharp.sync.sd
 		public NoteHandler(Note note) {
 			this.note = note;
 		}
-		
-		public override void startElement(string uri, string localName, string name, Attributes attributes)
+
+		public void startElement(string uri, string localName, string name, Attribute attributes)
 		{
 			try {
 				// TODO validate top-level tag for tomboy notes and throw exception if its the wrong version number (maybe offer to parse also?)		
 
-				if (localName.equals(TITLE)) {
+				if (localName.Equals(TITLE)) {
 					inTitleTag = true;
 				} 
-				else if (localName.equals(LAST_CHANGE_DATE)) {
+				else if (localName.Equals(LAST_CHANGE_DATE)) {
 					inLastChangeDateTag = true;
 				}
-				else if (localName.equals(NOTE_CONTENT)) {
+				else if (localName.Equals(NOTE_CONTENT)) {
 					inNoteContentTag = true;
 				}
-				else if (localName.equals(CREATE_DATE)) {
+				else if (localName.Equals(CREATE_DATE)) {
 					inCreateDateTag = true;
 				}
-				else if (localName.equals(NOTE_C)) {
+				else if (localName.Equals(NOTE_C)) {
 					inCursorTag = true;
 				}
-				else if (localName.equals(NOTE_W)) {
+				else if (localName.Equals(NOTE_W)) {
 					inWidthTag = true;
 				}
-				else if (localName.equals(NOTE_H)) {
+				else if (localName.Equals(NOTE_H)) {
 					inHeightTag = true;
 				}
-				else if (localName.equals(NOTE_X)) {
+				else if (localName.Equals(NOTE_X)) {
 					inXTag = true;
 				}
-				else if (localName.equals(NOTE_Y)) {
+				else if (localName.Equals(NOTE_Y)) {
 					inYTag = true;
 				}
-				else if (localName.equals(NOTE_TAG)) {
+				else if (localName.Equals(NOTE_TAG)) {
 					inTagTag = true;
 				}
 			}
-			catch (SAXException ex)
+			catch (XmlException ex)
 			{
 			}
 		}
 
-		public override void endElement(string uri, string localName, string name)
+		public void endElement(string uri, string localName, string name)
 		{
 			try {
-			if (localName.equals(TITLE)) {
+			if (localName.Equals(TITLE)) {
 				inTitleTag = false;
-				note.setTitle(title.tostring());
+				note.setTitle(title.ToString());
 			} 
-			else if (localName.equals(LAST_CHANGE_DATE)) {
+			else if (localName.Equals(LAST_CHANGE_DATE)) {
 				inLastChangeDateTag = false;
-				note.setLastChangeDate(lastChangeDate.tostring());
+				note.setLastChangeDate(lastChangeDate.ToString());
 			}
-			else if (localName.equals(NOTE_CONTENT)) {
+			else if (localName.Equals(NOTE_CONTENT)) {
 				inNoteContentTag = false;
-				note.setXmlContent(noteContent.tostring());
+				note.setXmlContent(noteContent.ToString());
 			}
-			else if (localName.equals(CREATE_DATE)) {
+			else if (localName.Equals(CREATE_DATE)) {
 				inCreateDateTag = false;
-				if(createDate.length() > 0)
-					note.setCreateDate(createDate.tostring());
+				if(createDate.Length > 0)
+					note.setCreateDate(createDate.ToString());
 			}
-			else if (localName.equals(NOTE_C)) {
+			else if (localName.Equals(NOTE_C)) {
 				inCursorTag = false;
-				if(cursorPos.length() > 0)
-					note.cursorPos = Integer.parseInt(cursorPos.tostring());
+				if(cursorPos.Length > 0)
+					note.cursorPos = Int32.Parse(cursorPos.ToString());
 			}
-			else if (localName.equals(NOTE_W)) {
+			else if (localName.Equals(NOTE_W)) {
 				inWidthTag = false;
-				if(width.length() > 0)
-					note.width = Integer.parseInt(width.tostring());
+				if(width.Length > 0)
+					note.width = Int32.Parse(width.ToString());
 			}
-			else if (localName.equals(NOTE_H)) {
+			else if (localName.Equals(NOTE_H)) {
 				inHeightTag = false;
-				if(height.length() > 0)
-					note.height = Integer.parseInt(height.tostring());
+				if(height.Length > 0)
+					note.height = Int32.Parse(height.ToString());
 			}
-			else if (localName.equals(NOTE_X)) {
+			else if (localName.Equals(NOTE_X)) {
 				inXTag = false;
-				if(X.length() > 0)
-					note.X = Integer.parseInt(X.tostring());
+				if(X.Length > 0)
+					note.X = Int32.Parse(X.ToString());
 			}
-			else if (localName.equals(NOTE_Y)) {
+			else if (localName.Equals(NOTE_Y)) {
 				inYTag = false;
-				if(Y.length() > 0)
-					note.Y = Integer.parseInt(Y.tostring());
+				if(Y.Length > 0)
+					note.Y = Int32.Parse(Y.ToString());
 			}
-			else if (localName.equals(NOTE_TAG)) {
+			else if (localName.Equals(NOTE_TAG)) {
 				inTagTag = false;
-				if(tag.length() > 0)
-					note.addTag(tag.tostring());
+				if(tag.Length > 0)
+					note.addTag(tag.ToString());
 			}
 			}
-			catch(SAXException ex)
+			catch(XmlException ex)
 			{
 			}
 			catch(TimeFormatException tfe)
@@ -183,41 +180,41 @@ namespace TomDroidSharp.sync.sd
 			}
 		}
 
-		public override void characters(char[] ch, int start, int length)
+		public void characters(char[] ch, int start, int length)
 		{
 			try {
 			if (inTitleTag) {
-				title.append(ch, start, length);
+				title.Append(ch, start, length);
 			} 
 			else if (inLastChangeDateTag) {
-				lastChangeDate.append(ch, start, length);
+				lastChangeDate.Append(ch, start, length);
 			} 
 			else if (inNoteContentTag) {
-				noteContent.append(ch, start, length);
+				noteContent.Append(ch, start, length);
 			}
 			else if (inCreateDateTag) {
-				createDate.append(ch, start, length);
+				createDate.Append(ch, start, length);
 			}
 			else if (inCursorTag) {
-				cursorPos.append(ch, start, length);
+				cursorPos.Append(ch, start, length);
 			}
 			else if (inWidthTag) {
-				width.append(ch, start, length);
+				width.Append(ch, start, length);
 			}
 			else if (inHeightTag) {
-				height.append(ch, start, length);
+				height.Append(ch, start, length);
 			}
 			else if (inXTag) {
-				X.append(ch, start, length);
+				X.Append(ch, start, length);
 			}
 			else if (inYTag) {
-				Y.append(ch, start, length);
+				Y.Append(ch, start, length);
 			}
 			else if (inTagTag) {
-				tag.append(ch, start, length);
+				tag.Append(ch, start, length);
 			}
 			}
-			catch (SAXException ex)
+			catch (XmlException ex)
 			{
 			}
 		}

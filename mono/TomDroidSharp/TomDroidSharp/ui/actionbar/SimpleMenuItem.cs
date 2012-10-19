@@ -20,17 +20,19 @@ using Android.Graphics;
 using Android.Views;
 
 //import android.annotation.TargetApi;
+using Android.Graphics.Drawables;
+using Android.Runtime;
 
 namespace TomDroidSharp.ui.actionbar
 {
 
 	/**
-	 * A <em>really</em> dumb implementation of the {@link android.view.MenuItem} interface, that's only
+	 * A <em>really</em> dumb implementation of the {@link android.view.IMenuItem} interface, that's only
 	 * useful for our actionbar-compat purposes. See
 	 * <code>com.android.internal.view.menu.MenuItemImpl</code> in AOSP for a more complete
 	 * implementation.
 	 */
-	public class SimpleMenuItem : MenuItem {
+	public class SimpleMenuItem : IMenuItem {
 
 	    private SimpleMenu mMenu;
 
@@ -57,20 +59,20 @@ namespace TomDroidSharp.ui.actionbar
 	        return mOrder;
 	    }
 
-	    public MenuItem setTitle(CharSequence title) {
+	    public IMenuItem setTitle(CharSequence title) {
 	        mTitle = title;
 	        return this;
 	    }
 
-	    public MenuItem setTitle(int titleRes) {
-	        return setTitle(mMenu.getContext().getstring(titleRes));
+	    public IMenuItem setTitle(int titleRes) {
+	        return setTitle(mMenu.getContext().GetString(titleRes));
 	    }
 
 	    public CharSequence getTitle() {
 	        return mTitle;
 	    }
 
-	    public MenuItem setTitleCondensed(CharSequence title) {
+	    public IMenuItem setTitleCondensed(CharSequence title) {
 	        mTitleCondensed = title;
 	        return this;
 	    }
@@ -79,13 +81,13 @@ namespace TomDroidSharp.ui.actionbar
 	        return mTitleCondensed != null ? mTitleCondensed : mTitle;
 	    }
 
-	    public MenuItem setIcon(Drawable icon) {
+	    public IMenuItem setIcon(Drawable icon) {
 	        mIconResId = 0;
 	        mIconDrawable = icon;
 	        return this;
 	    }
 
-	    public MenuItem setIcon(int iconResId) {
+	    public IMenuItem setIcon(int iconResId) {
 	        mIconDrawable = null;
 	        mIconResId = iconResId;
 	        return this;
@@ -97,13 +99,13 @@ namespace TomDroidSharp.ui.actionbar
 	        }
 
 	        if (mIconResId != 0) {
-	            return mMenu.getResources().getDrawable(mIconResId);
+	            return mMenu.getResources().GetDrawable(mIconResId);
 	        }
 
 	        return null;
 	    }
 
-	    public MenuItem setEnabled(bool enabled) {
+	    public IMenuItem setEnabled(bool enabled) {
 	        mEnabled = enabled;
 	        return this;
 	    }
@@ -124,13 +126,13 @@ namespace TomDroidSharp.ui.actionbar
 	        return null;
 	    }
 
-	    @TargetApi(14)
-		public MenuItem setActionProvider(ActionProvider actionProvider) {
+	    //@TargetApi(14)
+		public IMenuItem setActionProvider(ActionProvider actionProvider) {
 	        // Noop
 	        return this;
 	    }
 
-	    @TargetApi(14)
+	    //@TargetApi(14)
 		public ActionProvider getActionProvider() {
 	        // Noop
 	        return null;
@@ -151,28 +153,28 @@ namespace TomDroidSharp.ui.actionbar
 	        return false;
 	    }
 
-	    @TargetApi(14)
-		public MenuItem setOnActionExpandListener(OnActionExpandListener onActionExpandListener) {
+	    //@TargetApi(14)
+		public IMenuItem setOnActionExpandListener(OnActionExpandListener onActionExpandListener) {
 	        // Noop
 	        return this;
 	    }
 
-	    public MenuItem setIntent(Intent intent) {
+	    public IMenuItem setIntent(Intent intent) {
 	        // Noop
 	        return this;
 	    }
 
-	    public Intent getIntent() {
+	    public Intent intent (){
 	        // Noop
 	        return null;
 	    }
 
-	    public MenuItem setShortcut(char c, char c1) {
+	    public IMenuItem setShortcut(char c, char c1) {
 	        // Noop
 	        return this;
 	    }
 
-	    public MenuItem setNumericShortcut(char c) {
+	    public IMenuItem setNumericShortcut(char c) {
 	        // Noop
 	        return this;
 	    }
@@ -182,7 +184,7 @@ namespace TomDroidSharp.ui.actionbar
 	        return 0;
 	    }
 
-	    public MenuItem setAlphabeticShortcut(char c) {
+	    public IMenuItem setAlphabeticShortcut(char c) {
 	        // Noop
 	        return this;
 	    }
@@ -192,7 +194,7 @@ namespace TomDroidSharp.ui.actionbar
 	        return 0;
 	    }
 
-	    public MenuItem setCheckable(bool b) {
+	    public IMenuItem setCheckable(bool b) {
 	        // Noop
 	        return this;
 	    }
@@ -202,7 +204,7 @@ namespace TomDroidSharp.ui.actionbar
 	        return false;
 	    }
 
-	    public MenuItem setChecked(bool b) {
+	    public IMenuItem setChecked(bool b) {
 	        // Noop
 	        return this;
 	    }
@@ -212,7 +214,7 @@ namespace TomDroidSharp.ui.actionbar
 	        return false;
 	    }
 
-	    public MenuItem setVisible(bool b) {
+	    public IMenuItem setVisible(bool b) {
 	        // Noop
 	        return this;
 	    }
@@ -227,12 +229,12 @@ namespace TomDroidSharp.ui.actionbar
 	        return false;
 	    }
 
-	    public SubMenu getSubMenu() {
+	    public ISubMenu getSubMenu() {
 	        // Noop
 	        return null;
 	    }
 
-	    public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
+	    public IMenuItem setOnMenuItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
 	        // Noop
 	        return this;
 	    }
@@ -246,17 +248,17 @@ namespace TomDroidSharp.ui.actionbar
 	        // Noop
 	    }
 
-	    public MenuItem setShowAsActionFlags(int i) {
+	    public IMenuItem setShowAsActionFlags(int i) {
 	        // Noop
 	        return null;
 	    }
 
-	    public MenuItem setActionView(View view) {
+	    public IMenuItem setActionView(View view) {
 	        // Noop
 	        return this;
 	    }
 
-	    public MenuItem setActionView(int i) {
+	    public IMenuItem setActionView(int i) {
 	        // Noop
 	        return this;
 	    }

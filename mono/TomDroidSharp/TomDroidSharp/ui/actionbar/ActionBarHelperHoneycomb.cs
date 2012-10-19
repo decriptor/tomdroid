@@ -31,38 +31,35 @@ namespace TomDroidSharp.ui.actionbar
 	    private Menu mOptionsMenu;
 	    private View mRefreshIndeterminateProgressView = null;
 
-	    protected ActionBarHelperHoneycomb(Activity activity) {
-	        super(activity);
+	    protected ActionBarHelperHoneycomb(Activity activity) : base (activity) {
 	    }
 
-	    @Override
-	    public bool onCreateOptionsMenu(Menu menu) {
+	    public override bool onCreateOptionsMenu(Menu menu) {
 	        mOptionsMenu = menu;
-	        return super.onCreateOptionsMenu(menu);
+	        return base.onCreateOptionsMenu(menu);
 	    }
 
-	    @Override
-	    public void setRefreshActionItemState(bool refreshing) {
+	    public override void setRefreshActionItemState(bool refreshing) {
 	        // On Honeycomb, we can set the state of the refresh button by giving it a custom
 	        // action view.
 	        if (mOptionsMenu == null) {
 	            return;
 	        }
 
-	        readonly MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
+	        IMenuItem refreshItem = mOptionsMenu.findItem(Resource.Id.menu_refresh);
 	        if (refreshItem != null) {
 	            if (refreshing) {
 	                if (mRefreshIndeterminateProgressView == null) {
 	                    LayoutInflater inflater = (LayoutInflater)
-	                            getActionBarThemedContext().getSystemService(
+	                            getActionBarThemedContext().GetSystemService(
 	                                    Context.LAYOUT_INFLATER_SERVICE);
 	                    mRefreshIndeterminateProgressView = inflater.inflate(
-	                            R.layout.actionbar_indeterminate_progress, null);
+	                            Resource.Layout.actionbar_indeterminate_progress, null);
 	                }
 
-	                refreshItem.setActionView(mRefreshIndeterminateProgressView);
+	                refreshItem.SetActionView(mRefreshIndeterminateProgressView);
 	            } else {
-	                refreshItem.setActionView(null);
+	                refreshItem.SetActionView(null);
 	            }
 	        }
 	    }

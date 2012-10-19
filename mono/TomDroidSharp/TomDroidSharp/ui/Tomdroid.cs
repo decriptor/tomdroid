@@ -23,18 +23,6 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.io.File;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-
-using TomDroidSharp;
-using TomDroidSharp.R;
-using TomDroidSharp.sync;
-using TomDroidSharp.util;
-using TomDroidSharp.ui.actionbar;
-using TomDroidSharp.util;
-using TomDroidSharp.xml;
-
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -50,13 +38,20 @@ using Android.Text.Format;
 using Android.Views;
 using Android.Widget;
 
-//import android.annotation.TargetApi;
+using TomDroidSharp.ui.actionbar;
+using TomDroidSharp.util;
+using System.Text;
+using TomDroidSharp.Sync;
+using TomDroidSharp.Util;
+using TomDroidSharp.xml;
+using Java.IO;
 
 namespace TomDroidSharp.ui
 {
 	[Activity (Label = "TomDroidSharp", MainLauncher = true)]
-	public class Tomdroid : ActionBarListActivity {
-
+	public class Tomdroid : ActionBarListActivity
+	{
+	
 		// Global definition for Tomdroid
 		public static readonly string	AUTHORITY			= "org.tomdroidsharp.notes";
 		public static readonly Uri		CONTENT_URI			= Uri.Parse("content://" + AUTHORITY + "/notes");
@@ -93,13 +88,13 @@ namespace TomDroidSharp.ui
 		public int syncProcessedNotes;
 
 		// config parameters
-		public static string	NOTES_PATH				= null;
+		public static string NOTES_PATH = null;
 		
 		// Set this to false for release builds, the reason should be obvious
-		public static readonly bool	CLEAR_PREFERENCES	= false;
+		public static readonly bool	CLEAR_PREFERENCES = false;
 
 		// Logging info
-		private static readonly string	TAG					= "TomdroidSharp";
+		private const string TAG = "TomDroidSharp";
 
 		public static Uri getNoteIntentUri(long noteId) {
 	        return Uri.Parse(CONTENT_URI + "/" + noteId);
@@ -108,11 +103,11 @@ namespace TomDroidSharp.ui
 		private View main;
 		
 		// UI to data model glue
-		private TextView			listEmptyView;
-		private ListAdapter			adapter;
+		private TextView listEmptyView;
+		private IListAdapter adapter;
 
 		// UI feedback handler
-		private Handler	 syncMessageHandler	= new SyncMessageHandler(this);
+		private Handler syncMessageHandler	= new SyncMessageHandler(this);
 
 		// sync variables
 		private bool creating = true;
@@ -126,10 +121,10 @@ namespace TomDroidSharp.ui
 		// other tablet-based variables
 
 		private Note note;
-		private SpannablestringBuilder noteContent;
+		private StringBuilder noteContent;
 		private Uri uri;
 		private int lastIndex = -1;
-		public MenuItem syncMenuItem;
+		public IMenuItem syncMenuItem;
 		public static Tomdroid context;
 
 		// for searches
@@ -138,7 +133,7 @@ namespace TomDroidSharp.ui
 		private string Query;
 		
 		/** Called when the activity is created. */
-		public override void OnCreate(Bundle savedInstanceState)
+		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
 
@@ -147,59 +142,58 @@ namespace TomDroidSharp.ui
 			SyncManager.setActivity(this);
 			SyncManager.setHandler(this.syncMessageHandler);
 			
-	        main =  View.Inflate(this, R.layout.main, null);
+	        main =  View.Inflate(this, Resource.Layout.main, null);
 			
 	        SetContentView(main);
 			
 			// get the Path to the notes-folder from Preferences
-			NOTES_PATH = Environment.getExternalStorageDirectory()
-					+ "/" + Preferences.getstring(Preferences.Key.SD_LOCATION) + "/";
+			NOTES_PATH = Environment.ExternalStorageDirectory
+					+ "/" + Preferences.GetString(Preferences.Key.SD_LOCATION) + "/";
 			
 			// did we already show the warning and got destroyed by android's activity killer?
-			if (Preferences.getBoolean(Preferences.Key.FIRST_RUN)) {
+			if (Preferences.GetBoolean(Preferences.Key.FIRST_RUN)) {
 				TLog.i(TAG, "Tomdroid is first run.");
 				
 				// add a first explanatory note
 				NoteManager.putNote(this, FirstNote.createFirstNote(this));
 				
 				// Warn that this is a "will eat your babies" release
-				showDialog(DIALOG_FIRST_RUN);
-
+				ShowDialog(DIALOG_FIRST_RUN);
 			}
 			
-			this.intent = getIntent();
+			this.intent = Intent;
 
-		    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-		    	this.setTitle(getstring(R.string.app_name) + " - " + getstring(R.string.SearchResultTitle));
-		    	Query = intent.getstringExtra(SearchManager.Query);
+		    if (Intent.ActionSearch.Equals(intent.Action)) {
+		    	this.SetTitle(GetString(Resource.String.app_name) + " - " + GetString(Resource.String.SearchResultTitle));
+		    	Query = intent.GetStringExtra(SearchManager.Query);
 		    	
 		    	//adds Query to search history suggestions
-		        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
-		                SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
-		        suggestions.saveRecentQuery(Query, null);
+		        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchSuggestionProvider.AUTHORITY,
+				                                                                  		SearchSuggestionProvider.MODE);
+		        suggestions.SaveRecentQuery(Query, null);
 			}
 		    
-			string defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
+			string defaultSortOrder = Preferences.GetString(Preferences.Key.SORT_ORDER);
 			NoteManager.setSortOrder(defaultSortOrder);
 			
 		    // set list adapter
 		    updateNotesList(Query, -1);
 		    
 			// add note to pane for tablet
-			rightPane = (LinearLayout) findViewById(R.id.right_pane);
-			registerForContextMenu(findViewById(android.R.id.list));
+			rightPane = FindViewById<LinearLayout>(Resource.Id.right_pane);
+			RegisterForContextMenu(FindViewById(Resource.Id.list));
 
 			// check if receiving note
-			if(getIntent().hasExtra("view_note")) {
-				uri = getIntent().getData();
-				getIntent().setData(null);
-				Intent i = new Intent(Intent.ACTION_VIEW, uri, this, ViewNote);
-				startActivity(i);
+			if(Intent.HasExtra("view_note")) {
+				uri = Intent.Data;
+				Intent.Data = null;
+				Intent i = new Intent(Intent.ActionView, uri, this, ViewNote);
+				StartActivity(i);
 			}
 			
 			if(rightPane != null) {
-				content = (TextView) findViewById(R.id.content);
-				title = (TextView) findViewById(R.id.title);
+				content = (TextView) FindViewById(Resource.Id.content);
+				title = (TextView) FindViewById(Resource.Id.title);
 				
 				// this we will call on resume as well.
 				updateTextAttributes();
@@ -210,192 +204,189 @@ namespace TomDroidSharp.ui
 			updateEmptyList(Query);
 		}
 
-		@TargetApi(11)
-		@Override
-		public bool onCreateOptionsMenu(Menu menu) {
-
+		//@TargetApi(11)
+		public override bool OnCreateOptionsMenu(IMenu menu)
+		{
 			// Create the menu based on what is defined in res/menu/main.xml
 			MenuInflater inflater = getMenuInflater();
-			inflater.inflate(R.menu.main, menu);
+			inflater.Inflate(Resource.menu.main, menu);
 
 	    	string sortOrder = NoteManager.getSortOrder();
 			if(sortOrder == null) {
-				menu.findItem(R.id.menuSort).setTitle(R.string.sortByTitle);
-			} else if(sortOrder.equals("sort_title")) {
-				menu.findItem(R.id.menuSort).setTitle(R.string.sortByDate);
+				menu.FindItem(Resource.Id.menuSort).SetTitle(Resource.String.sortByTitle);
+			} else if(sortOrder.Equals("sort_title")) {
+				menu.FindItem(Resource.Id.menuSort).SetTitle(Resource.String.sortByDate);
 			} else {
-				menu.findItem(R.id.menuSort).setTitle(R.string.sortByTitle);
+				menu.FindItem(Resource.Id.menuSort).SetTitle(Resource.String.sortByTitle);
 			}
 
-	        // Calling super after populating the menu is necessary here to ensure that the
+	        // Calling base after populating the menu is necessary here to ensure that the
 	       	// action bar helpers have a chance to handle this event.
-			return super.onCreateOptionsMenu(menu);
+			return base.onCreateOptionsMenu(menu);
 			
 		}
 
-		@Override
-		public bool onOptionsItemSelected(MenuItem item) {
-			switch (item.getItemId()) {
-	        	case android.R.id.home:
-	        		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+		public override void OnOptionsMenuClosed (IMenu menu)
+		{
+			switch (item.ItemId) {
+	        	case Resource.Id.home:
+	        		if (Intent.ACTION_SEARCH.Equals(intent.Action)) {
 	        			// app icon in action bar clicked in search results; go home
-	        			Intent intent = new Intent(this, Tomdroid.class);
-	        			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	        			startActivity(intent);
+	        			Intent intent = new Intent(this, typeof(Tomdroid));
+	        			intent.AddFlags(ActivityFlags.ClearTop);
+	        			StartActivity(intent);
 	        		}
 	        		return true;
-				case R.id.menuAbout:
-					showDialog(DIALOG_ABOUT);
+				case Resource.Id.menuAbout:
+					ShowDialog(DIALOG_ABOUT);
 					return true;
-				case R.id.menuSync:
-					startSyncing(true);
+				case Resource.Id.menuSync:
+					StartSyncing(true);
 					return true;
-				case R.id.menuNew:
+				case Resource.Id.menuNew:
 					newNote();
 					return true;
-				case R.id.menuSort:
+				case Resource.Id.menuSort:
 					string sortOrder = NoteManager.toggleSortOrder();
-					if(sortOrder.equals("sort_title")) {
-						item.setTitle(R.string.sortByDate);
+					if(sortOrder.Equals("sort_title")) {
+						item.SetTitle(Resource.String.sortByDate);
 					} else {
-						item.setTitle(R.string.sortByTitle);
+						item.SetTitle(Resource.String.sortByTitle);
 					}
 					updateNotesList(Query, lastIndex);
 					return true;
-				case R.id.menuRevert:
-					showDialog(DIALOG_REVERT_ALL);
+				case Resource.Id.menuRevert:
+					ShowDialog(DIALOG_REVERT_ALL);
 					return true;
-				case R.id.menuPrefs:
-					startActivity(new Intent(this, PreferencesActivity.class));
+				case Resource.Id.menuPrefs:
+					StartActivity(new Intent(this, typeof(PreferencesActivity)));
 					return true;
 					
-				case R.id.menuSearch:
-					startSearch(null, false, null, false);
+				case Resource.Id.menuSearch:
+					StartSearch(null, false, null, false);
 					return true;
 
 				// tablet
-				case R.id.menuEdit:
+				case Resource.Id.menuEdit:
 					if(note != null)
 						startEditNote();
 					return true;
-				case R.id.menuDelete:
+				case Resource.Id.menuDelete:
 					if(note != null) {
 				    	dialogstring = note.getGuid(); // why can't we put it in the bundle?  deletes the wrong note!?
 						dialogInt = lastIndex;
-						showDialog(DIALOG_DELETE_NOTE);
+						ShowDialog(DIALOG_DELETE_NOTE);
 					}
 					return true;
-				case R.id.menuImport:
+				case Resource.Id.menuImport:
 					// Create a new Intent for the file picker activity
-					Intent intent = new Intent(this, FilePickerActivity.class);
+					Intent intent = new Intent(this, typeof(FilePickerActivity));
 					
 					// Set the initial directory to be the sdcard
-					//intent.putExtra(FilePickerActivity.EXTRA_FILE_PATH, Environment.getExternalStorageDirectory());
+					//intent.PutExtra(FilePickerActivity.EXTRA_FILE_PATH, Environment.getExternalStorageDirectory());
 					
 					// Show hidden files
-					//intent.putExtra(FilePickerActivity.EXTRA_SHOW_HIDDEN_FILES, true);
+					//intent.PutExtra(FilePickerActivity.EXTRA_SHOW_HIDDEN_FILES, true);
 					
 					// Only make .png files visible
 					//List<string> extensions = new List<string>();
 					//extensions.add(".png");
-					//intent.putExtra(FilePickerActivity.EXTRA_ACCEPTED_FILE_EXTENSIONS, extensions);
+					//intent.PutExtra(FilePickerActivity.EXTRA_ACCEPTED_FILE_EXTENSIONS, extensions);
 					
 					// Start the activity
-					startActivityForResult(intent, 5718);
+					StartActivityForResult(intent, 5718);
 					return true;
 			}
-			return super.onOptionsItemSelected(item);
+			return base.OnOptionsItemSelected(item);
 		}
 
-		
-		@Override
-		public void onCreateContextMenu(ContextMenu menu, View v,
-				ContextMenuInfo menuInfo) {
+		public override void OnCreateContextMenu (IContextMenu menu, View v, IContextMenuContextMenuInfo menuInfo)
+		{
 			MenuInflater inflater = getMenuInflater();
 
 			long noteId = ((AdapterContextMenuInfo)menuInfo).id;
 			dialogPosition = ((AdapterContextMenuInfo)menuInfo).position;
 
-			Uri intentUri = Uri.parse(Tomdroid.CONTENT_URI+"/"+noteId);
+			Uri intentUri = Uri.Parse(Tomdroid.CONTENT_URI+"/"+noteId);
 	        dialogNote = NoteManager.getNote(this, intentUri);
 	        
-	        if(dialogNote.getTags().contains("system:deleted"))
-	        	inflater.inflate(R.menu.main_longclick_deleted, menu);
+	        if(dialogNote.getTags().Contains("system:deleted"))
+	        	inflater.Inflate(Resource.menu.main_longclick_deleted, menu);
 	        else
-	        	inflater.inflate(R.menu.main_longclick, menu);
+	        	inflater.Inflate(Resource.menu.main_longclick, menu);
 	        
-		    menu.setHeaderTitle(getstring(R.string.noteOptions));
-			super.onCreateContextMenu(menu, v, menuInfo);
+			menu.SetHeaderTitle(GetString(Resource.String.noteOptions));
+			base.OnCreateContextMenu(menu, v, menuInfo);
 		}
 
-		@Override
-		public bool onContextItemSelected(MenuItem item) {
-			AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+		public override bool OnContextItemSelected (IMenuItem item)
+		{
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.MenuInfo;
 			long noteId = info.id;
 
-			Uri intentUri = Uri.parse(Tomdroid.CONTENT_URI+"/"+noteId);
+			Uri intentUri = Uri.Parse(Tomdroid.CONTENT_URI+"/"+noteId);
 
-	        switch (item.getItemId()) {
-	            case R.id.menu_send:
-	            	dialogstring = intentUri.tostring();
-	            	showDialog(DIALOG_SEND_CHOOSE);
+	        switch (item.ItemId) {
+	            case Resource.Id.menu_send:
+	            	dialogstring = intentUri.ToString();
+	            	ShowDialog(DIALOG_SEND_CHOOSE);
 					return true;
-				case R.id.view:
+				case Resource.Id.view:
 					this.ViewNote(noteId);
 					break;
-				case R.id.edit:
+				case Resource.Id.edit:
 					this.startEditNote(noteId);
 					break;
-				case R.id.tags:
-					showDialog(DIALOG_VIEW_TAGS);
+				case Resource.Id.tags:
+					ShowDialog(DIALOG_VIEW_TAGS);
 					break;
-				case R.id.revert:
+				case Resource.Id.revert:
 					this.revertNote(note.getGuid());
 					break;
-				case R.id.delete:
+				case Resource.Id.delete:
 					dialogstring = dialogNote.getGuid();
 					dialogInt = dialogPosition;
-					showDialog(DIALOG_DELETE_NOTE);
+					ShowDialog(DIALOG_DELETE_NOTE);
 					return true;
-				case R.id.undelete:
+				case Resource.Id.undelete:
 					undeleteNote(dialogNote);
 					return true;
-				case R.id.create_shortcut:
-	                readonly NoteViewShortcutsHelper helper = new NoteViewShortcutsHelper(this);
-	                sendBroadcast(helper.getBroadcastableCreateShortcutIntent(intentUri, dialogNote.getTitle()));
+				case Resource.Id.create_shortcut:
+	                NoteViewShortcutsHelper helper = new NoteViewShortcutsHelper(this);
+	                SendBroadcast(helper.getBroadcastableCreateShortcutIntent(intentUri, dialogNote.getTitle()));
 	                break;
 				default:
 					break;
 			}
 			
-			return super.onContextItemSelected(item);
+			return base.OnContextItemSelected(item);
 		}
 
-		public void onResume() {
-			super.onResume();
-			Intent intent = this.getIntent();
+		protected override void OnResume()
+		{
+			base.OnResume();
+			Intent intent = this.Intent;
 
 			SyncService currentService = SyncManager.getInstance().getCurrentService();
 
 			if (currentService.needsAuth() && intent != null) {
-				Uri uri = intent.getData();
+				Uri uri = intent.Data;
 
-				if (uri != null && uri.getScheme().equals("tomdroid")) {
-					TLog.i(TAG, "Got url : {0}", uri.tostring());
+				if (uri != null && uri.Scheme.Equals("tomdroid")) {
+					TLog.i(TAG, "Got url : {0}", uri.ToString());
 					
-					showDialog(DIALOG_AUTH_PROGRESS);
+					ShowDialog(DIALOG_AUTH_PROGRESS);
 
-					Handler handler = new Handler() {
+//					Handler handler = new Handler() {
 
-						@Override
-						public void handleMessage(Message msg) {
-							if(authProgressDialog != null)
-								authProgressDialog.dismiss();
-							if(msg.what == SyncService.AUTH_COMPLETE)
-								startSyncing(true);
-						}
-
-					};
+//						public override void handleMessage(Message msg) {
+//							if(authProgressDialog != null)
+//								authProgressDialog.dismiss();
+//							if(msg.what == SyncService.AUTH_COMPLETE)
+//								startSyncing(true);
+//						}
+//
+//					};
 
 					((ServiceAuth) currentService).remoteAuthComplete(uri, handler);
 				}
@@ -418,10 +409,10 @@ namespace TomDroidSharp.ui
 			creating = false;
 		}
 
-		@Override
-		protected Dialog onCreateDialog(int id) {
-		    super.onCreateDialog (id);
-		    readonly Activity activity = this;
+		protected override Dialog OnCreateDialog(int id)
+		{
+		    base.OnCreateDialog (id);
+		    Activity activity = this;
 			AlertDialog alertDialog;
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			SyncService currentService = SyncManager.getInstance().getCurrentService();
@@ -430,158 +421,167 @@ namespace TomDroidSharp.ui
 
 			switch(id) {
 			    case DIALOG_SYNC:
-					progressDialog.setIndeterminate(true);
-					progressDialog.setTitle(string.format(getstring(R.string.syncing),serviceDescription));
-					progressDialog.setMessage(dialogstring);
-					progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-		    			
-						public void onCancel(DialogInterface dialog) {
-							SyncManager.getInstance().cancel();
-						}
-						
-					});
-					progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, getstring(R.string.cancel), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							progressDialog.cancel();
-						}
-					});
+					progressDialog.SetIndeterminate(true);
+					progressDialog.SetTitle(string.Format(GetString(Resource.String.syncing),serviceDescription));
+					progressDialog.SetMessage(dialogstring);
+//					progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//		    			
+//						public void onCancel(DialogInterface dialog) {
+//							SyncManager.getInstance().cancel();
+//						}
+//						
+//					});
+//					progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, GetString(Resource.String.cancel), new DialogInterface.OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							progressDialog.cancel();
+//						}
+//					});
 			    	return progressDialog;
 			    case DIALOG_AUTH_PROGRESS:
 			    	authProgressDialog = new ProgressDialog(this);
-			    	authProgressDialog.setTitle("");
-			    	authProgressDialog.setMessage(getstring(R.string.prefSyncCompleteAuth));
-			    	authProgressDialog.setIndeterminate(true);
-			    	authProgressDialog.setCancelable(false);
+			    	authProgressDialog.SetTitle("");
+			    	authProgressDialog.SetMessage(GetString(Resource.String.prefSyncCompleteAuth));
+			    	authProgressDialog.SetIndeterminate(true);
+			    	authProgressDialog.SetCancelable(false);
 			        return authProgressDialog;
 			    case DIALOG_ABOUT:
 					// grab version info
 					string ver;
 					try {
-						ver = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+					ver = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
 					} catch (NameNotFoundException e) {
-						e.printStackTrace();
+						e.PrintStackTrace();
 						ver = "Not found!";
 						return null;
 					}
 			    	
 			    	// format the string
-					string aboutDialogFormat = getstring(R.string.strAbout);
-					string aboutDialogStr = string.format(aboutDialogFormat, getstring(R.string.app_desc), // App description
-							getstring(R.string.author), // Author name
+					string aboutDialogFormat = GetString(Resource.String.strAbout);
+					string aboutDialogStr = string.Format(aboutDialogFormat, GetString(Resource.String.app_desc), // App description
+							GetString(Resource.String.author), // Author name
 							ver // Version
 							);
 
 					// build and show the dialog
-					return new AlertDialog.Builder(this).setMessage(aboutDialogStr).setTitle(getstring(R.string.titleAbout))
-							.setIcon(R.drawable.icon).setNegativeButton(getstring(R.string.btnProjectPage), new OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-									startActivity(new Intent(Intent.ACTION_VIEW, Uri
-											.parse(Tomdroid.PROJECT_HOMEPAGE)));
-									dialog.dismiss();
-								}
-							}).setPositiveButton(getstring(R.string.btnOk), new OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-								}
-							}).create();
+					var ad = new AlertDialog.Builder(this).SetMessage(aboutDialogStr)
+														  .SetTitle(Resources.GetString(GetString (Resource.String.btnProjectPage)))
+					                              		  .SetIcon(Resource.Drawable.Icon)
+						;
+														
+//							.setNegativeButton(GetString(Resource.String.btnProjectPage), new OnClickListener() {
+//								public void onClick(DialogInterface dialog, int which) {
+//									StartActivity(new Intent(Intent.ACTION_VIEW, Uri
+//											.Parse(Tomdroid.PROJECT_HOMEPAGE)));
+//									dialog.dismiss();
+//								}
+//							}).setPositiveButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//								public void onClick(DialogInterface dialog, int which) {
+//									dialog.dismiss();
+//								}
+					return ad.Create();
 			    case DIALOG_FIRST_RUN:
-			    	return new AlertDialog.Builder(this).setMessage(getstring(R.string.strWelcome)).setTitle(
-							getstring(R.string.titleWelcome)).setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							Preferences.putBoolean(Preferences.Key.FIRST_RUN, false);
-							dialog.dismiss();
-						}
-					}).setIcon(R.drawable.icon).create();
+//					.setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							Preferences.putBoolean(Preferences.Key.FIRST_RUN, false);
+//							dialog.dismiss();
+//						}
+//					})
+
+				var adFirstRun = new AlertDialog.Builder(this).SetMessage(Resources.GetString(Resource.String.strWelcome))
+													  .SetTitle(Resources.GetString(Resource.String.titleWelcome))
+						.SetIcon(Resource.Drawable.Icon);
+				return adFirstRun.Create();
 			    case DIALOG_NOT_FOUND:
 				    addCommonNoteNotFoundDialogElements(builder);
-				    return builder.create();
+				    return builder.Create();
 			    case DIALOG_NOT_FOUND_SHORTCUT:
 				    addCommonNoteNotFoundDialogElements(builder);
-			        readonly Intent removeIntent = new NoteViewShortcutsHelper(this).getRemoveShortcutIntent(dialogstring, uri);
-			        builder.setPositiveButton(getstring(R.string.btnRemoveShortcut), new OnClickListener() {
-			            public void onClick(DialogInterface dialogInterface, readonly int i) {
-			                sendBroadcast(removeIntent);
-			                finish();
-			            }
-			        });
-				    return builder.create();
+			        Intent removeIntent = new NoteViewShortcutsHelper(this).getRemoveShortcutIntent(dialogstring, uri);
+//			        builder.setPositiveButton(GetString(Resource.String.btnRemoveShortcut), new OnClickListener() {
+//			            public void onClick(DialogInterface dialogInterface, readonly int i) {
+//			                sendBroadcast(removeIntent);
+//			                Finish();
+//			            }
+//			        });
+				    return builder.Create();
 			    case DIALOG_PARSE_ERROR:
 			    	return new AlertDialog.Builder(this)
-					.setMessage(getstring(R.string.messageErrorNoteParsing))
-					.setTitle(getstring(R.string.error))
-					.setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							showNote(true);
-						}})
+					.SetMessage(GetString(Resource.String.messageErrorNoteParsing))
+					.setTitle(GetString(Resource.String.error))
+//					.setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							showNote(true);
+//						}})
 					.create();
 			    case DIALOG_REVERT_ALL:
 			    	return new AlertDialog.Builder(this)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.revert_notes)
-			        .setMessage(R.string.revert_notes_message)
-			    	.setPositiveButton(getstring(R.string.yes), new OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
-			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
-			            	startSyncing(false);
-			           }
-
-			        })
-			        .setNegativeButton(R.string.no, null)
+			        .SetIcon(Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.revert_notes)
+			        .setMessage(Resource.String.revert_notes_message)
+//			    	.setPositiveButton(GetString(Resource.String.yes), new OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
+//			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
+//			            	startSyncing(false);
+//			           }
+//
+//			        })
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 			    case DIALOG_CONNECT_FAILED:
 			    	return new AlertDialog.Builder(this)
-					.setMessage(getstring(R.string.prefSyncConnectionFailed))
-					.setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}})
+					.SetMessage(GetString(Resource.String.prefSyncConnectionFailed))
+//					.setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							dialog.dismiss();
+//						}})
 					.create();
 			    case DIALOG_DELETE_NOTE:
 			    	return new AlertDialog.Builder(this)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.delete_note)
-			        .setMessage(R.string.delete_message)
-			        .setPositiveButton(getstring(R.string.yes), null)
-			        .setNegativeButton(R.string.no, null)
+			        .SetIcon(Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.delete_note)
+			        .setMessage(Resource.String.delete_message)
+			        .setPositiveButton(GetString(Resource.String.yes), null)
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 			    case DIALOG_REVERT_NOTE:
 			    	return new AlertDialog.Builder(this)
-			        .setIcon(android.R.drawable.ic_dialog_alert)
-			        .setTitle(R.string.revert_note)
-			        .setMessage(R.string.revert_note_message)
-			        .setPositiveButton(getstring(R.string.yes), null)
-			        .setNegativeButton(R.string.no, null)
+			        .SetIcon(Resource.Drawable.ic_dialog_alert)
+			        .setTitle(Resource.String.revert_note)
+			        .setMessage(Resource.String.revert_note_message)
+			        .setPositiveButton(GetString(Resource.String.yes), null)
+			        .setNegativeButton(Resource.String.no, null)
 			        .create();
 			    case DIALOG_SYNC_ERRORS:
 			    	return new AlertDialog.Builder(activity)
-					.setTitle(getstring(R.string.error))
-			    	.setMessage(dialogstring)
-			        .setPositiveButton(getstring(R.string.yes), null)
-					.setNegativeButton(getstring(R.string.close), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) { finishSync(); }
-					}).create();
-			    case DIALOG_SEND_CHOOSE:
-	                readonly Uri intentUri = Uri.parse(dialogstring);
-	                return new AlertDialog.Builder(activity)
-					.setMessage(getstring(R.string.sendChoice))
-					.setTitle(getstring(R.string.sendChoiceTitle))
-			        .setPositiveButton(getstring(R.string.btnSendAsFile), null)
-					.setNegativeButton(getstring(R.string.btnSendAsText), null)
+					.SetTitle(Resources.GetString(Resource.String.error))
+			    	.SetMessage(dialogstring)
+			        .SetPositiveButton(Resources.GetString(Resource.String.yes), null)
+//					.setNegativeButton(GetString(Resource.String.close), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) { finishSync(); }
+//					})
 					.create();
+			    case DIALOG_SEND_CHOOSE:
+	                Uri intentUri = Uri.Parse(dialogstring);
+	                return new AlertDialog.Builder(activity)
+					.SetMessage(GetString(Resource.String.sendChoice))
+					.SetTitle(GetString(Resource.String.sendChoiceTitle))
+			        .SetPositiveButton(Resources.GetString(Resource.String.btnSendAsFile), null)
+					.SetNegativeButton(Resources.GetString(Resource.String.btnSendAsText), null)
+					.Create();
 			    case DIALOG_VIEW_TAGS:
 			    	dialogInput = new EditText(this);
 			    	return new AlertDialog.Builder(activity)
-			    	.setMessage(getstring(R.string.edit_tags))
-			    	.setTitle(string.format(getstring(R.string.note_x_tags),dialogNote.getTitle()))
-			    	.setView(dialogInput)
-			    	.setNegativeButton(R.string.btnCancel, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							removeDialog(DIALOG_VIEW_TAGS);
-						}
-			    	})
-			    	.setPositiveButton(R.string.btnOk, null)
+			    	.SetMessage(GetString(Resource.String.edit_tags))
+			    	.SetTitle(string.Format(GetString(Resource.String.note_x_tags),dialogNote.getTitle()))
+			    	.SetView(dialogInput)
+//			    	.setNegativeButton(Resource.String.btnCancel, new DialogInterface.OnClickListener() {
+//						public void onClick(DialogInterface dialog, int whichButton) {
+//							removeDialog(DIALOG_VIEW_TAGS);
+//						}
+//			    	})
+			    	.setPositiveButton(Resource.String.btnOk, null)
 			    	.create();
 			    default:
 			    	alertDialog = null;
@@ -589,108 +589,107 @@ namespace TomDroidSharp.ui
 			return alertDialog;
 		}
 
-		@Override
-		protected void onPrepareDialog(int id, readonly Dialog dialog) {
-		    super.onPrepareDialog (id, dialog);
-		    readonly Activity activity = this;
+		protected override void OnPrepareDialog(int id, Dialog dialog)
+		{
+		    base.OnPrepareDialog (id, dialog);
+		    Activity activity = this;
 		    switch(id) {
 		    	case DIALOG_SYNC:
 					SyncService currentService = SyncManager.getInstance().getCurrentService();
 					string serviceDescription = currentService.getDescription();
-		    		((ProgressDialog) dialog).setTitle(string.format(getstring(R.string.syncing),serviceDescription));
-		    		((ProgressDialog) dialog).setMessage(dialogstring);
-		    		((ProgressDialog) dialog).setOnCancelListener(new DialogInterface.OnCancelListener() {
-		    			
-						public void onCancel(DialogInterface dialog) {
-							SyncManager.getInstance().cancel();
-						}
-						
-					});
+		    		((ProgressDialog) dialog).SetTitle(string.Format(GetString(Resource.String.syncing),serviceDescription));
+		    		((ProgressDialog) dialog).SetMessage(dialogstring);
+//		    		((ProgressDialog) dialog).setOnCancelListener(new DialogInterface.OnCancelListener() {
+//		    			
+//						public void onCancel(DialogInterface dialog) {
+//							SyncManager.getInstance().cancel();
+//						}
+//						
+//					});
 		    		break;
 			    case DIALOG_NOT_FOUND_SHORTCUT:
-			        readonly Intent removeIntent = new NoteViewShortcutsHelper(this).getRemoveShortcutIntent(dialogstring, uri);
-			        ((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.btnRemoveShortcut), new OnClickListener() {
-			            public void onClick( DialogInterface dialogInterface, readonly int i) {
-			                sendBroadcast(removeIntent);
-			                finish();
-			            }
-			        });
+			        Intent removeIntent = new NoteViewShortcutsHelper(this).getRemoveShortcutIntent(dialogstring, uri);
+//			        ((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.btnRemoveShortcut), new OnClickListener() {
+//			            public void onClick( DialogInterface dialogInterface, readonly int i) {
+//			                sendBroadcast(removeIntent);
+//			                Finish();
+//			            }
+//			        });
 			        break;
 			    case DIALOG_REVERT_ALL:
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.yes), new OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
-			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
-			            	startSyncing(false);
-			           }
-
-			        });
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.yes), new OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			        		Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
+//			        		Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, new Time().Format3339(false));
+//			            	startSyncing(false);
+//			           }
+//
+//			        });
 				    break;
 			    case DIALOG_DELETE_NOTE:
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.yes), new OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-			        		deleteNote(dialogstring, dialogInt);
-			           }
-
-			        });
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.yes), new OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//			        		deleteNote(dialogstring, dialogInt);
+//			           }
+//
+//			        });
 				    break;
 			    case DIALOG_REVERT_NOTE:
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.yes), new OnClickListener() {
-
-			            public void onClick(DialogInterface dialog, int which) {
-							SyncManager.getInstance().pullNote(dialogstring);
-			           }
-
-			        });
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.yes), new OnClickListener() {
+//
+//			            public void onClick(DialogInterface dialog, int which) {
+//							SyncManager.getInstance().pullNote(dialogstring);
+//			           }
+//
+//			        });
 				    break;
 			    case DIALOG_SYNC_ERRORS:
-			    	((AlertDialog) dialog).setMessage(dialogstring);
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.btnSavetoSD), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							if(!dialogBoolean) {
-								Toast.makeText(activity, activity.getstring(R.string.messageCouldNotSave),
-										Toast.LENGTH_SHORT).show();
-							}
-							finishSync();
-						}
-					});
+//			    	((AlertDialog) dialog).setMessage(dialogstring);
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.btnSavetoSD), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							if(!dialogBoolean) {
+//								Toast.MakeText(activity, activity.GetString(Resource.String.messageCouldNotSave),
+//										ToastLength.Short).Show();
+//							}
+//							finishSync();
+//						}
+//					});
 				    break;
 			    case DIALOG_SEND_CHOOSE:
-	                readonly Uri intentUri = Uri.parse(dialogstring);
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.btnSendAsFile), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							(new Send(activity, intentUri, true)).send();
-
-						}
-					});
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_NEGATIVE, getstring(R.string.btnSendAsText), new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) { 
-			                (new Send(activity, intentUri, false)).send();
-						}
-					});
+//	                readonly Uri intentUri = Uri.Parse(dialogstring);
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.btnSendAsFile), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							(new Send(activity, intentUri, true)).send();
+//
+//						}
+//					});
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_NEGATIVE, GetString(Resource.String.btnSendAsText), new OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) { 
+//			                (new Send(activity, intentUri, false)).send();
+//						}
+//					});
 				    break;
 			    case DIALOG_VIEW_TAGS:
-			    	((AlertDialog) dialog).setTitle(string.format(getstring(R.string.note_x_tags),dialogNote.getTitle()));
-			    	dialogInput.setText(dialogNote.getTags());
+			    	((AlertDialog) dialog).SetTitle(string.Format(GetString(Resource.String.note_x_tags),dialogNote.getTitle()));
+			    	dialogInput.SetText(dialogNote.getTags());
 
-			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, getstring(R.string.btnOk), new DialogInterface.OnClickListener() {
-			    		public void onClick(DialogInterface dialog, int whichButton) {
-			    			string value = dialogInput.getText().tostring();
-				    		dialogNote.setTags(value);
-				    		dialogNote.setLastChangeDate();
-							NoteManager.putNote(activity, dialogNote);
-							removeDialog(DIALOG_VIEW_TAGS);
-			    		}
-			    	});
+//			    	((AlertDialog) dialog).setButton(Dialog.BUTTON_POSITIVE, GetString(Resource.String.btnOk), new DialogInterface.OnClickListener() {
+//			    		public void onClick(DialogInterface dialog, int whichButton) {
+//			    			string value = dialogInput.getText().ToString();
+//				    		dialogNote.setTags(value);
+//				    		dialogNote.setLastChangeDate();
+//							NoteManager.putNote(activity, dialogNote);
+//							removeDialog(DIALOG_VIEW_TAGS);
+//			    		}
+//			    	});
 			    	break;
 			}
 		}
-		
-		@Override
-		protected void onListItemClick(ListView l, View v, int position, long id) {
-			super.onListItemClick(l, v, position, id);
+
+		protected override void onListItemClick(ListView l, View v, int position, long id) {
+			base.OnListItemClick(l, v, position, id);
 			if (rightPane != null) {
 				if(position == lastIndex) // same index, edit
 					this.startEditNote();
@@ -698,32 +697,31 @@ namespace TomDroidSharp.ui
 					showNoteInPane(position);
 			}
 			else {
-				Cursor item = (Cursor) adapter.getItem(position);
-				long noteId = item.getInt(item.getColumnIndexOrThrow(Note.ID));
+				ICursor item = (Cursor) adapter.getItem(position);
+				long noteId = item.GetInt(item.GetColumnIndexOrThrow(Note.ID));
 					this.ViewNote(noteId);
 			}
 		}
 		
 		// called when rotating screen
-		@Override
-		public void onConfigurationChanged(Configuration newConfig)
+		public override void onConfigurationChanged(Configuration newConfig)
 		{
-		    super.onConfigurationChanged(newConfig);
-	        main =  View.inflate(this, R.layout.main, null);
+		    base.OnConfigurationChanged(newConfig);
+	        main =  View.Inflate(this, Resource.Layout.main, null);
 	        SetContentView(main);
 
-	        if (Integer.parseInt(Build.VERSION.SDK) >= 11) {
+	        if (Integer.parseInt(Build.VERSION.Sdk) >= 11) {
 	            Honeycomb.invalidateOptionsMenuWrapper(this); 
 	        }
 			
-			registerForContextMenu(findViewById(android.R.id.list));
+			registerForContextMenu(FindViewById(Resource.Id.list));
 
 			// add note to pane for tablet
-			rightPane = (LinearLayout) findViewById(R.id.right_pane);
+			rightPane = (LinearLayout) FindViewById(Resource.Id.right_pane);
 			
 			if(rightPane != null) {
-				content = (TextView) findViewById(R.id.content);
-				title = (TextView) findViewById(R.id.title);
+				content = (TextView) FindViewById(Resource.Id.content);
+				title = (TextView) FindViewById(Resource.Id.title);
 				updateTextAttributes();
 				showNoteInPane(lastIndex);
 			}
@@ -737,41 +735,41 @@ namespace TomDroidSharp.ui
 		private void updateNotesList(string aquery, int aposition) {
 		    // adapter that binds the ListView UI to the notes in the note manager
 			adapter = NoteManager.getListAdapter(this, aquery, rightPane != null ? aposition : -1);
-			setListAdapter(adapter);
+			SetListAdapter(adapter);
 		}
 		
 		private void updateEmptyList(string aquery) {
 			// set the view shown when the list is empty
-			listEmptyView = (TextView) findViewById(R.id.list_empty);
+			listEmptyView = (TextView) FindViewById(Resource.Id.list_empty);
 			if (rightPane == null) {
 				if (aquery != null) {
-					listEmptyView.setText(getstring(R.string.strNoResults, aquery)); }
+					listEmptyView.SetText(GetString(Resource.String.strNoResults, aquery)); }
 				else if (adapter.getCount() != 0) {
-					listEmptyView.setText(getstring(R.string.strListEmptyWaiting)); }
+					listEmptyView.SetText(GetString(Resource.String.strListEmptyWaiting)); }
 				else {
-					listEmptyView.setText(getstring(R.string.strListEmptyNoNotes)); }
+					listEmptyView.SetText(GetString(Resource.String.strListEmptyNoNotes)); }
 			} else {
 				if (aquery != null) {
-					title.setText(getstring(R.string.strNoResults, aquery)); }
+					title.SetText(GetString(Resource.String.strNoResults, aquery)); }
 				else if (adapter.getCount() != 0) {
-					title.setText(getstring(R.string.strListEmptyWaiting)); }
+					title.SetText(GetString(Resource.String.strListEmptyWaiting)); }
 				else {
-					title.setText(getstring(R.string.strListEmptyNoNotes)); }
+					title.SetText(GetString(Resource.String.strListEmptyNoNotes)); }
 			}
-			getListView().setEmptyView(listEmptyView);
+			ListView.EmptyView = listEmptyView;
 		}
 		
 		private void updateTextAttributes() {
-			float baseSize = Float.parseFloat(Preferences.getstring(Preferences.Key.BASE_TEXT_SIZE));
-			content.setTextSize(baseSize);
-			title.setTextSize(baseSize*1.3f);
+			float baseSize = Float.parseFloat(Preferences.GetString(Preferences.Key.BASE_TEXT_SIZE));
+			content.SetTextSize(baseSize);
+			title.SetTextSize(baseSize*1.3f);
 
-			title.setTextColor(Color.BLUE);
-			title.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-			title.setBackgroundColor(0xffffffff);
+			title.SetTextColor(Color.Blue);
+			title.PaintFlags = title.PaintFlags | PaintFlags.UnderlineText;
+			title.SetBackgroundColor(0xffffffff);
 
-			content.setBackgroundColor(0xffffffff);
-			content.setTextColor(Color.DKGRAY);
+			content.SetBackgroundColor(0xffffffff);
+			content.SetTextColor(Color.DarkGray);
 		}
 		private void showNoteInPane(int position) {
 			if(rightPane == null)
@@ -780,33 +778,33 @@ namespace TomDroidSharp.ui
 			if(position == -1)
 				position = 0;
 
-	        title.setText("");
-	        content.setText("");
-			
+	        title.SetText("");
+	        content.SetText("");
+
 	     // save index and top position
 
-	        int index = getListView().getFirstVisiblePosition();
-	        View v = getListView().getChildAt(0);
+			int index = ListView.FirstVisiblePosition;
+			View v = ListView.GetChildAt(0);
 	        int top = (v == null) ? 0 : v.getTop();
 
 	        updateNotesList(Query, position);
 
 	    // restore
 		
-			getListView().setSelectionFromTop(index, top);
+			ListView.SetSelectionFromTop(index, top);
 			
 			if(position >= adapter.getCount())
 				position = 0;
 			
-			Cursor item = (Cursor) adapter.getItem(position);
+			ICursor item = (ICursor) adapter.GetItem(position);
 			if (item == null || item.getCount() == 0) {
 	            TLog.d(TAG, "Index {0} not found in list", position);
 				return;
 			}
 			TLog.d(TAG, "Getting note {0}", position);
 
-			long noteId = item.getInt(item.getColumnIndexOrThrow(Note.ID));	
-			uri = Uri.parse(CONTENT_URI + "/" + noteId);
+			long noteId = item.GetInt(item.getColumnIndexOrThrow(Note.ID));	
+			uri = Uri.Parse(CONTENT_URI + "/" + noteId);
 
 	        note = NoteManager.getNote(this, uri);
 			TLog.v(TAG, "Note guid: {0}", note.getGuid());
@@ -817,57 +815,57 @@ namespace TomDroidSharp.ui
 	    		lastIndex = position;
 	        } else {
 	            TLog.d(TAG, "The note {0} doesn't exist", uri);
-			    readonly bool proposeShortcutRemoval;
-			    readonly bool calledFromShortcut = getIntent().getBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
-			    readonly string shortcutName = getIntent().getstringExtra(SHORTCUT_NAME);
+			    bool proposeShortcutRemoval;
+			    bool calledFromShortcut = Intent.GetBooleanExtra(CALLED_FROM_SHORTCUT_EXTRA, false);
+			    string shortcutName = Intent.GetStringExtra(SHORTCUT_NAME);
 			    proposeShortcutRemoval = calledFromShortcut && uri != null && shortcutName != null;
 			
 			    if (proposeShortcutRemoval) {
 			    	dialogstring = shortcutName;
-		            showDialog(DIALOG_NOT_FOUND_SHORTCUT);
+		            ShowDialog(DIALOG_NOT_FOUND_SHORTCUT);
 			    }
 			    else
-		            showDialog(DIALOG_NOT_FOUND);
+		            ShowDialog(DIALOG_NOT_FOUND);
 
 	        }
 		}
 		private void showNote(bool xml) {
 			
 			if(xml) {
-				content.setText(note.getXmlContent());
-				title.setText((CharSequence) note.getTitle());
-				this.setTitle(this.getTitle() + " - XML");
+				content.SetText(note.getXmlContent());
+				title.SetText((CharSequence) note.getTitle());
+				this.Title = Title + " - XML";
 				return;
 			}
 
-			LinkInternalSpan[] links = noteContent.getSpans(0, noteContent.length(), LinkInternalSpan.class);
+			LinkInternalSpan[] links = noteContent.getSpans(0, noteContent.Length, LinkInternalSpan);
 			MatchFilter noteLinkMatchFilter = LinkInternalSpan.getNoteLinkMatchFilter(noteContent, links);
 
 			// show the note (spannable makes the TextView able to output styled text)
-			content.setText(noteContent, TextView.BufferType.SPANNABLE);
+			content.SetText(noteContent, TextView.BufferType.Spannable);
 
 			// add links to stuff that is understood by Android except phone numbers because it's too aggressive
 			// TODO this is SLOWWWW!!!!
 			
 			int linkFlags = 0;
 			
-			if(Preferences.getBoolean(Preferences.Key.LINK_EMAILS))
+			if(Preferences.GetBoolean(Preferences.Key.LINK_EMAILS))
 				linkFlags |= Linkify.EMAIL_ADDRESSES;
-			if(Preferences.getBoolean(Preferences.Key.LINK_URLS))
+			if(Preferences.GetBoolean(Preferences.Key.LINK_URLS))
 				linkFlags |= Linkify.WEB_URLS;
-			if(Preferences.getBoolean(Preferences.Key.LINK_ADDRESSES))
+			if(Preferences.GetBoolean(Preferences.Key.LINK_ADDRESSES))
 				linkFlags |= Linkify.MAP_ADDRESSES;
 			
 			Linkify.addLinks(content, linkFlags);
 
 			// Custom phone number linkifier (fixes lp:512204)
-			if(Preferences.getBoolean(Preferences.Key.LINK_PHONES))
+			if(Preferences.GetBoolean(Preferences.Key.LINK_PHONES))
 				Linkify.addLinks(content, LinkifyPhone.PHONE_PATTERN, "tel:", LinkifyPhone.sPhoneNumberMatchFilter, Linkify.sPhoneNumberTransformFilter);
 
 			// This will create a link every time a note title is found in the text.
 			// The pattern contains a very dumb (title1)|(title2) escaped correctly
 			// Then we transform the url from the note name to the note id to avoid characters that mess up with the URI (ex: ?)
-			if(Preferences.getBoolean(Preferences.Key.LINK_TITLES)) {
+			if(Preferences.GetBoolean(Preferences.Key.LINK_TITLES)) {
 				Pattern pattern = NoteManager.buildNoteLinkifyPattern(this, note.getTitle());
 		
 				if(pattern != null) {
@@ -882,54 +880,54 @@ namespace TomDroidSharp.ui
 					// content.setMovementMethod(LinkMovementMethod.getInstance());
 				}
 			}
-			title.setText((CharSequence) note.getTitle());
+			title.SetText((CharSequence) note.getTitle());
 		}
 		
 		private void addCommonNoteNotFoundDialogElements(AlertDialog.Builder builder) {
-		    builder.setMessage(getstring(R.string.messageNoteNotFound))
-		            .setTitle(getstring(R.string.titleNoteNotFound))
-		            .setNeutralButton(getstring(R.string.btnOk), new OnClickListener() {
-		                public void onClick(DialogInterface dialog, int which) {
-		                    dialog.dismiss();
-		                    finish();
-		                }
-		            });
+		    builder.SetMessage(GetString(Resource.String.messageNoteNotFound))
+		            .setTitle(GetString(Resource.String.titleNoteNotFound))
+//		            .setNeutralButton(GetString(Resource.String.btnOk), new OnClickListener() {
+//		                public void onClick(DialogInterface dialog, int which) {
+//		                    dialog.dismiss();
+//		                    Finish();
+//		                }
+//		            })
+					;
 		}	
 		
-		private Handler noteContentHandler = new Handler() {
+//		private Handler noteContentHandler = new Handler() {
 		
-			@Override
-			public void handleMessage(Message msg) {
-		
-				//parsed ok - show
-				if(msg.what == NoteContentBuilder.PARSE_OK) {
-					showNote(false);
-		
-				//parsed not ok - error
-				} else if(msg.what == NoteContentBuilder.PARSE_ERROR) {
-		
-					showDialog(DIALOG_PARSE_ERROR);
-		    	}
-			}
-		};
+//			public override void handleMessage(Message msg) {
+//		
+//				//parsed ok - show
+//				if(msg.what == NoteContentBuilder.PARSE_OK) {
+//					showNote(false);
+//		
+//				//parsed not ok - error
+//				} else if(msg.what == NoteContentBuilder.PARSE_ERROR) {
+//		
+//					ShowDialog(DIALOG_PARSE_ERROR);
+//		    	}
+//			}
+//		};
 
 		// custom transform filter that takes the note's title part of the URI and translate it into the note id
 		// this was done to avoid problems with invalid characters in URI (ex: ? is the Query separator but could be in a note title)
-		public TransformFilter noteTitleTransformFilter = new TransformFilter() {
+//		public TransformFilter noteTitleTransformFilter = new TransformFilter() {
+//		
+//			public string transformUrl(Matcher m, string str) {
+//		
+//				int id = NoteManager.getNoteId(Tomdroid.this, str);
+//		
+//				// return something like content://org.tomdroid.notes/notes/3
+//				return Tomdroid.CONTENT_URI.ToString()+"/"+id;
+//			}
+//		};
 		
-			public string transformUrl(Matcher m, string str) {
-		
-				int id = NoteManager.getNoteId(Tomdroid.this, str);
-		
-				// return something like content://org.tomdroid.notes/notes/3
-				return Tomdroid.CONTENT_URI.tostring()+"/"+id;
-			}
-		};
-		
-		@SuppressWarnings("deprecation")
+		//@SuppressWarnings("deprecation")
 		private void startSyncing(bool push) {
 
-			string serverUri = Preferences.getstring(Preferences.Key.SYNC_SERVER);
+			string serverUri = Preferences.GetString(Preferences.Key.SYNC_SERVER);
 			SyncService currentService = SyncManager.getInstance().getCurrentService();
 			
 			if (currentService.needsAuth()) {
@@ -937,51 +935,50 @@ namespace TomDroidSharp.ui
 				// service needs authentication
 				TLog.i(TAG, "Creating dialog");
 
-				showDialog(DIALOG_AUTH_PROGRESS);
+				ShowDialog(DIALOG_AUTH_PROGRESS);
 		
-				Handler handler = new Handler() {
-		
-					@Override
-					public void handleMessage(Message msg) {
-		
-						bool wasSuccessful = false;
-						Uri authorizationUri = (Uri) msg.obj;
-						if (authorizationUri != null) {
-		
-							Intent i = new Intent(Intent.ACTION_VIEW, authorizationUri);
-							startActivity(i);
-							wasSuccessful = true;
-		
-						} else {
-							// Auth failed, don't update the value
-							wasSuccessful = false;
-						}
-		
-						if (authProgressDialog != null)
-							authProgressDialog.dismiss();
-		
-						if (wasSuccessful) {
-							resetLocalDatabase();
-						} else {
-							showDialog(DIALOG_CONNECT_FAILED);
-						}
-					}
-				};
+//				Handler handler = new Handler() {
+//		
+//					public override void handleMessage(Message msg) {
+//		
+//						bool wasSuccessful = false;
+//						Uri authorizationUri = (Uri) msg.obj;
+//						if (authorizationUri != null) {
+//		
+//							Intent i = new Intent(Intent.ACTION_VIEW, authorizationUri);
+//							StartActivity(i);
+//							wasSuccessful = true;
+//		
+//						} else {
+//							// Auth failed, don't update the value
+//							wasSuccessful = false;
+//						}
+//		
+//						if (authProgressDialog != null)
+//							authProgressDialog.dismiss();
+//		
+//						if (wasSuccessful) {
+//							resetLocalDatabase();
+//						} else {
+//							ShowDialog(DIALOG_CONNECT_FAILED);
+//						}
+//					}
+//				};
 
 				((ServiceAuth) currentService).getAuthUri(serverUri, handler);
 			}
 			else {
 				syncProcessedNotes = 0;
 				syncTotalNotes = 0;
-				dialogstring = getstring(R.string.syncing_connect);
-		        showDialog(DIALOG_SYNC);
+				dialogstring = GetString(Resource.String.syncing_connect);
+		        ShowDialog(DIALOG_SYNC);
 		        SyncManager.getInstance().startSynchronization(push); // push by default
 			}
 		}
 		
 		//TODO use LocalStorage wrapper from two-way-sync branch when it get's merged
 		private void resetLocalDatabase() {
-			ContentResolver.delete(Tomdroid.CONTENT_URI, null, null);
+			ContentResolver.Delete(Tomdroid.CONTENT_URI, null, null);
 			Preferences.putLong(Preferences.Key.LATEST_SYNC_REVISION, 0);
 			
 			// first explanatory note will be deleted on sync
@@ -990,19 +987,19 @@ namespace TomDroidSharp.ui
 
 		public void ViewNote(long noteId) {
 			Uri intentUri = getNoteIntentUri(noteId);
-			Intent i = new Intent(Intent.ACTION_VIEW, intentUri, this, ViewNote.class);
-			startActivity(i);
+			Intent i = new Android.Content.Intent(Intent.ActionView, intentUri, this, typeof(ViewNote));
+			StartActivity(i);
 		}
 		
 		protected void startEditNote() {
-			 Intent i = new Intent(Intent.ACTION_VIEW, uri, this, EditNote.class);
-			startActivity(i);
+			 Intent i = new Intent(Intent.ActionView, uri, this, typeof(EditNote));
+			StartActivity(i);
 		}
 		
 		protected void startEditNote(long noteId) {
 			Uri intentUri = getNoteIntentUri(noteId);
-			 Intent i = new Intent(Intent.ACTION_VIEW, intentUri, this, EditNote.class);
-			startActivity(i);
+			 Intent i = new Intent(Intent.ActionView, intentUri, this, typeof(EditNote));
+			StartActivity(i);
 		}
 
 		public void newNote() {
@@ -1022,8 +1019,8 @@ namespace TomDroidSharp.ui
 			
 			// view new note
 			
-			Intent i = new Intent(Intent.ACTION_VIEW, uri, this, EditNote.class);
-			startActivity(i);
+			Intent i = new Intent(Intent.ActionView, uri, this, typeof(EditNote));
+			StartActivity(i);
 
 			
 		}
@@ -1037,13 +1034,13 @@ namespace TomDroidSharp.ui
 			updateNotesList(Query,lastIndex);
 		}
 			
-		@SuppressWarnings("deprecation")
+		//@SuppressWarnings("deprecation")
 		private void revertNote( string guid) {
 			dialogstring = guid;
-			showDialog(DIALOG_REVERT_NOTE);
+			ShowDialog(DIALOG_REVERT_NOTE);
 		}
 
-		public class SyncMessageHandler string  Handler {
+		public class SyncMessageHandler : Handler {
 		
 			private Activity activity;
 			
@@ -1051,137 +1048,136 @@ namespace TomDroidSharp.ui
 				this.activity = activity;
 			}
 		
-			@Override
-			public void handleMessage(Message msg) {
-		
+			public override void HandleMessage (Message msg)
+			{
 				SyncService currentService = SyncManager.getInstance().getCurrentService();
 				string serviceDescription = currentService.getDescription();
 				string message = "";
 				bool dismiss = false;
 
-				switch (msg.what) {
+				switch (msg.What) {
 					case SyncService.AUTH_COMPLETE:
-						message = getstring(R.string.messageAuthComplete);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageAuthComplete);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					case SyncService.AUTH_FAILED:
 						dismiss = true;
-						message = getstring(R.string.messageAuthFailed);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageAuthFailed);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					case SyncService.PARSING_COMPLETE:
-						 ErrorList errors = (ErrorList)msg.obj;
+						 ErrorList errors = (ErrorList)msg.Obj;
 						if(errors == null || errors.isEmpty()) {
-							message = getstring(R.string.messageSyncComplete);
-							message = string.format(message,serviceDescription);
-							Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+							message = GetString(Resource.String.messageSyncComplete);
+							message = string.Format(message,serviceDescription);
+							Toast.MakeText(activity, message, ToastLength.Short).Show();
 							finishSync();
 						} else {
-							TLog.v(TAG, "syncErrors: {0}", TextUtils.join("\n",errors.toArray()));
-							dialogstring = getstring(R.string.messageSyncError);
+							TLog.v(TAG, "syncErrors: {0}", TextUtils.Join("\n",errors.ToArray()));
+							dialogstring = GetString(Resource.String.messageSyncError);
 							dialogBoolean = errors.save();
-							showDialog(DIALOG_SYNC_ERRORS);
+							ShowDialog(DIALOG_SYNC_ERRORS);
 						}
 						break;
 					case SyncService.CONNECTING_FAILED:
 						dismiss = true;
-						message = getstring(R.string.messageSyncConnectingFailed);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncConnectingFailed);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					case SyncService.PARSING_FAILED:
 						dismiss = true;
-						message = getstring(R.string.messageSyncParseFailed);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncParseFailed);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					case SyncService.PARSING_NO_NOTES:
 						dismiss = true;
-						message = getstring(R.string.messageSyncNoNote);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncNoNote);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 						
 					case SyncService.NO_INTERNET:
 						dismiss = true;
-						Toast.makeText(activity, getstring(R.string.messageSyncNoConnection),Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, GetString(Resource.String.messageSyncNoConnection),ToastLength.Short).Show();
 						break;
 						
 					case SyncService.NO_SD_CARD:
 						dismiss = true;
-						Toast.makeText(activity, activity.getstring(R.string.messageNoSDCard),
-								Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, activity.GetString(Resource.String.messageNoSDCard),
+								ToastLength.Short).Show();
 						break;
 					case SyncService.SYNC_CONNECTED:
-						dialogstring = getstring(R.string.gettings_notes);
-						showDialog(DIALOG_SYNC);
+						dialogstring = GetString(Resource.String.gettings_notes);
+						ShowDialog(DIALOG_SYNC);
 						break;
 					case SyncService.BEGIN_PROGRESS:
-						syncTotalNotes = msg.arg1;
+						syncTotalNotes = msg.Arg1;
 						syncProcessedNotes = 0;
-						dialogstring = getstring(R.string.syncing_local);
-						showDialog(DIALOG_SYNC);
+						dialogstring = GetString(Resource.String.syncing_local);
+						ShowDialog(DIALOG_SYNC);
 						break;
 					case SyncService.SYNC_PROGRESS:
-						if(msg.arg1 == 90) {
-							dialogstring = getstring(R.string.syncing_remote);						
-							showDialog(DIALOG_SYNC);
+						if(msg.Arg1 == 90) {
+							dialogstring = GetString(Resource.String.syncing_remote);						
+							ShowDialog(DIALOG_SYNC);
 						}
 						break;
 					case SyncService.NOTE_DELETED:
-						message = getstring(R.string.messageSyncNoteDeleted);
-						message = string.format(message,serviceDescription);
-						//Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncNoteDeleted);
+						message = string.Format(message,serviceDescription);
+						//Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 		
 					case SyncService.NOTE_PUSHED:
-						message = getstring(R.string.messageSyncNotePushed);
-						message = string.format(message,serviceDescription);
-						//Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncNotePushed);
+						message = string.Format(message,serviceDescription);
+						//Toast.MakeText(activity, message, ToastLength.Short).Show();
 
 						break;
 					case SyncService.NOTE_PULLED:
-						message = getstring(R.string.messageSyncNotePulled);
-						message = string.format(message,serviceDescription);
-						//Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncNotePulled);
+						message = string.Format(message,serviceDescription);
+						//Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 															
 					case SyncService.NOTE_DELETE_ERROR:
 						dismiss = true;
-						Toast.makeText(activity, activity.getstring(R.string.messageSyncNoteDeleteError), Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, activity.GetString(Resource.String.messageSyncNoteDeleteError), ToastLength.Short).Show();
 						break;
 		
 					case SyncService.NOTE_PUSH_ERROR:
 						dismiss = true;
-						Toast.makeText(activity, activity.getstring(R.string.messageSyncNotePushError), Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, activity.GetString(Resource.String.messageSyncNotePushError), ToastLength.Short).Show();
 						break;
 					case SyncService.NOTE_PULL_ERROR:
 						dismiss = true;
-						message = getstring(R.string.messageSyncNotePullError);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncNotePullError);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					case SyncService.IN_PROGRESS:
-						Toast.makeText(activity, activity.getstring(R.string.messageSyncAlreadyInProgress), Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, activity.GetString(Resource.String.messageSyncAlreadyInProgress), ToastLength.Short).Show();
 						dismiss = true;
 						break;
 					case SyncService.NOTES_BACKED_UP:
-						Toast.makeText(activity, activity.getstring(R.string.messageNotesBackedUp), Toast.LENGTH_SHORT).show();
+						Toast.MakeText(activity, activity.GetString(Resource.String.messageNotesBackedUp), ToastLength.Short).Show();
 						break;
 					case SyncService.SYNC_CANCELLED:
 						dismiss = true;
-						message = getstring(R.string.messageSyncCancelled);
-						message = string.format(message,serviceDescription);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						message = GetString(Resource.String.messageSyncCancelled);
+						message = string.Format(message,serviceDescription);
+						Toast.MakeText(activity, message, ToastLength.Short).Show();
 						break;
 					default:
 						break;
 		
 				}
 				if(dismiss)
-					removeDialog(DIALOG_SYNC);
+					RemoveDialog(DIALOG_SYNC);
 			}
 		}
 
@@ -1189,13 +1185,13 @@ namespace TomDroidSharp.ui
 			TLog.d(TAG, "onActivityResult called with result {0}", resultCode);
 			
 			// returning from file picker
-			if(data != null && data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
+			if(data != null && data.HasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
 				// Get the file path
-				File f = new File(data.getstringExtra(FilePickerActivity.EXTRA_FILE_PATH));
-				Uri noteUri = Uri.fromFile(f);
-				Intent intent = new Intent(this, Receive.class);
-				intent.setData(noteUri);
-				startActivity(intent);
+				File f = new File(data.GetStringExtra(FilePickerActivity.EXTRA_FILE_PATH));
+				Uri noteUri = Uri.FromFile(f);
+				Intent intent = new Intent(this, typeof(Receive));
+				intent.Data = noteUri;
+				StartActivity(intent);
 			}
 			else { // returning from sync conflict
 				SyncService currentService = SyncManager.getInstance().getCurrentService();
@@ -1206,7 +1202,7 @@ namespace TomDroidSharp.ui
 		public void finishSync() {
 			TLog.v(TAG, "Finishing Sync");
 			
-			removeDialog(DIALOG_SYNC);
+			RemoveDialog(DIALOG_SYNC);
 			
 			if(rightPane != null)
 				showNoteInPane(lastIndex);

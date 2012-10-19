@@ -17,6 +17,8 @@
 using Android.App;
 using Android.OS;
 using Android.Views;
+using Android.Runtime;
+using Java.Lang;
 
 namespace TomDroidSharp.ui.actionbar
 {
@@ -39,9 +41,9 @@ namespace TomDroidSharp.ui.actionbar
 	     * Honeycomb-specific helper will be returned.
 	     */
 	    public static ActionBarHelper createInstance(Activity activity) {
-	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+	        if (Build.VERSION.SdkInt >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 	            return new ActionBarHelperICS(activity);
-	        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	        } else if (Build.VERSION.SdkInt >= Build.VERSION_CODES.HONEYCOMB) {
 	            return new ActionBarHelperHoneycomb(activity);
 	        } else {
 	            return new ActionBarHelperBase(activity);
@@ -76,11 +78,11 @@ namespace TomDroidSharp.ui.actionbar
 	    /**
 	     * Action bar helper code to be run in {@link Activity#onTitleChanged(CharSequence, int)}.
 	     */
-	    protected void onTitleChanged(CharSequence title, int color) {
+	    protected void onTitleChanged(ICharSequence title, int color) {
 	    }
 
 	    /**
-	     * Sets the indeterminate loading state of the item with ID {@link R.id.menu_refresh}.
+	     * Sets the indeterminate loading state of the item with ID {@link Resource.Id.menu_refresh}.
 	     * (where the item ID was menu_refresh).
 	     */
 	    public abstract void setRefreshActionItemState(bool refreshing);

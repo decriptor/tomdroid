@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 
 using Android.App;
 using Android.OS;
@@ -36,13 +37,14 @@ using Android.Util;
 using TomDroidSharp;
 using TomDroidSharp.Sync;
 using TomDroidSharp.util;
-//import org.xml.sax.InputSource;
-//import org.xml.sax.XMLReader;
+
 using Java.IO;
 using TomDroidSharp.ui;
 using Java.Util.Regex;
+using Java.Lang;
+using TomDroidSharp.Util;
 
-namespace TomDroidSharp.sync.sd
+namespace TomDroidSharp.Sync.sd
 {
 	public class SdCardSyncService : SyncService {
 		
@@ -142,7 +144,7 @@ namespace TomDroidSharp.sync.sd
 		 * Simple filename filter that grabs files ending with .note
 		 * TODO move into its own static class in a util package
 		 */
-		private class NotesFilter : FilenameFilter {
+		private class NotesFilter : IFilenameFilter {
 			public bool accept(File dir, string name) {
 				return (name.EndsWith(".note"));
 			}
@@ -153,7 +155,7 @@ namespace TomDroidSharp.sync.sd
 		 */
 		// TODO change type to callable to be able to throw exceptions? (if you throw make sure to display an alert only once)
 		// http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/Callable.html
-		private class Worker : Runnable {
+		private class Worker : IRunnable {
 			
 			// the note to be loaded and parsed
 			private Note note = new Note();
@@ -169,7 +171,7 @@ namespace TomDroidSharp.sync.sd
 
 			public void run() {
 				
-				note.setFileName(file.AbsolutePath());
+				note.setFileName(file.AbsolutePath);
 				// the note guid is not stored in the xml but in the filename
 				note.setGuid(file.Name.Replace(".note", ""));
 				
@@ -207,7 +209,7 @@ namespace TomDroidSharp.sync.sd
 					xr.parse(inputSource);
 
 				// TODO wrap and throw a new exception here
-				} catch (Exception e) {
+				} catch (System.Exception e) {
 					e.PrintStackTrace();
 					if(e as TimeFormatException) TLog.e(TAG, "Problem parsing the note's date and time");
 					SendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, e, contents));
@@ -216,9 +218,9 @@ namespace TomDroidSharp.sync.sd
 				}
 				
 				// FIXME here we are re-reading the whole note just to grab note-content out, there is probably a better way to do this (I'm talking to you xmlpull.org!)
-				Matcher m = note_content.matcher(contents);
-				if (m.find()) {
-					note.setXmlContent(NoteManager.stripTitleFromContent(m.group(1),note.getTitle()));
+				Matcher m = note_content.Matcher(contents);
+				if (m.Find()) {
+					note.setXmlContent(NoteManager.stripTitleFromContent(m.Group(1),note.getTitle()));
 				} else {
 					TLog.w(TAG, "Something went wrong trying to grab the note-content out of a note");
 					SendMessage(PARSING_FAILED, ErrorList.createErrorWithContents(note, "Something went wrong trying to grab the note-content out of a note", contents));
@@ -264,7 +266,7 @@ namespace TomDroidSharp.sync.sd
 
 		// this function either deletes or pushes, based on existence of deleted tag
 		public override void pushNotes(List<Note> notes) {
-			if(notes.size() == 0)
+			if(notes.Count == 0)
 				return;
 
 			foreach(Note note in notes)
@@ -330,7 +332,7 @@ namespace TomDroidSharp.sync.sd
 						// Parsing
 				    	// XML 
 				    	// Get a SAXParser from the SAXPArserFactory
-				        SAXParserFactory spf = SAXParserFactory.newInstance();
+						SAXParserFactory spf = SAXParserFactory.newInstance();
 				        SAXParser sp = spf.newSAXParser();
 				
 				        // Get the XMLReader of the SAXParser we created
@@ -404,7 +406,7 @@ namespace TomDroidSharp.sync.sd
 			File path = new File(Tomdroid.NOTES_PATH);
 			
 			if (!path.Exists())
-				path.mkdir();
+				path.Mkdir();
 			
 			TLog.i(TAG, "Path {0} Exists: {1}", path, path.Exists());
 			
@@ -440,7 +442,7 @@ namespace TomDroidSharp.sync.sd
 			NoteManager.purgeDeletedNotes(activity);
 			
 			Time now = new Time();
-			now.setToNow();
+			now.SetToNow();
 			string nowstring = now.Format3339(false);
 			Preferences.putstring(Preferences.Key.LATEST_SYNC_DATE, nowstring);
 
@@ -452,10 +454,10 @@ namespace TomDroidSharp.sync.sd
 		public override void deleteAllNotes() {
 			try {
 				File path = new File(Tomdroid.NOTES_PATH);
-				File[] fileList = path.listFiles(new NotesFilter());
+				File[] fileList = path.ListFiles(new NotesFilter());
 				
 				for(int i = 0; i < fileList.Length-1; i++) {
-					fileList[i].delete();
+					fileList[i].Delete();
 		        }
 			}
 			catch (Exception e) {

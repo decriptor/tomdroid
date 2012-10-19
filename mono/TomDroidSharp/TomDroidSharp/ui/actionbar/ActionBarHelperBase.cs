@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-using TomDroidSharp.R;
-
 //import org.xmlpull.v1.XmlPullParser;
 //import org.xmlpull.v1.XmlPullParserException;
 
@@ -29,6 +27,10 @@ using Android.Widget;
 //import java.io.IOException;
 //import java.util.HashSet;
 //import java.util.Set;
+using System.IO;
+using Org.XmlPull.V1;
+using System.Collections.Generic;
+using Java.Lang;
 
 namespace TomDroidSharp.ui.actionbar
 {
@@ -41,32 +43,29 @@ namespace TomDroidSharp.ui.actionbar
 	    private static readonly string MENU_ATTR_ID = "id";
 	    private static readonly string MENU_ATTR_SHOW_AS_ACTION = "showAsAction";
 
-	    protected Set<Integer> mActionItemIds = new HashSet<Integer>();
+	    protected List<int> mActionItemIds = new List<int>();
 
-	    protected ActionBarHelperBase(Activity activity) {
-	        super(activity);
+	    protected ActionBarHelperBase(Activity activity) : base(activity) {
 	    }
 	    /**{@inheritDoc}*/
-	    @Override
-	    public void onCreate(Bundle savedInstanceState) {
+	    public override void onCreate(Bundle savedInstanceState) {
 	        if (!(mActivity as PreferenceActivity)) {
-	            mActivity.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+	            mActivity.RequestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 	        }
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    public void onPostCreate(Bundle savedInstanceState) {
-	        mActivity.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-	                R.layout.actionbar_compat);
+	    public override void onPostCreate(Bundle savedInstanceState) {
+	        mActivity.Window.SetFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+	                Resource.Layout.actionbar_compat);
 	        setupActionBar();
 
 	        SimpleMenu menu = new SimpleMenu(mActivity);
-	        mActivity.onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu);
-	        mActivity.onPrepareOptionsMenu(menu);
-	        for (int i = 0; i < menu.size(); i++) {
-	            MenuItem item = menu.getItem(i);
-	            if (mActionItemIds.contains(item.getItemId())) {
+	        mActivity.OnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu);
+	        mActivity.OnPrepareOptionsMenu(menu);
+	        for (int i = 0; i < menu.Count; i++) {
+				IMenuItem item = menu.getItem(i);
+	            if (mActionItemIds.Contains(item.ItemId)) {
 	                addActionItemCompatFromMenuItem(item);
 	            }
 	        }
@@ -76,35 +75,34 @@ namespace TomDroidSharp.ui.actionbar
 	     * Sets up the compatibility action bar with the given title.
 	     */
 	    private void setupActionBar() {
-	        readonly ViewGroup actionBarCompat = getActionBarCompat();
+	        ViewGroup actionBarCompat = getActionBarCompat();
 	        if (actionBarCompat == null) {
 	            return;
 	        }
 
 	        LinearLayout.LayoutParams springLayoutParams = new LinearLayout.LayoutParams(
-	                0, ViewGroup.LayoutParams.FILL_PARENT);
-	        springLayoutParams.weight = 1;
+	                0, ViewGroup.LayoutParams.FillParent);
+	        springLayoutParams.Weight = 1;
 
 	        // Add Home button
 	        SimpleMenu tempMenu = new SimpleMenu(mActivity);
 	        SimpleMenuItem homeItem = new SimpleMenuItem(
-	                tempMenu, android.R.id.home, 0, mActivity.getstring(R.string.app_name));
-	        homeItem.setIcon(R.drawable.icon);
+				tempMenu, Resource.Id.home, 0, mActivity.GetString(Resource.String.app_name));
+	        homeItem.setIcon(Resource.Drawable.Icon);
 	        addActionItemCompatFromMenuItem(homeItem);
 
 	        // Add title text
-	        TextView titleText = new TextView(mActivity, null, R.attr.actionbarCompatTitleStyle);
-	        titleText.setLayoutParams(springLayoutParams);
-	        titleText.setText(mActivity.getTitle());
-	        actionBarCompat.addView(titleText);
+	        TextView titleText = new TextView(mActivity, null, Resource.attr.actionbarCompatTitleStyle);
+	        titleText.LayoutParameters =  springLayoutParams;
+	        titleText.SetText(mActivity.Title);
+	        actionBarCompat.AddView(titleText);
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    public void setRefreshActionItemState(bool refreshing) {
-	        View refreshButton = mActivity.findViewById(R.id.actionbar_compat_item_refresh);
-	        View refreshIndicator = mActivity.findViewById(
-	                R.id.actionbar_compat_item_refresh_progress);
+	    public override void setRefreshActionItemState(bool refreshing) {
+	        View refreshButton = mActivity.FindViewById(Resource.Id.actionbar_compat_item_refresh);
+	        View refreshIndicator = mActivity.FindViewById(
+	                Resource.Id.actionbar_compat_item_refresh_progress);
 
 	        if (refreshButton != null) {
 	            refreshButton.setVisibility(refreshing ? View.GONE : View.VISIBLE);
@@ -119,21 +117,19 @@ namespace TomDroidSharp.ui.actionbar
 	     *
 	     * NOTE: This code will mark on-screen menu items as invisible.
 	     */
-	    @Override
-	    public bool onCreateOptionsMenu(Menu menu) {
+	    public override bool OnCreateOptionsMenu(IMenu menu) {
 	        // Hides on-screen action items from the options menu.
-	        for (Integer id : mActionItemIds) {
-	            menu.findItem(id).setVisible(false);
+	        foreach (int id in mActionItemIds) {
+	            menu.FindItem(id).setVisible(false);
 	        }
 	        return true;
 	    }
 
 	    /**{@inheritDoc}*/
-	    @Override
-	    protected void onTitleChanged(CharSequence title, int color) {
-	        TextView titleView = (TextView) mActivity.findViewById(R.id.actionbar_compat_title);
+	    protected override void onTitleChanged(ICharSequence title, int color) {
+	        TextView titleView = (TextView) mActivity.FindViewById(Resource.Id.actionbar_compat_title);
 	        if (titleView != null) {
-	            titleView.setText(title);
+	            titleView.SetText(title);
 	        }
 	    }
 
@@ -150,71 +146,71 @@ namespace TomDroidSharp.ui.actionbar
 	     * bar). Can return null, and will return null on Honeycomb.
 	     */
 	    private ViewGroup getActionBarCompat() {
-	        return (ViewGroup) mActivity.findViewById(R.id.actionbar_compat);
+	        return (ViewGroup) mActivity.FindViewById(Resource.Id.actionbar_compat);
 	    }
 
 	    /**
 	     * Adds an action button to the compatibility action bar, using menu information from a {@link
-	     * android.view.MenuItem}. If the menu item ID is <code>menu_refresh</code>, the menu item's
+	     * android.view.IMenuItem}. If the menu item ID is <code>menu_refresh</code>, the menu item's
 	     * state can be changed to show a loading spinner using
 	     * {@link com.example.android.actionbarcompat.ActionBarHelperBase#setRefreshActionItemState(bool)}.
 	     */
-	    private View addActionItemCompatFromMenuItem(final MenuItem item) {
-	        readonly int itemId = item.getItemId();
+	    private View addActionItemCompatFromMenuItem(IMenuItem item) {
+			int itemId = item.ItemId;
 
-	        readonly ViewGroup actionBar = getActionBarCompat();
+	        ViewGroup actionBar = getActionBarCompat();
 	        if (actionBar == null) {
 	            return null;
 	        }
 
 	        // Create the button
 	        ImageButton actionButton = new ImageButton(mActivity, null,
-	                itemId == android.R.id.home
-	                        ? R.attr.actionbarCompatItemHomeStyle
-	                        : R.attr.actionbarCompatItemStyle);
-	        actionButton.setLayoutParams(new ViewGroup.LayoutParams(
+	                itemId == Resource.Id.home
+	                        ? Resource.attr.actionbarCompatItemHomeStyle
+	                        : Resource.attr.actionbarCompatItemStyle);
+	        actionButton.LayoutParameters = (new ViewGroup.LayoutParams(
 	                (int) mActivity.getResources().getDimension(
-	                        itemId == android.R.id.home
-	                                ? R.dimen.actionbar_compat_button_home_width
-	                                : R.dimen.actionbar_compat_button_width),
+	                        itemId == android.Resource.Id.home
+	                                ? Resource.dimen.actionbar_compat_button_home_width
+	                                : Resource.dimen.actionbar_compat_button_width),
 	                ViewGroup.LayoutParams.FILL_PARENT));
-	        if (itemId == R.id.menuSync) {
-	            actionButton.setId(R.id.actionbar_compat_item_refresh);
+	        if (itemId == Resource.Id.menuSync) {
+	            actionButton.Id = Resource.Id.actionbar_compat_item_refresh;
 	        }
-	        actionButton.setImageDrawable(item.getIcon());
-	        actionButton.setScaleType(ImageView.ScaleType.CENTER);
-	        actionButton.setContentDescription(item.getTitle());
-	        actionButton.setOnClickListener(new View.OnClickListener() {
-	            public void onClick(View view) {
-	                mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
-	            }
-	        });
+	        actionButton.SetImageDrawable(item.Icon);
+	        actionButton.SetScaleType(ImageView.ScaleType.Center);
+			actionButton.ContentDescription = item.TitleFormatted;
+//	        actionButton.setOnClickListener(new View.OnClickListener() {
+//	            public void onClick(View view) {
+//	                mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
+//	            }
+//	        });
 
-	        actionBar.addView(actionButton);
+	        actionBar.AddView(actionButton);
 
-	        if (item.getItemId() == R.id.menuSync) {
+	        if (item.ItemId == Resource.Id.menuSync) {
 	            // Refresh buttons should be stateful, and allow for indeterminate progress indicators,
 	            // so add those.
 	            ProgressBar indicator = new ProgressBar(mActivity, null,
-	                    R.attr.actionbarCompatProgressIndicatorStyle);
+	                    Resource.attr.actionbarCompatProgressIndicatorStyle);
 
-	            readonly int buttonWidth = mActivity.getResources().getDimensionPixelSize(
-	                    R.dimen.actionbar_compat_button_width);
-	            readonly int buttonHeight = mActivity.getResources().getDimensionPixelSize(
-	                    R.dimen.actionbar_compat_height);
-	            readonly int progressIndicatorWidth = buttonWidth / 2;
+	            int buttonWidth = mActivity.Resources.GetDimensionPixelSize(
+	                    Resource.dimen.actionbar_compat_button_width);
+	            int buttonHeight = mActivity.Resources.GetDimensionPixelSize(
+	                    Resource.dimen.actionbar_compat_height);
+	            int progressIndicatorWidth = buttonWidth / 2;
 
 	            LinearLayout.LayoutParams indicatorLayoutParams = new LinearLayout.LayoutParams(
 	                    progressIndicatorWidth, progressIndicatorWidth);
-	            indicatorLayoutParams.setMargins(
+	            indicatorLayoutParams.SetMargins(
 	                    (buttonWidth - progressIndicatorWidth) / 2,
 	                    (buttonHeight - progressIndicatorWidth) / 2,
 	                    (buttonWidth - progressIndicatorWidth) / 2,
 	                    0);
-	            indicator.setLayoutParams(indicatorLayoutParams);
-	            indicator.setVisibility(View.GONE);
-	            indicator.setId(R.id.actionbar_compat_item_refresh_progress);
-	            actionBar.addView(indicator);
+	            indicator.LayoutParameters = indicatorLayoutParams;
+				indicator.Visibility = ViewStates.Gone;
+	            indicator.Id = Resource.Id.actionbar_compat_item_refresh_progress;
+	            actionBar.AddView(indicator);
 	        }
 
 	        return actionButton;
@@ -223,18 +219,16 @@ namespace TomDroidSharp.ui.actionbar
 	    /**
 	     * A {@link android.view.MenuInflater} that reads action bar metadata.
 	     */
-	    private class WrappedMenuInflater string  MenuInflater {
+	    private class WrappedMenuInflater : MenuInflater {
 	        MenuInflater mInflater;
 
-	        public WrappedMenuInflater(Context context, MenuInflater inflater) {
-	            super(context);
+	        public WrappedMenuInflater(Context context, MenuInflater inflater) : base(context) {
 	            mInflater = inflater;
 	        }
 
-	        @Override
-	        public void inflate(int menuRes, Menu menu) {
+	        public override void inflate(int menuRes, Menu menu) {
 	            loadActionBarMetadata(menuRes);
-	            mInflater.inflate(menuRes, menu);
+	            mInflater.Inflate(menuRes, menu);
 	        }
 
 	        /**
@@ -245,7 +239,7 @@ namespace TomDroidSharp.ui.actionbar
 	        private void loadActionBarMetadata(int menuResId) {
 	            XmlResourceParser parser = null;
 	            try {
-	                parser = mActivity.getResources().getXml(menuResId);
+	                parser = mActivity.Resources.GetXml(menuResId);
 
 	                int eventType = parser.getEventType();
 	                int itemId;
@@ -267,7 +261,7 @@ namespace TomDroidSharp.ui.actionbar
 
 	                            showAsAction = parser.getAttributeIntValue(MENU_RES_NAMESPACE,
 	                                    MENU_ATTR_SHOW_AS_ACTION, -1);
-	                            if (showAsAction == MenuItem.SHOW_AS_ACTION_ALWAYS) {
+	                            if (showAsAction == IMenuItem.SHOW_AS_ACTION_ALWAYS) {
 	                                mActionItemIds.add(itemId);
 	                            }
 	                            break;
@@ -285,7 +279,7 @@ namespace TomDroidSharp.ui.actionbar
 	                throw new InflateException("Error inflating menu XML", e);
 	            } finally {
 	                if (parser != null) {
-	                    parser.close();
+	                    parser.Close();
 	                }
 	            }
 	        }

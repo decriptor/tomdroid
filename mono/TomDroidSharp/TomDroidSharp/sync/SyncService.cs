@@ -33,11 +33,11 @@ using Android.OS;
 using Android.Text;
 
 using TomDroidSharp;
-//import java.util.List;
-//import java.util.HashMap;
-//import java.util.concurrent.ExecutorService;
-//import java.util.concurrent.Executors;
 using Java.Lang;
+using TomDroidSharp.Util;
+using Android.Text.Format;
+using TomDroidSharp.util;
+using TomDroidSharp.ui;
 
 namespace TomDroidSharp.Sync
 {
@@ -46,7 +46,7 @@ namespace TomDroidSharp.Sync
 		private static readonly string TAG = "SyncService";
 		
 		public Activity activity;
-		private readonly ExecutorService pool;
+		//private readonly ExecutorService pool;
 		private readonly static int poolSize = 1;
 		
 		private Handler handler;
@@ -161,16 +161,16 @@ namespace TomDroidSharp.Sync
 		 * @param r The runner subclass to execute
 		 */
 		protected void SyncInThread(Runnable r) {
-			Runnable task = new Runnable() {
-				public void run() {
-					try {
-						r.run();
-					} catch(Exception e) {
-						TLog.e(TAG, e, "Problem syncing in thread");
-						SendMessage(PARSING_FAILED, ErrorList.createError("System Error", "system", e));
-					}
-				}
-			};
+//			Runnable task = new Runnable() {
+//				public void run() {
+//					try {
+//						r.run();
+//					} catch(Exception e) {
+//						TLog.e(TAG, e, "Problem syncing in thread");
+//						SendMessage(PARSING_FAILED, ErrorList.createError("System Error", "system", e));
+//					}
+//				}
+//			};
 			
 			execInThread(task);
 		}
@@ -187,7 +187,7 @@ namespace TomDroidSharp.Sync
 		}	
 
 		// syncing based on updated local notes only
-		protected void prepareSyncableNotes(Cursor localGuids)
+		protected void prepareSyncableNotes(ICursor localGuids)
 		{
 			remoteGuids = new List<string>();
 			pushableNotes = new List<Note>();
@@ -196,13 +196,13 @@ namespace TomDroidSharp.Sync
 			deleteableNotes = new List<Note>();
 			conflictingNotes = new List<Note[]>();
 			
-			localGuids.moveToFirst();
+			localGuids.MoveToFirst();
 			do {
-				Note note = NoteManager.getNoteByGuid(activity, localGuids.getstring(localGuids.getColumnIndexOrThrow(Note.GUID)));
+				Note note = NoteManager.getNoteByGuid(activity, localGuids.GetString(localGuids.GetColumnIndexOrThrow(Note.GUID)));
 				
-				if(!note.getTags().contains("system:template")) // don't push templates TODO: find out what's wrong with this, if anything
-					pushableNotes.add(note);
-			} while (localGuids.moveToNext());
+				if(!note.getTags().Contains("system:template")) // don't push templates TODO: find out what's wrong with this, if anything
+					pushableNotes.Add(note);
+			} while (localGuids.MoveToNext());
 			
 			if(cancelled) {
 				doCancel();
@@ -228,38 +228,38 @@ namespace TomDroidSharp.Sync
 			foreach(Note remoteNote in notesList)
 			{
 				Note localNote = NoteManager.getNoteByGuid(activity,remoteNote.getGuid());
-				remoteGuids.add(remoteNote.getGuid());
+				remoteGuids.Add(remoteNote.getGuid());
 				if(localNote == null) {
 					
 					// check to make sure there is no note with this title, otherwise show conflict dialogue
 
-					Cursor cursor = NoteManager.getTitles(activity);
+					ICursor cursor = NoteManager.getTitles(activity);
 					
-					if (!(cursor == null || cursor.getCount() == 0)) {
-						
-						cursor.moveToFirst();
+					if (!(cursor == null || cursor.Count == 0)) {
+
+						cursor.MoveToFirst();
 						do {
-							string atitle = cursor.getstring(cursor.getColumnIndexOrThrow(Note.TITLE));
-							if(atitle.equals(remoteNote.getTitle())) {
-								string aguid = cursor.getstring(cursor.getColumnIndexOrThrow(Note.GUID));
+							string atitle = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.TITLE));
+							if(atitle.Equals(remoteNote.getTitle())) {
+								string aguid = cursor.GetString(cursor.GetColumnIndexOrThrow(Note.GUID));
 								localNote = NoteManager.getNoteByGuid(activity, aguid);
 								break;
 							}
-						} while (cursor.moveToNext());
+						} while (cursor.MoveToNext());
 					}
-					cursor.close();
+					cursor.Close();
 					
 					if(localNote == null)
-						pullableNotes.add(remoteNote);
+						pullableNotes.Add(remoteNote);
 					else { // compare two different notes with same title
-						remoteGuids.add(localNote.getGuid()); // add to avoid catching it below
+						remoteGuids.Add(localNote.getGuid()); // add to avoid catching it below
 						Note[] compNotes = {localNote, remoteNote};
-						comparableNotes.add(compNotes);
+						comparableNotes.Add(compNotes);
 					}
 				}
 				else {
 					Note[] compNotes = {localNote, remoteNote};
-					comparableNotes.add(compNotes);
+					comparableNotes.Add(compNotes);
 				}
 			}
 
@@ -270,31 +270,31 @@ namespace TomDroidSharp.Sync
 			
 			// get non-remote notes; if newer than last sync, push, otherwise delete
 			
-			Cursor localGuids = NoteManager.getGuids(this.activity);
-			if (!(localGuids == null || localGuids.getCount() == 0)) {
+			ICursor localGuids = NoteManager.getGuids(this.activity);
+			if (!(localGuids == null || localGuids.Count == 0)) {
 				
 				string localGuid;
 				
-				localGuids.moveToFirst();
+				localGuids.MoveToFirst();
 				do {
-					localGuid = localGuids.getstring(localGuids.getColumnIndexOrThrow(Note.GUID));
+					localGuid = localGuids.GetString(localGuids.GetColumnIndexOrThrow(Note.GUID));
 					
-					if(!remoteGuids.contains(localGuid)) {
+					if(!remoteGuids.Contains(localGuid)) {
 						Note note = NoteManager.getNoteByGuid(this.activity, localGuid);
-						string syncDatestring = Preferences.getstring(Preferences.Key.LATEST_SYNC_DATE);
+						string syncDatestring = Preferences.GetString(Preferences.Key.LATEST_SYNC_DATE);
 						Time syncDate = new Time();
-						syncDate.parse3339(syncDatestring);
-						int compareSync = Time.compare(syncDate, note.getLastChangeDate());
+						syncDate.Parse3339(syncDatestring);
+						int compareSync = Time.Compare(syncDate, note.getLastChangeDate());
 						if(compareSync > 0) // older than last sync, means it's been deleted from server
-							deleteableNotes.add(note);
-						else if(!note.getTags().contains("system:template")) // don't push templates TODO: find out what's wrong with this, if anything
-							pushableNotes.add(note);
+							deleteableNotes.Add(note);
+						else if(!note.getTags().Contains("system:template")) // don't push templates TODO: find out what's wrong with this, if anything
+							pushableNotes.Add(note);
 					}
 					
-				} while (localGuids.moveToNext());
+				} while (localGuids.MoveToNext());
 
 			}
-			TLog.d(TAG, "Notes to pull: {0}, Notes to push: {1}, Notes to delete: {2}, Notes to compare: {3}",pullableNotes.size(),pushableNotes.size(),deleteableNotes.size(),comparableNotes.size());
+			TLog.d(TAG, "Notes to pull: {0}, Notes to push: {1}, Notes to delete: {2}, Notes to compare: {3}",pullableNotes.Count,pushableNotes.Count,deleteableNotes.Count,comparableNotes.Count);
 
 			if(cancelled) {
 				doCancel();
@@ -304,9 +304,9 @@ namespace TomDroidSharp.Sync
 
 		// deal with notes in both - compare and push, pull or diff
 			
-			string syncDatestring = Preferences.getstring(Preferences.Key.LATEST_SYNC_DATE);
-			Time syncDate = new Time();
-			syncDate.parse3339(syncDatestring);
+			syncDatestring = Preferences.GetString(Preferences.Key.LATEST_SYNC_DATE);
+			syncDate = new Time();
+			syncDate.Parse3339(syncDatestring);
 
 			foreach (var notes in comparableNotes)
 			{	
@@ -315,9 +315,9 @@ namespace TomDroidSharp.Sync
 
 			// if different guids, means conflicting titles
 
-				if(!remoteNote.getGuid().equals(localNote.getGuid())) {
+				if(!remoteNote.getGuid().Equals(localNote.getGuid())) {
 					TLog.i(TAG, "adding conflict of two different notes with same title");
-					conflictingNotes.add(notes);
+					conflictingNotes.Add(notes);
 					continue;
 				}
 				
@@ -326,15 +326,15 @@ namespace TomDroidSharp.Sync
 					return; 
 				}
 				
-				int compareSyncLocal = Time.compare(syncDate, localNote.getLastChangeDate());
-				int compareSyncRemote = Time.compare(syncDate, remoteNote.getLastChangeDate());
-				int compareBoth = Time.compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
+				int compareSyncLocal = Time.Compare(syncDate, localNote.getLastChangeDate());
+				int compareSyncRemote = Time.Compare(syncDate, remoteNote.getLastChangeDate());
+				int compareBoth = Time.Compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
 
 			// if not two-way and not same date, overwrite the local version
 			
 				if(!push && compareBoth != 0) {
 					TLog.i(TAG, "Different note dates, overwriting local note");
-					pullableNotes.add(remoteNote);
+					pullableNotes.Add(remoteNote);
 					continue;
 				}
 
@@ -355,18 +355,18 @@ namespace TomDroidSharp.Sync
 					
 				if(compareBoth != 0 && ((compareSyncLocal < 0 && compareSyncRemote < 0) || (compareSyncLocal > 0 && compareSyncRemote > 0))) { // sync conflict!  both are older or newer than last sync
 					TLog.i(TAG, "Note Conflict: TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
-					conflictingNotes.add(notes);
+					conflictingNotes.Add(notes);
 				}
 				else if(compareBoth > 0) // local newer, bundle in pushable
-					pushableNotes.add(localNote);
+					pushableNotes.Add(localNote);
 				else if(compareBoth < 0) { // local older, pull immediately, no need to bundle
 					TLog.i(TAG, "Local note is older, updating in content provider TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
-					pullableNotes.add(remoteNote);
+					pullableNotes.Add(remoteNote);
 				}
 				else { // both same date
-					if(localNote.getTags().contains("system:deleted") && push) { // deleted, bundle for remote deletion
+					if(localNote.getTags().Contains("system:deleted") && push) { // deleted, bundle for remote deletion
 						TLog.i(TAG, "Notes are same date, deleted, deleting remote: TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
-						pushableNotes.add(localNote);
+						pushableNotes.Add(localNote);
 					}
 					else { // do nothing
 						TLog.i(TAG, "Notes are same date, doing nothing: TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
@@ -374,7 +374,7 @@ namespace TomDroidSharp.Sync
 					}
 				}
 			}
-			if(conflictingNotes.isEmpty())
+			if(conflictingNotes.IsEmpty())
 				doSyncNotes();
 			else 
 				fixConflictingNotes();
@@ -389,32 +389,32 @@ namespace TomDroidSharp.Sync
 			{	
 				Note localNote = notes[0];
 				Note remoteNote = notes[1];
-				int compareBoth = Time.compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
+				int compareBoth = Time.Compare(localNote.getLastChangeDate(), remoteNote.getLastChangeDate());
 				
 				TLog.v(TAG, "note conflict... showing resolution dialog TITLE:{0} GUID:{1}", localNote.getTitle(), localNote.getGuid());
 				
 				// send everything to Tomdroid so it can show Sync Dialog
 				
 			    Bundle bundle = new Bundle();	
-				bundle.putstring("title",remoteNote.getTitle());
-				bundle.putstring("file",remoteNote.getFileName());
-				bundle.putstring("guid",remoteNote.getGuid());
-				bundle.putstring("date",remoteNote.getLastChangeDate().Format3339(false));
-				bundle.putstring("content", remoteNote.getXmlContent());
-				bundle.putstring("tags", remoteNote.getTags());
-				bundle.putInt("datediff", compareBoth);
+				bundle.PutString("title",remoteNote.getTitle());
+				bundle.PutString("file",remoteNote.getFileName());
+				bundle.PutString("guid",remoteNote.getGuid());
+				bundle.PutString("date",remoteNote.getLastChangeDate().Format3339(false));
+				bundle.PutString("content", remoteNote.getXmlContent());
+				bundle.PutString("tags", remoteNote.getTags());
+				bundle.PutInt("datediff", compareBoth);
 				
 				// put local guid if conflicting titles
 
-				if(!remoteNote.getGuid().equals(localNote.getGuid()))
-					bundle.putstring("localGUID", localNote.getGuid());
+				if(!remoteNote.getGuid().Equals(localNote.getGuid()))
+					bundle.PutString("localGUID", localNote.getGuid());
 				
-				Intent intent = new Intent(activity.getApplicationContext(), CompareNotes.class);	
-				intent.putExtras(bundle);
+				Intent intent = new Intent(activity.ApplicationContext, typeof(CompareNotes));	
+				intent.PutExtras(bundle);
 		
 				// let activity know each time the conflict is resolved, to let the service know to increment resolved conflicts.
 				// once all conflicts are resolved, start sync
-				activity.startActivityForResult(intent, conflictCount++);
+				activity.StartActivityForResult(intent, conflictCount++);
 			}	
 		}
 		
@@ -423,7 +423,7 @@ namespace TomDroidSharp.Sync
 
 		// init progress bar
 			
-			int totalNotes = pullableNotes.size()+pushableNotes.size()+deleteableNotes.size();
+			int totalNotes = pullableNotes.Count+pushableNotes.Count+deleteableNotes.Count;
 			
 			if(totalNotes > 0) {
 				SendMessage(BEGIN_PROGRESS,totalNotes,0);
@@ -490,16 +490,16 @@ namespace TomDroidSharp.Sync
 		protected void SendMessage(int message) {
 			
 			if(!SendMessage(message, null)) {
-				handler.sendEmptyMessage(message);
+				handler.SendEmptyMessage(message);
 			}
 		}
 		protected void SendMessage(int message_id, int arg1, int arg2) {
-			Message message = handler.obtainMessage(message_id);
-			message.arg1 = arg1;
-			message.arg2 = arg2;
+			Message message = handler.ObtainMessage(message_id);
+			message.Arg1 = arg1;
+			message.Arg2 = arg2;
 			handler.SendMessage(message);
 		}	
-		protected bool SendMessage(int message_id, HashMap<string, Object> payload) {
+		protected bool SendMessage(int message_id, Dictionary<string, object> payload) {
 
 			Message message;
 			switch(message_id) {
@@ -512,8 +512,8 @@ namespace TomDroidSharp.Sync
 						return false;
 					if(syncErrors == null)
 						syncErrors = new ErrorList();
-					syncErrors.add(payload);
-					message = handler.obtainMessage(message_id, syncErrors);
+					syncErrors.Add(payload);
+					message = handler.ObtainMessage(message_id, syncErrors);
 					handler.SendMessage(message);
 					return true;
 			}
@@ -529,22 +529,23 @@ namespace TomDroidSharp.Sync
 		 */
 		
 		public void setSyncProgress(int progress) {
-			synchronized (TAG) {
-				TLog.v(TAG, "sync progress: {0}", progress);
-				Message progressMessage = new Message();
-				progressMessage.what = SYNC_PROGRESS;
-				progressMessage.arg1 = progress;
-				progressMessage.arg2 = syncProgress;
-
-				handler.SendMessage(progressMessage);
-				syncProgress = progress;
-			}
+//			synchronized (TAG) {
+//				TLog.v(TAG, "sync progress: {0}", progress);
+//				Message progressMessage = new Message();
+//				progressMessage.what = SYNC_PROGRESS;
+//				progressMessage.arg1 = progress;
+//				progressMessage.arg2 = syncProgress;
+//
+//				handler.SendMessage(progressMessage);
+//				syncProgress = progress;
+//			}
 		}
 		
-		protected int getSyncProgress(){
-			synchronized (TAG) {
-				return syncProgress;
-			}
+		protected int getSyncProgress()
+		{
+//			synchronized (TAG) {
+//				return syncProgress;
+//			}
 		}
 
 		public bool isSyncable() {
@@ -585,15 +586,15 @@ namespace TomDroidSharp.Sync
 		}
 
 		public void addPullable(Note note) {
-			this.pullableNotes.add(note);
+			this.pullableNotes.Add(note);
 		}
 
 		public void addPushable(Note note) {
-			this.pushableNotes.add(note);
+			this.pushableNotes.Add(note);
 		}
 
 		public void addDeleteable(Note note) {
-			this.deleteableNotes.add(note);
+			this.deleteableNotes.Add(note);
 		}
 	}
 }

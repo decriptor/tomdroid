@@ -50,6 +50,11 @@ using Android.Text;
 
 using TomDroidSharp;
 using TomDroidSharp.util;
+using Android.Content.Res;
+using System;
+using System.Collections.Generic;
+using TomDroidSharp.ui;
+using Java.Util;
 
 namespace TomDroidSharp
 {
@@ -61,7 +66,7 @@ namespace TomDroidSharp
 		private static readonly string DB_TABLE_NOTES = "notes";
 		private static readonly int DB_VERSION = 4;
 		
-	    private static HashMap<string, string> notesProjectionMap;
+	    private static Dictionary<string, string> notesProjectionMap;
 
 	    private static readonly int NOTES = 1;
 	    private static readonly int NOTE_ID = 2;
@@ -83,7 +88,7 @@ namespace TomDroidSharp
 	    /**
 	     * This class helps open, create, and upgrade the database file.
 	     */
-	    private static class DatabaseHelper : SQLiteOpenHelper {
+	    private class DatabaseHelper : SQLiteOpenHelper {
 
 	        DatabaseHelper(Context context) : base(context, DATABASE_NAME, null, DB_VERSION) {
 	        }
@@ -104,10 +109,10 @@ namespace TomDroidSharp
 	        public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 	        	TLog.d(TAG, "Upgrading database from version {0} to {1}",
 	                    oldVersion, newVersion);
-	        	Cursor notesCursor;
-	        	List<Map<string, string>> db_list = new List<Map<string, string>>();
+	        	ICursor notesCursor;
+	        	List<Dictionary<string, string>> db_list = new List<Dictionary<string, string>>();
 	        	notesCursor = db.Query(DB_TABLE_NOTES, COLUMNS_VERSION[oldVersion - 1], null, null, null, null, null);
-	        	notesCursor.moveToFirst();
+	        	notesCursor.MoveToFirst();
 
 	        	if (oldVersion == 1) {
 	        		// GUID and NOTE_CONTENT are not saved.
@@ -118,30 +123,30 @@ namespace TomDroidSharp
 	        	}
 
 				// Get old datas from the SQL
-				while(!notesCursor.isAfterLast()) {
-					Map<string, string> row = new HashMap<string, string>();
+				while(!notesCursor.IsAfterLast) {
+					Dictionary<string, string> row = new Dictionary<string, string>();
 					for(int i = 0; i < COLUMNS_VERSION[oldVersion - 1].Length; i++) {
-						row.put(COLUMNS_VERSION[oldVersion - 1][i], notesCursor.getstring(i));
+						row.Add (COLUMNS_VERSION[oldVersion - 1][i], notesCursor.GetString(i));
 					}
 
 					// create new columns
 					if (oldVersion <= 2) {
-						row.put(Note.TAGS, "");
+						row.Add(Note.TAGS, "");
 					}
 					if (oldVersion <= 3) {
-						row.put(Note.NOTE_CONTENT_PLAIN, stringConverter.encode(Html.fromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).tostring()));
+						row.Add(Note.NOTE_CONTENT_PLAIN, stringConverter.encode(Html.FromHtml(row.get(Note.TITLE) + "\n" + row.get(Note.NOTE_CONTENT)).ToString()));
 					}
 
-					db_list.add(row);
-					notesCursor.moveToNext();
+					db_list.Add(row);
+					notesCursor.MoveToNext();
 				}
 
 	            db.ExecSQL("DROP TABLE IF Exists notes");
 	            onCreate(db);
 
 				// put rows to the database
-				ContentValues row = new ContentValues();
-				for(int i = 0; i < db_list.size(); i++) {
+				row = new ContentValues();
+				for(int i = 0; i < db_list.Count; i++) {
 					for(int j = 0; j < COLUMNS_VERSION[newVersion - 1].Length; j++) {
 						row.put(COLUMNS_VERSION[newVersion - 1][j], db_list.get(i).get(COLUMNS_VERSION[newVersion - 1][j]));
 					}
@@ -153,11 +158,11 @@ namespace TomDroidSharp
 	    private DatabaseHelper dbHelper;
 
 	    public override bool onCreate() {
-	        dbHelper = new DatabaseHelper(getContext());
+	        dbHelper = new DatabaseHelper(Context);
 	        return true;
 	    }
 
-	    public override Cursor Query(Uri uri, string[] projection, string selection, string[] selectionArgs,
+	    public override ICursor Query(Android.Net.Uri uri, string[] projection, string selection, string[] selectionArgs,
 	            string sortOrder) {
 	        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
@@ -181,15 +186,15 @@ namespace TomDroidSharp
 	        	break;
 
 	        default:
-	            throw new IllegalArgumentException("Unknown URI " + uri);
+	            throw new ArgumentException("Unknown URI " + uri);
 	        }
 
 	        // If no sort order is specified use the default
 	        string orderBy;
-	        if (TextUtils.isEmpty(sortOrder)) {
+	        if (TextUtils.IsEmpty(sortOrder)) {
 	      	    string defaultSortOrder;
-	    	    defaultSortOrder = Preferences.getstring(Preferences.Key.SORT_ORDER);
-	    	    if(defaultSortOrder.equals("sort_title")) {
+	    	    defaultSortOrder = Preferences.GetString(Preferences.Key.SORT_ORDER);
+	    	    if(defaultSortOrder.Equals("sort_title")) {
 	    	        orderBy = Note.TITLE + " ASC";
 	    	    } else {
 	    	        orderBy = Note.MODIFIED_DATE + " DESC";
@@ -200,16 +205,16 @@ namespace TomDroidSharp
 	        
 
 	        // Get the database and run the Query
-	        SQLiteDatabase db = dbHelper.getReadableDatabase();
-	        Cursor c = qb.Query(db, projection, selection, selectionArgs, null, null, orderBy);
+	        SQLiteDatabase db = dbHelper.ReadableDatabase;
+	        ICursor c = qb.Query(db, projection, selection, selectionArgs, null, null, orderBy);
 
 	        // Tell the cursor what uri to watch, so it knows when its source data changes
-	        c.setNotificationUri(getContext().ContentResolver, uri);
+	        c.SetNotificationUri(Context.ContentResolver, uri);
 	        return c;
 	    }
 
-	    public override string getType(Uri uri) {
-	        switch (uriMatcher.match(uri)) {
+	    public override string getType(Android.Net.Uri uri) {
+	        switch (uriMatcher.Match(uri)) {
 	        case NOTES:
 	            return Tomdroid.CONTENT_TYPE;
 
@@ -220,15 +225,15 @@ namespace TomDroidSharp
 	        	return Tomdroid.CONTENT_ITEM_TYPE;
 
 	        default:
-	            throw new IllegalArgumentException("Unknown URI " + uri);
+	            throw new ArgumentException("Unknown URI " + uri);
 	        }
 	    }
 
 	    // TODO the following method is probably never called and probably wouldn't work
-	    public override Uri insert(Uri uri, ContentValues initialValues) {
+	    public override Android.Net.Uri insert(Android.Net.Uri uri, ContentValues initialValues) {
 	        // Validate the requested uri
-	        if (uriMatcher.match(uri) != NOTES) {
-	            throw new IllegalArgumentException("Unknown URI " + uri);
+	        if (uriMatcher.Match(uri) != NOTES) {
+	            throw new ArgumentException("Unknown URI " + uri);
 	        }
 
 	        ContentValues values;
@@ -239,102 +244,102 @@ namespace TomDroidSharp
 	        }
 
 	        // TODO either be identical to Tomboy's time format (if sortable) else make sure that this is documented
-	        Long now = Long.valueOf(System.currentTimeMillis());
+	        long now = Long.valueOf(System.currentTimeMillis());
 
 	        // Make sure that the fields are all set
-	        if (values.containsKey(Note.MODIFIED_DATE) == false) {
-	            values.put(Note.MODIFIED_DATE, now);
+	        if (values.ContainsKey(Note.MODIFIED_DATE) == false) {
+	            values.Put(Note.MODIFIED_DATE, now);
 	        }
 	        
 	        // The guid is the unique identifier for a note so it has to be set.
-	        if (values.containsKey(Note.GUID) == false) {
-	        	values.put(Note.GUID, UUID.randomUUID().tostring());
+	        if (values.ContainsKey(Note.GUID) == false) {
+	        	values.Put(Note.GUID, UUID.RandomUUID().ToString());
 	        }
 
 	        // TODO does this make sense?
-	        if (values.containsKey(Note.TITLE) == false) {
-	            Resources r = Resources.getSystem();
-	            values.put(Note.TITLE, r.getstring(android.R.string.untitled));
+	        if (values.ContainsKey(Note.TITLE) == false) {
+				Resources r = Resources.System;
+	            values.Put(Note.TITLE, r.GetString(Resource.String.untitled));
 	        }
 
-	        if (values.containsKey(Note.FILE) == false) {
-	            values.put(Note.FILE, "");
+	        if (values.ContainsKey(Note.FILE) == false) {
+	            values.Put(Note.FILE, "");
 	        }
 	        
-	        if (values.containsKey(Note.NOTE_CONTENT) == false) {
-	            values.put(Note.NOTE_CONTENT, "");
+	        if (values.ContainsKey(Note.NOTE_CONTENT) == false) {
+	            values.Put(Note.NOTE_CONTENT, "");
 	        }
 
-	        SQLiteDatabase db = dbHelper.getWritableDatabase();
-	        long rowId = db.insert(DB_TABLE_NOTES, Note.FILE, values); // not so sure I did the right thing here
+	        SQLiteDatabase db = dbHelper.WritableDatabase;
+	        long rowId = db.Insert(DB_TABLE_NOTES, Note.FILE, values); // not so sure I did the right thing here
 	        if (rowId > 0) {
-	            Uri noteUri = ContentUris.withAppendedId(Tomdroid.CONTENT_URI, rowId);
-	            getContext().ContentResolver.notifyChange(noteUri, null);
+	            Android.Net.Uri noteUri = ContentUris.WithAppendedId(Tomdroid.CONTENT_URI, rowId);
+	            Context.ContentResolver.NotifyChange(noteUri, null);
 	            return noteUri;
 	        }
 
 	        throw new SQLException("Failed to insert row into " + uri);
 	    }
 
-	    public override int delete(Uri uri, string where, string[] whereArgs) {
-	        SQLiteDatabase db = dbHelper.getWritableDatabase();
+	    public override int delete(Android.Net.Uri uri, string where, string[] whereArgs) {
+			SQLiteDatabase db = dbHelper.WritableDatabase;
 	        int count;
-	        switch (uriMatcher.match(uri)) {
+	        switch (uriMatcher.Match(uri)) {
 	        case NOTES:
-	            count = db.delete(DB_TABLE_NOTES, where, whereArgs);
+	            count = db.Delete(DB_TABLE_NOTES, where, whereArgs);
 	            break;
 
 	        case NOTE_ID:
-	            string noteId = uri.getPathSegments().get(1);
-	            count = db.delete(DB_TABLE_NOTES, Note.ID + "=" + noteId
-	                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+				string noteId = uri.PathSegments[1];
+	            count = db.Delete(DB_TABLE_NOTES, Note.ID + "=" + noteId
+	                    + (!TextUtils.IsEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 	            break;
 
 	        default:
-	            throw new IllegalArgumentException("Unknown URI " + uri);
+	            throw new ArgumentException("Unknown URI " + uri);
 	        }
 
-	        getContext().ContentResolver.notifyChange(uri, null);
+	        Context.ContentResolver.NotifyChange(uri, null);
 	        return count;
 	    }
 
-	    public override int update(Uri uri, ContentValues values, string where, string[] whereArgs) {
-	        SQLiteDatabase db = dbHelper.getWritableDatabase();
+	    public override int update(Android.Net.Uri uri, ContentValues values, string where, string[] whereArgs) {
+	        SQLiteDatabase db = dbHelper.WritableDatabase;
 	        int count;
-	        switch (uriMatcher.match(uri)) {
+	        switch (uriMatcher.Match(uri)) {
 	        case NOTES:
-	            count = db.update(DB_TABLE_NOTES, values, where, whereArgs);
+	            count = db.Update(DB_TABLE_NOTES, values, where, whereArgs);
 	            break;
 
 	        case NOTE_ID:
-	            string noteId = uri.getPathSegments().get(1);
-	            count = db.update(DB_TABLE_NOTES, values, Note.ID + "=" + noteId
-	                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+				string noteId = uri.PathSegments[1];
+	            count = db.Update(DB_TABLE_NOTES, values, Note.ID + "=" + noteId
+	                    + (!TextUtils.IsEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 	            break;
 
 	        default:
-	            throw new IllegalArgumentException("Unknown URI " + uri);
+				throw new ArgumentException("Unknown URI " + uri);
 	        }
 
-	        getContext().ContentResolver.notifyChange(uri, null);
-	        return count;
+			Context.ContentResolver.NotifyChange(uri, null);
+			return count;
 	    }
 
-	    static {
-	        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes", NOTES);
-	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/#", NOTE_ID);
-	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/*", NOTE_TITLE);
-
-	        notesProjectionMap = new HashMap<string, string>();
-	        notesProjectionMap.put(Note.ID, Note.ID);
-	        notesProjectionMap.put(Note.GUID, Note.GUID);
-	        notesProjectionMap.put(Note.TITLE, Note.TITLE);
-	        notesProjectionMap.put(Note.FILE, Note.FILE);
-	        notesProjectionMap.put(Note.NOTE_CONTENT, Note.NOTE_CONTENT);
-	        notesProjectionMap.put(Note.NOTE_CONTENT_PLAIN, Note.NOTE_CONTENT_PLAIN);
-	        notesProjectionMap.put(Note.TAGS, Note.TAGS);
-	        notesProjectionMap.put(Note.MODIFIED_DATE, Note.MODIFIED_DATE);
-	    }
+	   // static {
+//	        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+//	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes", NOTES);
+//	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/#", NOTE_ID);
+//	        uriMatcher.addURI(Tomdroid.AUTHORITY, "notes/*", NOTE_TITLE);
+//
+//	        notesProjectionMap = new HashMap<string, string>();
+//	        notesProjectionMap.put(Note.ID, Note.ID);
+//	        notesProjectionMap.put(Note.GUID, Note.GUID);
+//	        notesProjectionMap.put(Note.TITLE, Note.TITLE);
+//	        notesProjectionMap.put(Note.FILE, Note.FILE);
+//	        notesProjectionMap.put(Note.NOTE_CONTENT, Note.NOTE_CONTENT);
+//	        notesProjectionMap.put(Note.NOTE_CONTENT_PLAIN, Note.NOTE_CONTENT_PLAIN);
+//	        notesProjectionMap.put(Note.TAGS, Note.TAGS);
+//	        notesProjectionMap.put(Note.MODIFIED_DATE, Note.MODIFIED_DATE);
+	  //  }
 	}
 }

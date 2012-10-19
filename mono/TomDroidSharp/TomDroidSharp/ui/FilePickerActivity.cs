@@ -17,27 +17,22 @@
 // modified by noahy <noahy57@gmail.com>
 // modifications released under GPL 3.0+
 
-//import java.io.File;
-//import java.io.FilenameFilter;
-//import java.util.List;
-//import java.util.Collections;
-//import java.util.Comparator;
-//import java.util.List;
-
-using TomDroidSharp.R;
-using TomDroidSharp.ui.actionbar.ActionBarListActivity;
-using TomDroidSharp.util.Preferences;
+using System.Collections.Generic;
 
 using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 
+using TomDroidSharp.ui.actionbar;
+using Android.App;
+using Java.IO;
+
 namespace TomDroidSharp.ui
 {
-
-	public class FilePickerActivity : ActionBarListActivity {
-		
+	[Activity (Label = "FilePickerActivity")]
+	public class FilePickerActivity : ActionBarListActivity
+	{	
 		/**
 		 * The file path
 		 */
@@ -60,28 +55,28 @@ namespace TomDroidSharp.ui
 		protected string[] acceptedFileExtensions;
 		
 		private LinearLayout navButtons = null;
-		
-		@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
 
-			View contentView =  View.inflate(this, R.layout.file_picker_content_view, null);
-	        SetContentView(contentView);
+		protected override void onCreate(Bundle savedInstanceState)
+		{
+			base.onCreate(savedInstanceState);
+
+			View contentView =  View.Inflate(this, Resource.Layout.file_picker_content_view, null);
+			SetContentView(contentView);
 	        
-	        navButtons = (LinearLayout) contentView.findViewById(R.id.navButtons);
+	        navButtons = contentView.FindViewById<LinearLayout>(Resource.Id.navButtons);
 	        
 			// Set the view to be shown if the list is empty
-			LayoutInflater inflator = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View emptyView = inflator.inflate(R.layout.file_picker_empty_view, null);
-			((ViewGroup)getListView().getParent()).addView(emptyView);
-			getListView().setEmptyView(emptyView);
-			
+			LayoutInflater inflator = (LayoutInflater) GetSystemService(Context.LayoutInflaterService);
+			View emptyView = inflator.Inflate(Resource.Layout.file_picker_empty_view, null);
+			((ViewGroup)ListView.Parent).AddView(emptyView);
+			ListView.EmptyView = emptyView;
+
 			TextView listHeader = new TextView(this);
-			listHeader.setText(R.string.chooseFile);
-			getListView().addHeaderView(listHeader);
+			listHeader.SetText(Resource.String.chooseFile);
+			ListView.AddHeaderView(listHeader);
 			
 			// Set initial directory
-			mDirectory = new File(Preferences.getstring(Preferences.Key.LAST_FILE_PATH));
+			mDirectory = new File(Preferences.GetString(Preferences.Key.LAST_FILE_PATH));
 			refreshNavButtons();
 			
 			// Initialize the List
@@ -89,28 +84,27 @@ namespace TomDroidSharp.ui
 			
 			// Set the ListAdapter
 			mAdapter = new FilePickerListAdapter(this, mFiles);
-			setListAdapter(mAdapter);
+			ListAdapter = mAdapter;
 			
 			// Initialize the extensions array to allow any file extensions
 			acceptedFileExtensions = new string[] {};
 			
 			// Get intent extras
-			if(getIntent().hasExtra(EXTRA_FILE_PATH)) {
-				mDirectory = new File(getIntent().getstringExtra(EXTRA_FILE_PATH));
+			if(Intent.HasExtra(EXTRA_FILE_PATH)) {
+				mDirectory = new File(Intent.GetStringExtra(EXTRA_FILE_PATH));
 			}
-			if(getIntent().hasExtra(EXTRA_SHOW_HIDDEN_FILES)) {
-				mShowHiddenFiles = getIntent().getBooleanExtra(EXTRA_SHOW_HIDDEN_FILES, false);
+			if(Intent.HasExtra(EXTRA_SHOW_HIDDEN_FILES)) {
+				mShowHiddenFiles = Intent.GetBooleanExtra(EXTRA_SHOW_HIDDEN_FILES, false);
 			}
-			if(getIntent().hasExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS)) {
-				List<string> collection = getIntent().getstringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
-				acceptedFileExtensions = (string[]) collection.toArray(new string[collection.size()]);
+			if(Intent.HasExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS)) {
+				List<string> collection = Intent.GetStringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
+				acceptedFileExtensions = (string[]) collection.ToArray(new string[collection.Count]);
 			}
 		}
 		
-		@Override
-		protected void onResume() {
+		protected override void onResume() {
 			refreshFilesList();
-			super.onResume();
+			base.OnResume();
 		}
 		
 		/**
@@ -118,40 +112,39 @@ namespace TomDroidSharp.ui
 		 */
 		protected void refreshFilesList() {
 			// Clear the files List
-			mFiles.clear();
+			mFiles.Clear();
 			
 			// Set the extension file filter
 			ExtensionFilenameFilter filter = new ExtensionFilenameFilter(acceptedFileExtensions);
 			
 			// Get the files in the directory
-			File[] files = mDirectory.listFiles(filter);
-			if(files != null && files.length > 0) {
-				for(File f : files) {
-					if(f.isHidden() && !mShowHiddenFiles) {
+			File[] files = mDirectory.ListFiles(filter);
+			if(files != null && files.Length > 0) {
+				foreach(File f in files) {
+					if(f.IsHidden() && !mShowHiddenFiles) {
 						// Don't add the file
 						continue;
 					}
 					
 					// Add the file the ArrayAdapter
-					mFiles.add(f);
+					mFiles.Add(f);
 				}
 				
 				Collections.sort(mFiles, new FileComparator());
 			}
-			mAdapter.notifyDataSetChanged();
+			mAdapter.NotifyDataSetChanged();
 		}
-		
-		@Override
-		protected void onListItemClick(ListView l, View v, int position, long id) {
-			File newFile = (File)l.getItemAtPosition(position);
+
+		protected override void onListItemClick(ListView l, View v, int position, long id) {
+			File newFile = (File)l.GetItemAtPosition(position);
 			
-			if(newFile.isFile()) {
+			if(newFile.IsFile()) {
 				// Set result
 				Intent extra = new Intent();
-				extra.putExtra(EXTRA_FILE_PATH, newFile.getAbsolutePath());
-				setResult(RESULT_OK, extra);
+				extra.PutExtra(EXTRA_FILE_PATH, newFile.AbsolutePath);
+				SetResult(Android.App.Result.Ok, extra);
 				// Finish the activity
-				finish();
+				Finish();
 			} else {
 				mDirectory = newFile;
 				
@@ -160,84 +153,81 @@ namespace TomDroidSharp.ui
 				
 				// refresh nav buttons
 				refreshNavButtons();
-				
+
 				// Update the files list
 				refreshFilesList();
 			}
 			
-			super.onListItemClick(l, v, position, id);
+			base.OnListItemClick(l, v, position, id);
 		}
-		
+
 		private void refreshNavButtons() {
 			
-			navButtons.removeAllViews();
-			
-			string directory = mDirectory.getAbsolutePath();
-			if(directory.equals("/"))
+			navButtons.RemoveAllViews();
+
+			string directory = mDirectory.AbsolutePath;
+			if(directory.Equals("/"))
 				directory = "";
 
-			string[] directories = directory.split("/");
+			string[] directories = directory.Split("/");
 			int position = 0;
-			for(string dir:directories) {
+			foreach(string dir in directories) {
 				int count = 0;
 				Button navButton = new Button(this);
-				navButton.setText(position==0?"/":dir);
+				navButton.SetText(position==0?"/":dir);
 				string newDir = "";
-				for(string dir2 : directories) {
+				foreach(string dir2 in directories) {
 					if(count++ > position)
 						break;
 					newDir += "/"+dir2;
 				}
-				final string newDir2 = position==0?"/":newDir;
-				navButton.setOnClickListener(new OnClickListener(){
-
-					@Override
-					public void onClick(View v) {
-						mDirectory = new File(newDir2);
-						refreshNavButtons();
-						refreshFilesList();
-					}
-				});
+				string newDir2 = position==0?"/":newDir;
+//				navButton.setOnClickListener(new OnClickListener(){
+//
+//					public override void onClick(View v) {
+//						mDirectory = new File(newDir2);
+//						refreshNavButtons();
+//						refreshFilesList();
+//					}
+//				});
 				position++;
-				navButtons.addView(navButton);
+				navButtons.AddView(navButton);
 			}
 		}
 
-		private class FilePickerListAdapter string  ArrayAdapter<File> {
+		private class FilePickerListAdapter : ArrayAdapter<Java.IO.File> {
 			
 			private List<File> mObjects;
 			
-			public FilePickerListAdapter(Context context, List<File> objects) {
-				super(context, R.layout.file_picker_list_item, android.R.id.text1, objects);
+			public FilePickerListAdapter(Context context, List<File> objects) : base (context, Resource.Layout.file_picker_list_item, Resource.Id.text1, objects) {
 				mObjects = objects;
 			}
 			
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
+			public override View getView(int position, View convertView, ViewGroup parent) {
 				
 				View row = null;
 				
 				if(convertView == null) { 
-					LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					row = inflater.inflate(R.layout.file_picker_list_item, parent, false);
+					LayoutInflater inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
+					row = inflater.Inflate(Resource.Layout.file_picker_list_item, parent, false);
 				} else {
 					row = convertView;
 				}
 
-				File object = mObjects.get(position);
+				File fileObject = mObjects[position];
 
-				ImageView imageView = (ImageView)row.findViewById(R.id.file_picker_image);
-				TextView textView = (TextView)row.findViewById(R.id.file_picker_text);
+				ImageView imageView = row.FindViewById<ImageView>(Resource.Id.file_picker_image);
+				TextView textView = row.FindViewById<TextView>(Resource.Id.file_picker_text);
 				// Set single line
-				textView.setSingleLine(true);
+				textView.SetSingleLine(true);
 				
-				textView.setText(object.getName());
-				if(object.isFile()) {
+				textView.SetText(fileObject.Name);
+				if(fileObject.IsFile()) {
 					// Show the file icon
-					imageView.setImageResource(R.drawable.file);
+					imageView.SetImageResource(Resource.Drawable.file);
 				} else {
 					// Show the folder icon
-					imageView.setImageResource(R.drawable.folder);
+					imageView.SetImageResource(Resource.Drawable.folder);
 				}
 				
 				return row;
@@ -245,17 +235,17 @@ namespace TomDroidSharp.ui
 
 		}
 		
-		private class FileComparator : Comparator<File> {
-		    @Override
-		    public int compare(File f1, File f2) {
+		private class FileComparator : IComparer<File> {
+			int IComparer<File>.Compare (File f1, File f2)
+			{
 		    	if(f1 == f2) {
 		    		return 0;
 		    	}
-		    	if(f1.isDirectory() && f2.isFile()) {
+		    	if(f1.IsDirectory() && f2.IsFile()) {
 		        	// Show directories above files
 		        	return -1;
 		        }
-		    	if(f1.isFile() && f2.isDirectory()) {
+		    	if(f1.IsFile() && f2.IsDirectory()) {
 		        	// Show files below directories
 		        	return 1;
 		        }
@@ -264,33 +254,31 @@ namespace TomDroidSharp.ui
 		    }
 		}
 		
-		private class ExtensionFilenameFilter : FilenameFilter {
-			private string[] mExtensions;
+//		private class ExtensionFilenameFilter : FilenameFilter {
+//			private string[] mExtensions;
+//			
+//			public ExtensionFilenameFilter(string[] extensions) : base(){
+//				mExtensions = extensions;
+//			}
 			
-			public ExtensionFilenameFilter(string[] extensions) {
-				super();
-				mExtensions = extensions;
-			}
-			
-			@Override
-			public bool accept(File dir, string filename) {
-				if(new File(dir, filename).isDirectory()) {
-					// Accept all directory names
-					return true;
-				}
-				if(mExtensions != null && mExtensions.length > 0) {
-					for(int i = 0; i < mExtensions.length; i++) {
-						if(filename.endsWith(mExtensions[i])) {
-							// The filename ends with the extension
-							return true;
-						}
-					}
-					// The filename did not match any of the extensions
-					return false;
-				}
-				// No extensions has been set. Accept all file extensions.
-				return true;
-			}
-		}
+//			public override bool accept(File dir, string filename) {
+//				if(new File(dir, filename).IsDirectory()) {
+//					// Accept all directory names
+//					return true;
+//				}
+//				if(mExtensions != null && mExtensions.Length > 0) {
+//					for(int i = 0; i < mExtensions.Length; i++) {
+//						if(filename.EndsWith(mExtensions[i])) {
+//							// The filename ends with the extension
+//							return true;
+//						}
+//					}
+//					// The filename did not match any of the extensions
+//					return false;
+//				}
+//				// No extensions has been set. Accept all file extensions.
+//				return true;
+//			}
+//		}
 	}
 }

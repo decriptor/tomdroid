@@ -62,6 +62,7 @@
 	<string name="prefSyncCompleteAuth">Completing authentication. Please wait…</string>
 	<string name="prefSyncConnectionFailed">The connection to the server has failed, please check that the address you entered is correct.</string>
 	<string name="prefServerEmpty">The server address changed but the new value is empty</string>
+	<string name="prefDefaultSortingTitle">Default sorting title</string>
 			
 	<string name="titleSyncService">Choose the sync service to use</string>
 	<string name="messageSyncComplete">Synchronization with %1$s is complete.</string>
@@ -79,7 +80,7 @@
 	<!-- NoteSorting -->
 	<string name="menuSort">Change Sort</string>
 	<string name="titleDefaultSorting">Choose default sorting method</string>
-	<string name="prefDefaultSortingTitle">Default Sort Method</string>
+	<string name=" Title">Default Sort Method</string>
 	<string name="prefSorting">Sort By:</string>
 	<string name="prefSortDate">Date Modified</string>
 	<string name="prefSortTitle">Note Title</string>

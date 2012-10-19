@@ -21,57 +21,51 @@
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import org.apache.http.HttpEntity;
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.ClientProtocolException;
-//import org.apache.http.client.methods.HttpUriRequest;
-//import org.apache.http.impl.client.DefaultHttpClient;
-using TomDroidSharp.util.TLog;
+using Java.IO;
+using TomDroidSharp.util;
+using Java.Net;
+using Java.Lang;
 
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStream;
-//import java.io.InputStreamReader;
-//import java.net.UnknownHostException;
+using System.Net;
 
-namespace TomDroidSharp.sync.web
+namespace TomDroidSharp.Sync.web
 {
 	public abstract class WebConnection {
 		
 		private static readonly string TAG = "WebConnection";
 		
-		public abstract string get(string uri) throws UnknownHostException;
-		public abstract string put(string uri, string data) throws UnknownHostException;
+		public abstract string get(string uri);// throws UnknownHostException;
+		public abstract string put(string uri, string data);// throws UnknownHostException;
 		
-		private static string convertStreamTostring(InputStream is) {
+		private static string convertStreamTostring(InputStream inputStream) {
 			/*
 			 * To convert the InputStream to string we use the BufferedReader.readLine()
 			 * method. We iterate until the BufferedReader return null which means
 			 * there's no more data to read. Each line will appended to a stringBuilder
 			 * and returned as string.
 			 */
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			stringBuilder sb = new stringBuilder();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			StringBuilder sb = new StringBuilder();
 
 			string line = null;
 			try {
-				while ((line = reader.readLine()) != null) {
-					sb.append(line + "\n");
+				while ((line = reader.ReadLine()) != null) {
+					sb.Append(line + "\n");
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				e.PrintStackTrace();
 			} finally {
 				try {
-					is.close();
+					inputStream.Close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					e.PrintStackTrace();
 				}
 			}
 
-			return sb.tostring();
+			return sb.ToString();
 		}
-		
-		protected string parseResponse(HttpResponse response) {
+
+		protected string parseResponse(HttpWebResponse response) {
 			
 			if (response == null)
 				return "";
@@ -79,7 +73,7 @@ namespace TomDroidSharp.sync.web
 			string result = null;
 			
 			// Examine the response status
-			TLog.i(TAG, "Response status : {0}", response.getStatusLine().tostring());
+			TLog.i(TAG, "Response status : {0}", response.StatusDescription);
 
 			// Get hold of the response entity
 			HttpEntity entity = response.getEntity();
@@ -90,7 +84,7 @@ namespace TomDroidSharp.sync.web
 				
 				try {
 					InputStream instream;
-					
+
 					instream = entity.getContent();
 					
 					result = convertStreamTostring(instream);
@@ -98,22 +92,22 @@ namespace TomDroidSharp.sync.web
 					TLog.i(TAG, "Received : {0}", result);
 					
 					// Closing the input stream will trigger connection release
-					instream.close();
+					instream.Close();
 					
 				} catch (IllegalStateException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					e.PrintStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					e.PrintStackTrace();
 				}
 			}
 			
 			return result;
 		}
 		
-		protected HttpResponse execute(HttpUriRequest request) throws UnknownHostException {
-			
+		protected HttpResponse execute(HttpUriRequest request)
+		{
 			DefaultHttpClient httpclient = new DefaultHttpClient();
 			
 			try {
@@ -124,13 +118,13 @@ namespace TomDroidSharp.sync.web
 			}catch (UnknownHostException e){
 				throw e;
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				e.PrintStackTrace();
 			} catch (IOException e) {
-				e.printStackTrace();
+				e.PrintStackTrace();
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				e.PrintStackTrace();
 			} catch (IllegalStateException e) {
-				e.printStackTrace();
+				e.PrintStackTrace();
 			}
 			
 			return null;

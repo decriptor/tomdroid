@@ -20,70 +20,71 @@
  * You should have received a copy of the GNU General Public License
  * along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
-.xml;
 
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.ui.Tomdroid;
-using TomDroidSharp.util.TLog;
+using Android.App;
+using System;
+using Android.Content;
+using TomDroidSharp.util;
+using Android.Views;
+using Android.Text.Style;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.text.SpannablestringBuilder;
-import android.text.style.ClickableSpan;
-import android.text.util.Linkify.MatchFilter;
-import android.view.View;
 
 namespace TomDroidSharp.xml
 {
 
-/*
- * This class is responsible for parsing the xml note content
- * and formatting the contents in a SpannablestringBuilder
- */
-public class LinkInternalSpan string  ClickableSpan {
+	/*
+	 * This class is responsible for parsing the xml note content
+	 * and formatting the contents in a StringBuilder
+	 */
+	public class LinkInternalSpan : ClickableSpan {
 
-	// Logging info
-	private static readonly string TAG = "LinkInternalSpan";
-	
-	private string title;
-	public LinkInternalSpan(string title) {
-		super();
-		this.title = title;
-	}
-
-	@Override
-	public void onClick(View v) {
-		Activity act = (Activity)v.getContext();
-		int id = NoteManager.getNoteId(act, title);
-		Uri intentUri;
-		if(id != 0) {
-			intentUri = Uri.parse(Tomdroid.CONTENT_URI.tostring()+"/"+id);
-		} else {
-			/* TODO: open new note */
-			TLog.d(TAG, "link: {0} was clicked", title);
-			return;
-		}
-		Intent i = new Intent(Intent.ACTION_VIEW, intentUri);
-		act.startActivity(i);
-	}
-	
-	public static MatchFilter getNoteLinkMatchFilter(final SpannablestringBuilder noteContent, readonly LinkInternalSpan[] links) {
+		// Logging info
+		private static readonly string TAG = "LinkInternalSpan";
 		
-		return new MatchFilter() {
-			
-			public bool acceptMatch(CharSequence s, int start, int end) {
-				int spanstart, spanend;
-				for(LinkInternalSpan link: links) {
-					spanstart = noteContent.getSpanStart(link);
-					spanend = noteContent.getSpanEnd(link);
-					if(!(end <= spanstart || spanend <= start)) {
-						return false;
-					}
-				}
-				return true;
+		private string title;
+		public LinkInternalSpan(string title) : base(){
+			this.title = title;
+		}
+
+		public override void onClick(View v) {
+			Activity act = (Activity)v.Context;
+			int id = NoteManager.getNoteId(act, title);
+			Uri intentUri;
+			if(id != 0) {
+				intentUri = Uri.Parse(Tomdroid.CONTENT_URI.ToString()+"/"+id);
+			} else {
+				/* TODO: open new note */
+				TLog.d(TAG, "link: {0} was clicked", title);
+				return;
 			}
-		};
+			Intent i = new Intent(Intent.ActionView, intentUri);
+			act.StartActivity(i);
+		}
+
+		#region implemented abstract members of ClickableSpan
+		public override void OnClick (View widget)
+		{
+			throw new NotImplementedException ();
+		}
+		#endregion
+		
+		public static MatchFilter getNoteLinkMatchFilter(StringBuilder noteContent, LinkInternalSpan[] links) {
+			
+			return new MatchFilter() {
+				
+	//			public bool acceptMatch(CharSequence s, int start, int end) {
+	//				int spanstart, spanend;
+	//				foreach(LinkInternalSpan link in links) {
+	//					spanstart = noteContent.getSpanStart(link);
+	//					spanend = noteContent.getSpanEnd(link);
+	//					if(!(end <= spanstart || spanend <= start)) {
+	//						return false;
+	//					}
+	//				}
+	//				return true;
+	//			}
+	//		};
+			};
+		}
 	}
-}
 }

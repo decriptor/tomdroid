@@ -39,9 +39,9 @@
  * limitations under the License.
  */
 
-//import java.util.regex.Pattern;
 
 using Android.Text.Util;
+using Java.Util.Regex;
 
 namespace TomDroidSharp.util
 {
@@ -50,14 +50,15 @@ namespace TomDroidSharp.util
 	 * Statics useful for Linkify to create a better phone handler than android's default one
 	 * Fixes bugs like lp:512204
 	 */
-	public class LinkifyPhone {
+	public class LinkifyPhone
+	{
 		/**
 		  * Don't treat anything with fewer than this many digits as a
 		  * phone number.
 		  */
 		private static readonly int PHONE_NUMBER_MINIMUM_DIGITS = 5;
 		  
-		public static readonly Pattern PHONE_PATTERN = Pattern.compile( // sdd = space, dot, or dash
+		public static readonly Pattern PHONE_PATTERN = Pattern.Compile( // sdd = space, dot, or dash
 				"(\\+[0-9]+[\\- \\.]*)?"                    // +<digits><sdd>*
 				+ "(\\([0-9]+\\)[\\- \\.]*)?"               // (<digits>)<sdd>*
 				+ "([0-9]+[\\- \\.][0-9\\- \\.]+[0-9])"); // <digits><sdd><digits|sdds><digit> (at least one sdd!) 
@@ -67,32 +68,32 @@ namespace TomDroidSharp.util
 		 *  - the character before the match is not a whitespace
 		 *  - don't have enough digits to be a phone number
 		 */
-		public static readonly MatchFilter sPhoneNumberMatchFilter = new MatchFilter() {
-
-			public readonly bool acceptMatch(CharSequence s, int start, int end) {
-
-				// make sure there was a whitespace before pattern
-				try {
-					if (!Character.isWhitespace(s.charAt(start - 1))) {
-						return false;
-					}
-				} catch (IndexOutOfBoundsException e) {
-					//Do nothing
-				}
-
-				// minimum length
-				int digitCount = 0;
-				for (int i = start; i < end; i++) {
-					if (Character.isDigit(s.charAt(i))) {
-						digitCount++;
-						if (digitCount >= PHONE_NUMBER_MINIMUM_DIGITS) {
-							return true;
-						}
-					}
-				}
-				return false;
-			}
+		public static readonly MatchFilter sPhoneNumberMatchFilter = new MatchFilter()
+		{
+//			public readonly bool acceptMatch(CharSequence s, int start, int end) {
+//
+//				// make sure there was a whitespace before pattern
+//				try {
+//					if (!Character.isWhitespace(s.charAt(start - 1))) {
+//						return false;
+//					}
+//				} catch (IndexOutOfBoundsException e) {
+//					//Do nothing
+//				}
+//
+//				// minimum length
+//				int digitCount = 0;
+//				for (int i = start; i < end; i++) {
+//					if (Character.isDigit(s.charAt(i))) {
+//						digitCount++;
+//						if (digitCount >= PHONE_NUMBER_MINIMUM_DIGITS) {
+//							return true;
+//						}
+//					}
+//				}
+//				return false;
+//			}
+//		};
 		};
-
 	}
 }

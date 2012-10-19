@@ -24,12 +24,10 @@ namespace TomDroidSharp.ui.actionbar
 	 * 4.0-specific functionality for IceCreamSandwich devices. It thus requires API level 14.
 	 */
 	public class ActionBarHelperICS : ActionBarHelperHoneycomb {
-	    protected ActionBarHelperICS(Activity activity) {
-	        super(activity);
+	    protected ActionBarHelperICS(Activity activity) : base (activity) {
 	    }
 
-	    @Override
-	    protected Context getActionBarThemedContext() {
+	    protected override Context getActionBarThemedContext() {
 	        return mActivity.getActionBar().getThemedContext();
 	    }
 	}

@@ -25,10 +25,7 @@ using Android.Content;
 using Android.Database;
 using Android.Net;
 
-using TomDroidSharp.Note;
-using TomDroidSharp.R;
-using TomDroidSharp.ui.Tomdroid;
-using TomDroidSharp.ui.ViewNote;
+using TomDroidSharp.ui;
 
 namespace TomDroidSharp.util
 {
@@ -43,7 +40,7 @@ namespace TomDroidSharp.util
 	        this.context = context;
 	    }
 
-	    public Intent getCreateShortcutIntent(Cursor item) {
+	    public Intent getCreateShortcutIntent(ICursor item) {
 	        string name = getNoteTitle(item);
 	        Uri uri = Tomdroid.getNoteIntentUri(getNoteId(item));
 	        return getCreateShortcutIntent(name, uri);
@@ -51,40 +48,40 @@ namespace TomDroidSharp.util
 
 	    private Intent getCreateShortcutIntent(string name, Uri uri) {
 	        Intent i = new Intent();
-	        i.putExtra(Intent.EXTRA_SHORTCUT_INTENT, getNoteViewShortcutIntent(name, uri));
-	        i.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
-	        Intent.ShortcutIconResource icon = fromContext(context, R.drawable.ic_shortcut);
-	        i.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+	        i.PutExtra(Intent.ExtraShortcutIntent, getNoteViewShortcutIntent(name, uri));
+	        i.PutExtra(Intent.ExtraShortcutIntent, name);
+	        Intent.ShortcutIconResource icon = fromContext(context, Resource.Drawable.ic_shortcut);
+	        i.PutExtra(Intent.ExtraShortcutIconResource, icon);
 	        return i;
 	    }
 
 	    public Intent getBroadcastableCreateShortcutIntent(Uri uri, string name) {
 	        Intent i = getCreateShortcutIntent(name, uri);
-	        i.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+	        i.SetAction("com.android.launcher.action.INSTALL_SHORTCUT");
 	        return i;
 	    }
 
 	    public Intent getRemoveShortcutIntent(string name, Uri uri) {
 	        Intent i = new Intent();
-	        i.putExtra(Intent.EXTRA_SHORTCUT_INTENT, getNoteViewShortcutIntent(name, uri));
-	        i.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
-	        i.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
+	        i.PutExtra(Intent.ExtraShortcutIntent, getNoteViewShortcutIntent(name, uri));
+	        i.PutExtra(Intent.ExtraShortcutName, name);
+	        i.SetAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
 	        return i;
 	    }
 
 	    private Intent getNoteViewShortcutIntent(string name, Uri intentUri) {
-	        Intent i = new Intent(Intent.ACTION_VIEW, intentUri, context, ViewNote.class);
-	        i.putExtra(ViewNote.CALLED_FROM_SHORTCUT_EXTRA, true);
-	        i.putExtra(ViewNote.SHORTCUT_NAME, name);
+	        Intent i = new Intent(Intent.ActionView, intentUri, context, typeof(ViewNote));
+	        i.PutExtra(ViewNote.CALLED_FROM_SHORTCUT_EXTRA, true);
+	        i.PutExtra(ViewNote.SHORTCUT_NAME, name);
 	        return i;
 	    }
 
-	    private string getNoteTitle(final Cursor item) {
-	        return item.getstring(item.getColumnIndexOrThrow(Note.TITLE));
+	    private string getNoteTitle(ICursor item) {
+			return item.GetString(item.GetColumnIndexOrThrow(Note.TITLE));
 	    }
 
-	    private int getNoteId(final Cursor item) {
-	        return item.getInt(item.getColumnIndexOrThrow(Note.ID));
+	    private int getNoteId(ICursor item) {
+	        return item.GetInt(item.GetColumnIndexOrThrow(Note.ID));
 	    }
 	}
 }

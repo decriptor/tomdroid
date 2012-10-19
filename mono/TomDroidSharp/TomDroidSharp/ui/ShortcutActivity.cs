@@ -21,47 +21,43 @@
  along with Tomdroid.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Android.App;
 using Android.Database;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.R;
-using TomDroidSharp.ui.actionbar.ActionBarListActivity;
-using TomDroidSharp.util.NoteViewShortcutsHelper;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.TLog;
-
+using TomDroidSharp.ui.actionbar;
+using TomDroidSharp.util;
 
 namespace TomDroidSharp.ui
 {
 	/**
 	 * @author Piotr Adamski <mcveat@gmail.com>
 	 */
-	public class ShortcutActivity : ActionBarListActivity {
-	    private readonly string TAG = ShortcutActivity.class.getName();
+	[Activity (Label = "PreferencesActivity")]
+	public class ShortcutActivity : ActionBarListActivity
+	{
+		private readonly string TAG = "com.TomDroidSharp.ShortcutActivity";
 	    private ListAdapter adapter;
 
-	    @Override
-	    protected void onCreate(final Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
+	    protected override void onCreate(Bundle savedInstanceState) {
+	        base.onCreate(savedInstanceState);
 	        Preferences.init(this, Tomdroid.CLEAR_PREFERENCES);
 	        TLog.d(TAG, "creating shortcut...");
-	        SetContentView(R.layout.shortcuts_list);
-	        setTitle(R.string.shortcuts_view_caption);
+	        SetContentView(Resource.Layout.shortcuts_list);
+			Title = Resource.String.shortcuts_view_caption;
 	        adapter = NoteManager.getListAdapter(this);
-	        setListAdapter(adapter);
-	        getListView().setEmptyView(findViewById(R.id.list_empty));
+			ListAdapter = adapter;
 
-	    }
+			ListView.EmptyView = FindViewById<View>(Resource.Id.list_empty);
+		}
 
-	    @Override
-	    protected void onListItemClick(final ListView l, View v, int position, long id) {
-	        Cursor item = (Cursor) adapter.getItem(position);
+	    protected override void onListItemClick(ListView l, View v, int position, long id) {
+			ICursor item = (ICursor) adapter.Item[position];
 	        NoteViewShortcutsHelper helper = new NoteViewShortcutsHelper(this);
-	        setResult(RESULT_OK, helper.getCreateShortcutIntent(item));
-	        finish();
+			SetResult(Result.Ok, helper.getCreateShortcutIntent(item));
+	        Finish();
 	    }
 	}
 }

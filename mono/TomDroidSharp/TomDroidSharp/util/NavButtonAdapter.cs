@@ -17,10 +17,10 @@ namespace TomDroidSharp.util
 	    }
 
 	    public int getCount() {
-	        return directories.length;
+	        return directories.Length;
 	    }
 
-	    public Object getItem(int position) {
+	    public object getItem(int position) {
 	        return null;
 	    }
 
@@ -33,12 +33,12 @@ namespace TomDroidSharp.util
 	        Button navButton;
 	        if (convertView == null) {  // if it's not recycled, initialize some attributes
 	            navButton = new Button(mContext);
-	            navButton.setLayoutParams(new GridView.LayoutParams(85, 85));
+	            navButton.LayoutParameters = new GridView.LayoutParams(85, 85);
 	        } else {
 	            navButton = (Button) convertView;
 	        }
 
-	        navButton.setText(directories[position]);
+	        navButton.SetText(directories[position]);
 	        return navButton;
 	    }
 	}

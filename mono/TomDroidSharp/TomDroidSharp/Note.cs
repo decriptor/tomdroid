@@ -36,6 +36,7 @@ using Android.Text.Format;
 using Android.Util;
 using TomDroidSharp.util;
 using Java.Util.Regex;
+using System.Text;
 
 namespace TomDroidSharp
 {
@@ -61,7 +62,7 @@ namespace TomDroidSharp
 		public static readonly float NOTE_SIZE_HUGE_FACTOR = 1.8f;
 		
 		// Members
-		private SpannableStringBuilder noteContent;
+		private StringBuilder noteContent;
 		private string xmlContent;
 		private string url;
 		private string fileName;
@@ -87,7 +88,7 @@ namespace TomDroidSharp
 		// this is to tell the sync service to update the last date after pushing this note
 		public bool lastSync = false;
 		
-		// Date converter pattern (remove extra sub milliseconds from datetime string)
+		// Date converter pattern (Remove extra sub milliseconds from datetime string)
 		// ex: will strip 3020 in 2010-01-23T12:07:38.7743020-05:00
 		private static readonly Java.Util.Regex.Pattern dateCleaner = Java.Util.Regex.Pattern.Compile(
 				"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3})" +	// matches: 2010-01-23T12:07:38.774
@@ -246,7 +247,7 @@ namespace TomDroidSharp
 		}
 
 		// TODO: should this handler passed around evolve into an observer pattern?
-		public SpannableStringBuilder getNoteContent(Handler handler) {
+		public StringBuilder getNoteContent(Handler handler) {
 			
 			// TODO not sure this is the right place to do this
 			noteContent = new NoteContentBuilder().setCaller(handler).setInputSource(xmlContent).setTitle(this.getTitle()).build();

@@ -32,18 +32,21 @@ using Android.OS;
 using Android.Text;
 using Android.Text.Style;
 
-using TomDroidSharp.Note;
-using TomDroidSharp.xml.LinkInternalSpan;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Java.Lang;
+using TomDroidSharp.xml;
 
 namespace TomDroidSharp.util
 {
 
-	public class NoteXMLContentBuilder : Runnable {
+	public class NoteXMLContentBuilder : IRunnable {
 		
 		public static readonly int PARSE_OK = 0;
 		public static readonly int PARSE_ERROR = 1;
 		
-		private SpannablestringBuilder noteContent = null;
+		private System.Text.StringBuilder noteContent = null;
 
 		// set up check for mismatch (cross-boundary spans like <bold>foo<italic>bar</bold>foo</italic>)
 		
@@ -66,7 +69,7 @@ namespace TomDroidSharp.util
 			return this;
 		}
 		
-		public NoteXMLContentBuilder setInputSource(SpannablestringBuilder nc) {
+		public NoteXMLContentBuilder setInputSource(System.Text.StringBuilder nc) {
 			
 			noteContent = nc;
 			return this;
@@ -86,30 +89,30 @@ namespace TomDroidSharp.util
 			
 			try {
 				// replace illegal XML characters with corresponding entities:
-				string plainText = noteContent.tostring();
+				string plainText = noteContent.ToString();
 				TreeMap<string,string> replacements = new TreeMap<string,string>();
 				replacements.put( "&", "&amp;" ); replacements.put( "<", "&lt;" ); replacements.put( ">", "&gt;" );
-				for( Map.Entry<string,string> entry: replacements.entrySet() ) {
-					for( int currPos=plainText.length(); currPos>=0; currPos-- ){
-		 				currPos = plainText.lastIndexOf(entry.getKey(), currPos);
+				foreach( Map.Entry<string,string> entry in replacements.entrySet() ) {
+					for( int currPos=plainText.Length; currPos>=0; currPos-- ){
+		 				currPos = plainText.LastIndexOf(entry.getKey(), currPos);
 		 				if(currPos < 0)
 		 				    break;
-		 				noteContent.replace( currPos, currPos+entry.getKey().length(), entry.getValue() );
-						TLog.d(TAG, "new xml content: {0}", noteContent.tostring());
+		 				noteContent.Replace( currPos, currPos+entry.getKey().Length, entry.getValue() );
+						TLog.d(TAG, "new xml content: {0}", noteContent.ToString());
 					}
-					plainText = noteContent.tostring(); // have to refresh!
+					plainText = noteContent.ToString(); // have to refresh!
 				}
 
 				// translate spans into XML elements:
-				for( int prevPos=0, currPos=0, maxPos=noteContent.length(); 
+				for( int prevPos=0, currPos=0, maxPos=noteContent.Length; 
 						currPos!=-1 && currPos<=maxPos && prevPos<maxPos;
-						prevPos=currPos, currPos=noteContent.nextSpanTransition(currPos, maxPos, Object.class) )
+						prevPos=currPos, currPos=noteContent.nextSpanTransition(currPos, maxPos, typeof(Object)) )
 				{
 					TreeMap<Integer,LinkedList<string>> elemStartsByEnd = new TreeMap<Integer,LinkedList<string>>();
 					TreeMap<Integer,LinkedList<string>> elemEndsByStart = new TreeMap<Integer,LinkedList<string>>();
-					Object[] spans = noteContent.getSpans(currPos, currPos, Object.class);
+					Object[] spans = noteContent.getSpans(currPos, currPos, typeof(Object));
 					int bulletStart = 0, bulletEnd = 0, currentMargin = 0;
-					for( Object span: spans )
+					foreach( Object span in spans )
 					{
 						int spanStart = noteContent.getSpanStart(span);
 						int spanEnd = noteContent.getSpanEnd(span);
@@ -136,7 +139,7 @@ namespace TomDroidSharp.util
 							else if( span as BackgroundColorSpan )
 							{
 								BackgroundColorSpan bgcolor = (BackgroundColorSpan) span;
-								if( bgcolor.getBackgroundColor()==Note.NOTE_HIGHLIGHT_COLOR )
+								if( bgcolor.BackgroundColor ==Note.NOTE_HIGHLIGHT_COLOR )
 								{
 									elementName = "highlight";
 								}
@@ -144,7 +147,7 @@ namespace TomDroidSharp.util
 							else if( span as TypefaceSpan )
 							{
 								TypefaceSpan typeface = (TypefaceSpan) span;
-								if( typeface.getFamily()==Note.NOTE_MONOSPACE_TYPEFACE )
+								if( typeface.Family ==Note.NOTE_MONOSPACE_TYPEFACE )
 								{
 									elementName = "monospace";
 								}
@@ -152,15 +155,15 @@ namespace TomDroidSharp.util
 							else if( span as RelativeSizeSpan )
 							{
 								RelativeSizeSpan size = (RelativeSizeSpan) span;
-								if( size.getSizeChange()==Note.NOTE_SIZE_SMALL_FACTOR )
+								if( size.SizeChange ==Note.NOTE_SIZE_SMALL_FACTOR )
 								{
 									elementName = "size:small";
 								}
-								else if( size.getSizeChange()==Note.NOTE_SIZE_LARGE_FACTOR )
+								else if( size.SizeChange ==Note.NOTE_SIZE_LARGE_FACTOR )
 								{
 									elementName = "size:large";
 								}
-								else if( size.getSizeChange()==Note.NOTE_SIZE_HUGE_FACTOR )
+								else if( size.SizeChange ==Note.NOTE_SIZE_HUGE_FACTOR )
 								{
 									elementName = "size:huge";
 								}
@@ -190,9 +193,9 @@ namespace TomDroidSharp.util
 									prevListLevel = 0;
 									if( currPos > 0 )
 									{
-										LeadingMarginSpan.Standard[] prevMargins = noteContent.getSpans( currPos-1, currPos-1, LeadingMarginSpan.Standard.class );
-										if( prevMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos-1).tostring() );
-										for( LeadingMarginSpan.Standard prevMargin: prevMargins ) 
+										LeadingMarginSpan.Standard[] prevMargins = noteContent.getSpans( currPos-1, currPos-1, typeof(LeadingMarginSpan.Standard) );
+										if( prevMargins.Length >1 ) throw new System.Exception("Multiple margins at "+new Integer(currPos-1).ToString() );
+										foreach( LeadingMarginSpan.Standard prevMargin in prevMargins ) 
 											prevListLevel = prevMargin.getLeadingMargin(true) / marginFactor;
 									}
 									listLevelDiff = currentListLevel - prevListLevel;
@@ -202,14 +205,14 @@ namespace TomDroidSharp.util
 									// most needed list tags are triggered by bullet start transitions, but we have
 									// to trigger some list end tags on special bullet end transitions...
 									nextListLevel = 0;
-									if( currPos < noteContent.length() )
+									if( currPos < noteContent.Length )
 									{
-										LeadingMarginSpan.Standard[] nextMargins = noteContent.getSpans( currPos+1, currPos+1, LeadingMarginSpan.Standard.class );
-										if( nextMargins.length>1 ) throw new Exception("Multiple margins at "+new Integer(currPos+1).tostring() );;
-										for( LeadingMarginSpan.Standard nextMargin: nextMargins )
+										LeadingMarginSpan.Standard[] nextMargins = noteContent.getSpans( currPos+1, currPos+1, typeof(LeadingMarginSpan.Standard) );
+										if( nextMargins.Length>1 ) throw new System.Exception("Multiple margins at "+new Integer(currPos+1).ToString() );;
+										foreach( LeadingMarginSpan.Standard nextMargin in nextMargins )
 											nextListLevel = nextMargin.getLeadingMargin(true) / marginFactor;
 										// force writing of missing list end tags before non-list content:
-										if( nextMargins.length==0 ) listLevelDiff = -currentListLevel;
+										if( nextMargins.Length==0 ) listLevelDiff = -currentListLevel;
 									}
 									// force writing of missing list end tags at the end of the note:
 									else listLevelDiff = -currentListLevel;
@@ -219,7 +222,7 @@ namespace TomDroidSharp.util
 								}
 								// add needed number of list start or list end and list-item end tags to represent the observed indentation 
 								// difference at this position:
-								for( int i=0; i<Math.abs(listLevelDiff); i++ )
+								for( int i=0; i<System.Math.Abs(listLevelDiff); i++ )
 								{
 									if( listLevelDiff<0)
 									{
@@ -246,7 +249,7 @@ namespace TomDroidSharp.util
 							}
 						}
 						// add generic start/end tags defined above
-						if( elementName.length() != 0 )
+						if( elementName.Length != 0 )
 						{
 							if( spanStart==currPos ) 
 							{
@@ -265,40 +268,40 @@ namespace TomDroidSharp.util
 
 					// API 3 compat - is this reversal really necessary?  I think it should be reversed in the for(string elementName...)
 					
-					ListIterator<Integer> iter = new List<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.size());
+					ListIterator<Integer> iter = new List<Integer>(elemEndsByStart.keySet()).listIterator(elemEndsByStart.Count);
 
 					// write needed end tags for the current span transition in the correct order, depending on the corresponding span start positions:
 
 					while (iter.hasPrevious()) {
 					    Integer key = iter.previous();
-						for( string elementName: elemEndsByStart.get(key) ) {
-							closeTags.add(elementName); // add for comparing with later ones
+						foreach( string elementName in elemEndsByStart.get(key) ) {
+							closeTags.Add(elementName); // add for comparing with later ones
 						}				    
 					}
 					
-					iter = new List<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.size());
+					iter = new List<Integer>(elemStartsByEnd.keySet()).listIterator(elemStartsByEnd.Count);
 
 					// write needed start tags for the current span transition in the correct order, depending on the corresponding span end positions:
 					
 					while (iter.hasPrevious()) {
 					    Integer key = iter.previous();
-						for( string elementName: elemStartsByEnd.get(key) ) {
-							tagsToOpen.add(elementName); // add for comparing with later ones
+						foreach( string elementName in elemStartsByEnd.get(key) ) {
+							tagsToOpen.Add(elementName); // add for comparing with later ones
 						}
 					}
 
 				    noteXMLContent += addTags(currPos == maxPos); 
 
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (System.Exception e) {
+				e.PrintStackTrace();
 				// TODO handle error in a more granular way
 				TLog.e(TAG, "There was an error parsing the note.");
 				successful = false;
 			}
-			if(!openTags.isEmpty()) {
-				for(int x = 0; x < openTags.size(); x++) {
-					string tag = openTags.get(openTags.size()-x-1);
+			if(!openTags.IsEmpty()) {
+				for(int x = 0; x < openTags.Count; x++) {
+					string tag = openTags.get(openTags.Count-x-1);
 					TLog.d(TAG, "Closed readonly tag: {0}","</"+tag+">");
 					noteXMLContent += "</"+tag+">";
 				}
@@ -312,28 +315,28 @@ namespace TomDroidSharp.util
 	    	string tags = "";
 			if(!openTags.isEmpty()) { 
 				if(!closeTags.isEmpty()) { // check for mismatch
-					string tag = openTags.get(openTags.size()-1);
+					string tag = openTags.get(openTags.Count-1);
 					tags += "</"+tag+">";
-					if(closeTags.get(closeTags.size()-1).equals(tag)) { // match, close tag
-						closeTags.remove(closeTags.size()-1);
-						openTags.remove(openTags.size()-1);
+					if(closeTags.get(closeTags.Count-1).Equals(tag)) { // match, close tag
+						closeTags.Remove(closeTags.Count-1);
+						openTags.Remove(openTags.Count-1);
 					}
 					else { // mismatch, close for reopening, reiterate for closing
-						openTags.remove(openTags.size()-1);
-						tagsToOpen.add(tag);
+						openTags.Remove(openTags.Count-1);
+						tagsToOpen.Add(tag);
 						tags += addTags(end);
 					}
 				}
 			}
 			if(!end) {
-				for(string tag : tagsToOpen) {
-					if(TextUtils.join(",", openTags).contains(tag)) // already opened
+				foreach(string tag in tagsToOpen) {
+					if(TextUtils.Join(",", openTags).Contains(tag)) // already opened
 						continue;
 					tags+="<"+tag+">";
-					openTags.add(tag);
+					openTags.Add(tag);
 				}
 			}
-			tagsToOpen.clear();
+			tagsToOpen.Clear();
 			
 			return tags;
 		}
@@ -341,12 +344,12 @@ namespace TomDroidSharp.util
 		private void warnHandler(bool successful) {
 			
 			// notify the main UI that we are done here (sending an ok along with the note's title)
-			Message msg = Message.obtain();
+			Message msg = Message.Obtain();
 			if (successful) {
-				msg.what = PARSE_OK;
+				msg.What = PARSE_OK;
 			} else {
 				
-				msg.what = PARSE_ERROR;
+				msg.What = PARSE_ERROR;
 			}
 			
 			parentHandler.SendMessage(msg);

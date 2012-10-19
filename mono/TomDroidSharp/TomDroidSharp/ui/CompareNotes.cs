@@ -23,23 +23,6 @@
  * along with Tomdroid.	If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import java.util.Arrays;
-//import java.util.UUID;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-
-using TomDroidSharp.Note;
-using TomDroidSharp.NoteManager;
-using TomDroidSharp.R;
-using TomDroidSharp.sync.SyncManager;
-using TomDroidSharp.ui.actionbar.ActionBarActivity;
-using TomDroidSharp.util.Preferences;
-using TomDroidSharp.util.TLog;
-
-//import difflib.Delta;
-//import difflib.DiffUtils;
-//import difflib.Patch;
-
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -47,6 +30,9 @@ using Android.OS;
 using Android.Text;
 using Android.Views;
 using Android.Widget;
+using TomDroidSharp.util;
+using Android.Text.Format;
+using TomDroidSharp.ui.actionbar;
 
 namespace TomDroidSharp.ui
 {
@@ -60,71 +46,70 @@ namespace TomDroidSharp.ui
 		private int dateDiff;
 		private bool noRemote;
 
-		@Override	
-		public void onCreate(Bundle savedInstanceState) {	
-			super.onCreate(savedInstanceState);	
+		public override void onCreate(Bundle savedInstanceState) {	
+			base.onCreate(savedInstanceState);	
 			
-			if(!this.getIntent().hasExtra("datediff")) {
+			if(!this.Intent.HasExtra("datediff")) {
 				TLog.v(TAG, "no date diff");
-				finish();
+				Finish();
 				return;
 			}
 			TLog.v(TAG, "starting CompareNotes");
 			
-			SetContentView(R.layout.note_compare);
+			SetContentView(Resource.Layout.note_compare);
 			
-			Bundle extras = this.getIntent().getExtras();
+			Bundle extras = this.Intent.Extras;
 
 			remoteNote = new Note();
-			remoteNote.setTitle(extras.getstring("title"));
-			remoteNote.setGuid(extras.getstring("guid"));
-			remoteNote.setLastChangeDate(extras.getstring("date"));
-			remoteNote.setXmlContent(extras.getstring("content"));	
-			remoteNote.setTags(extras.getstring("tags"));
+			remoteNote.SetTitle(extras.GetString("title"));
+			remoteNote.SetGuid(extras.GetString("guid"));
+			remoteNote.SetLastChangeDate(extras.GetString("date"));
+			remoteNote.SetXmlContent(extras.GetString("content"));	
+			remoteNote.SetTags(extras.GetString("tags"));
 			
 			ContentValues values = new ContentValues();
-			values.put(Note.TITLE, extras.getstring("title"));
-			values.put(Note.FILE, extras.getstring("file"));
-			values.put(Note.GUID, extras.getstring("guid"));
-			values.put(Note.MODIFIED_DATE, extras.getstring("date"));
-			values.put(Note.NOTE_CONTENT, extras.getstring("content"));
-			values.put(Note.TAGS, extras.getstring("tags"));
+			values.Put(Note.TITLE, extras.GetString("title"));
+			values.Put(Note.FILE, extras.GetString("file"));
+			values.Put(Note.GUID, extras.GetString("guid"));
+			values.Put(Note.MODIFIED_DATE, extras.GetString("date"));
+			values.Put(Note.NOTE_CONTENT, extras.GetString("content"));
+			values.Put(Note.TAGS, extras.GetString("tags"));
 			 
-			dateDiff = extras.getInt("datediff");
-			noRemote = extras.getBoolean("noRemote");
+			dateDiff = extras.GetInt("datediff");
+			noRemote = extras.GetBoolean("noRemote");
 			
 			// check if we're comparing two different notes with same title
 			
-			differentNotes = getIntent().hasExtra("localGUID"); 
+			differentNotes = Intent.HasExtra("localGUID"); 
 			if(differentNotes) {
-				localNote = NoteManager.getNoteByGuid(this, extras.getstring("localGUID"));
+				localNote = NoteManager.getNoteByGuid(this, extras.GetString("localGUID"));
 				TLog.v(TAG, "comparing two different notes with same title");
 			}
 			else {
-				localNote = NoteManager.getNoteByGuid(this, extras.getstring("guid"));
+				localNote = NoteManager.getNoteByGuid(this, extras.GetString("guid"));
 				TLog.v(TAG, "comparing two versions of the same note");
 			}
 			
-			bool deleted = localNote.getTags().contains("system:deleted"); 
+			bool deleted = localNote.getTags().Contains("system:deleted"); 
 			
 			string message;
 
-			Button localBtn = (Button)findViewById(R.id.localButton);
-			Button remoteBtn = (Button)findViewById(R.id.remoteButton);
-			Button copyBtn = (Button)findViewById(R.id.copyButton);
+			Button localBtn = (Button)FindViewById(Resource.Id.localButton);
+			Button remoteBtn = (Button)FindViewById(Resource.Id.remoteButton);
+			Button copyBtn = (Button)FindViewById(Resource.Id.copyButton);
 			
-			TextView messageView = (TextView)findViewById(R.id.message);
+			TextView messageView = (TextView)FindViewById(Resource.Id.message);
 			
-			ToggleButton diffLabel = (ToggleButton)findViewById(R.id.diff_label);
-			ToggleButton localLabel = (ToggleButton)findViewById(R.id.local_label);
-			ToggleButton remoteLabel = (ToggleButton)findViewById(R.id.remote_label);
+			ToggleButton diffLabel = (ToggleButton)FindViewById(Resource.Id.diff_label);
+			ToggleButton localLabel = (ToggleButton)FindViewById(Resource.Id.local_label);
+			ToggleButton remoteLabel = (ToggleButton)FindViewById(Resource.Id.remote_label);
 
-			EditText localTitle = (EditText)findViewById(R.id.local_title);
-			EditText remoteTitle = (EditText)findViewById(R.id.remote_title);
+			EditText localTitle = (EditText)FindViewById(Resource.Id.local_title);
+			EditText remoteTitle = (EditText)FindViewById(Resource.Id.remote_title);
 			
-			TextView diffView = (TextView)findViewById(R.id.diff);
-			EditText localEdit = (EditText)findViewById(R.id.local);
-			EditText remoteEdit = (EditText)findViewById(R.id.remote);
+			TextView diffView = (TextView)FindViewById(Resource.Id.diff);
+			EditText localEdit = (EditText)FindViewById(Resource.Id.local);
+			EditText remoteEdit = (EditText)FindViewById(Resource.Id.remote);
 
 
 			updateTextAttributes(localTitle, localEdit);
@@ -132,55 +117,55 @@ namespace TomDroidSharp.ui
 			
 			if(deleted) {
 				TLog.v(TAG, "comparing deleted with remote");
-				message = getstring(R.string.sync_conflict_deleted);
+				message = GetString(Resource.String.sync_conflict_deleted);
 				
-				diffLabel.setVisibility(View.GONE);
-				localLabel.setVisibility(View.GONE);
-				diffView.setVisibility(View.GONE);
-				localEdit.setVisibility(View.GONE);
-				localTitle.setVisibility(View.GONE);
+				diffLabel.Visibility = ViewStates.Gone;
+				localLabel.Visibility = ViewStates.Gone;
+				diffView.Visibility = ViewStates.Gone;
+				localEdit.Visibility = ViewStates.Gone;
+				localTitle.Visibility = ViewStates.Gone;
 
-				copyBtn.setVisibility(View.GONE);
+				copyBtn.Visibility = ViewStates.Gone;
 				
 				// if importing note, offer cancel import option to open main screen
 				if(noRemote) {
-					localBtn.setText(getstring(R.string.btnCancelImport));
-					localBtn.setOnClickListener( new View.OnClickListener() {
-						public void onClick(View v) {
-							finishForResult(new Intent());
-						}
-			        });
+					localBtn.SetText(GetString(Resource.String.btnCancelImport));
+//					localBtn.SetOnClickListener( new View.OnClickListener() {
+//						public void onClick(View v) {
+//							finishForResult(new Intent());
+//						}
+//			        });
 				}
 				else {
-					localBtn.setText(getstring(R.string.delete_remote));
-					localBtn.setOnClickListener( new View.OnClickListener() {
-						public void onClick(View v) {
-							onChooseDelete();
-						}
-			        });
+					localBtn.SetText(GetString(Resource.String.delete_remote));
+//					localBtn.SetOnClickListener( new View.OnClickListener() {
+//						public void onClick(View v) {
+//							onChooseDelete();
+//						}
+//			        });
 				}
 			}
 			else {
 				string diff = "";
-				bool titleMatch = localNote.getTitle().equals(extras.getstring("title"));
-				
+				bool titleMatch = localNote.getTitle().Equals(extras.GetString("title"));
+
 				if(differentNotes)
-					message = getstring(R.string.sync_conflict_titles_message);
+					message = GetString(Resource.String.sync_conflict_titles_message);
 				else
-					message = getstring(R.string.sync_conflict_message);
+					message = GetString(Resource.String.sync_conflict_message);
 				
 				if(!titleMatch) {
-					diff = "<b>"+getstring(R.string.diff_titles)+"</b><br/><i>"+getstring(R.string.local_label)+"</i><br/> "+localNote.getTitle()+"<br/><br/><i>"+getstring(R.string.remote_label)+"</i><br/>"+extras.getstring("title");		
+					diff = "<b>"+GetString(Resource.String.diff_titles)+"</b><br/><i>"+GetString(Resource.String.local_label)+"</i><br/> "+localNote.getTitle()+"<br/><br/><i>"+GetString(Resource.String.remote_label)+"</i><br/>"+extras.GetString("title");		
 				}
 
-				if(localNote.getXmlContent().equals(extras.getstring("content").replaceAll("</*link:[^>]+>", ""))) {
+				if(localNote.getXmlContent().Equals(extras.GetString("content").Replace("</*link:[^>]+>", ""))) {
 					TLog.v(TAG, "compared notes have same content");
 					if(titleMatch) { // same note, fix the dates
-						if(extras.getInt("datediff") < 0) { // local older
+						if(extras.GetInt("datediff") < 0) { // local older
 							TLog.v(TAG, "compared notes have same content and titles, pulling newer remote");
 							pullNote(remoteNote);
 						}
-						else if(extras.getInt("datediff") == 0 || noRemote) {
+						else if(extras.GetInt("datediff") == 0 || noRemote) {
 							TLog.v(TAG, "compared notes have same content and titles, same date, doing nothing");
 						}
 						else {
@@ -194,30 +179,30 @@ namespace TomDroidSharp.ui
 							finishForResult(new Intent());
 						}
 						else // do nothing
-							finish();
+							Finish();
 						
 						return;
 					}
 					else {
 						TLog.v(TAG, "compared notes have different titles");
-			            diffView.setText(diff);
-		    			localEdit.setVisibility(View.GONE);
-		    			remoteEdit.setVisibility(View.GONE);					
+			            diffView.SetText(diff);
+						localEdit.Visibility = ViewStates.Gone;
+						remoteEdit.Visibility = ViewStates.Gone;					
 					}
 				}
 				else {
 					TLog.v(TAG, "compared notes have different content");
 					if(titleMatch && !differentNotes) {
-		    			localTitle.setVisibility(View.GONE);
-		    			remoteTitle.setVisibility(View.GONE);
+						localTitle.Visibility = ViewStates.Gone;
+						remoteTitle.Visibility = ViewStates.Gone;
 					}
 					else
 		    			diff += "<br/><br/>";
 
-					Patch patch = DiffUtils.diff(Arrays.asList(TextUtils.split(localNote.getXmlContent(), "\\r?\\n|\\r")), Arrays.asList(TextUtils.split(extras.getstring("content"), "\\r?\\n|\\r")));
+					Patch patch = DiffUtils.diff(Arrays.asList(TextUtils.split(localNote.getXmlContent(), "\\r?\\n|\\r")), Arrays.asList(TextUtils.split(extras.GetString("content"), "\\r?\\n|\\r")));
 		            string diffResult = "";
-					for (Delta delta: patch.getDeltas()) {
-		            	diffResult += delta.tostring()+"<br/>";
+					foreach (Delta delta in patch.getDeltas()) {
+		            	diffResult += delta.ToString()+"<br/>";
 		            }
 
 		            Pattern firstPattern = Pattern.compile("\\[ChangeDelta, position: ([0-9]+), lines: \\[([^]]+)\\] to \\[([^]]+)\\]\\]");
@@ -230,9 +215,9 @@ namespace TomDroidSharp.ui
 		            {
 		                matcher.appendReplacement(
 		                	result, 
-	                		"<b>"+string.format(getstring(R.string.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
-	                		+getstring(R.string.local_label)+":</i><br/>"+matcher.group(2)+"<br/><br/><i>"
-	                		+getstring(R.string.remote_label)+":</i><br/>"+matcher.group(3)+"<br/>"
+	                		"<b>"+string.format(GetString(Resource.String.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
+	                		+GetString(Resource.String.local_label)+":</i><br/>"+matcher.group(2)+"<br/><br/><i>"
+	                		+GetString(Resource.String.remote_label)+":</i><br/>"+matcher.group(3)+"<br/>"
 		                );
 		            }
 		            matcher.appendTail(result);
@@ -243,8 +228,8 @@ namespace TomDroidSharp.ui
 		            {
 		                matcher.appendReplacement(
 		                	result, 
-							"<b>"+string.format(getstring(R.string.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
-		                	+getstring(R.string.remote_label)+":</i><br/>"+matcher.group(2)+"<br/><br/>"
+							"<b>"+string.format(GetString(Resource.String.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
+		                	+GetString(Resource.String.remote_label)+":</i><br/>"+matcher.group(2)+"<br/><br/>"
 
 		                );
 		            }
@@ -256,110 +241,110 @@ namespace TomDroidSharp.ui
 		            {
 		                matcher.appendReplacement(
 		                	result, 
-							"<b>"+string.format(getstring(R.string.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
-		                	+getstring(R.string.local_label)+":</i><br/>"+matcher.group(2)+"<br/><br/>"
+							"<b>"+string.format(GetString(Resource.String.line_x),string.valueOf(Integer.parseInt(matcher.group(1)) + 1))+"</b><br/><i>"
+		                	+GetString(Resource.String.local_label)+":</i><br/>"+matcher.group(2)+"<br/><br/>"
 
 		                );
 		            }
 		            matcher.appendTail(result);
 		            
-					diff += "<b>"+getstring(R.string.diff_content)+"</b><br/>";		
+					diff += "<b>"+GetString(Resource.String.diff_content)+"</b><br/>";		
 		            
 		            diff += result;
 					
 		            diff = diff.replace("\n","<br/>");
 		            
-		            diffView.setText(Html.fromHtml(diff));
+		            diffView.SetText(Html.fromHtml(diff));
 					
 				}
 				
 				if(noRemote) {
-					localBtn.setText(getstring(R.string.btnCancelImport));
-					message = getstring(R.string.sync_conflict_import_message);
+					localBtn.SetText(GetString(Resource.String.btnCancelImport));
+					message = GetString(Resource.String.sync_conflict_import_message);
 				}
-				
-				localBtn.setOnClickListener( new View.OnClickListener() {
-					public void onClick(View v) {
 
-						// check if there is no remote (e.g. we are receiving a note file that conflicts with a local note - see Receive.java), just finish
-						if(noRemote)
-							finish();
-						else {
-							// take local
-							TLog.v(TAG, "user chose local version for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
-							onChooseNote(localTitle.getText().tostring(),localEdit.getText().tostring(), true);
-						}
-					}
-		        });
-				localTitle.setText(localNote.getTitle());
-				localEdit.setText(localNote.getXmlContent());
+//				localBtn.SetOnClickListener( new View.OnClickListener() {
+//					public void onClick(View v) {
+//
+//						// check if there is no remote (e.g. we are receiving a note file that conflicts with a local note - see Receive.java), just finish
+//						if(noRemote)
+//							Finish();
+//						else {
+//							// take local
+//							TLog.v(TAG, "user chose local version for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
+//							onChooseNote(localTitle.getText().ToString(),localEdit.getText().ToString(), true);
+//						}
+//					}
+//		        });
+				localTitle.SetText(localNote.getTitle());
+				localEdit.SetText(localNote.getXmlContent());
 			}
 			
-			messageView.setText(string.format(message,localNote.getTitle()));
-			remoteTitle.setText(extras.getstring("title"));
-			remoteEdit.setText(extras.getstring("content"));
+			messageView.Text = string.format(message,localNote.getTitle());
+			remoteTitle.Text = (extras.GetString("title"));
+			remoteEdit.Text = (extras.GetString("content"));
 
-			remoteBtn.setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-	            	// take local
-					TLog.v(TAG, "user chose remote version for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
-					onChooseNote(remoteTitle.getText().tostring(),remoteEdit.getText().tostring(), false);
-				}
-	        });
+//			remoteBtn.SetOnClickListener( new View.OnClickListener() {
+//				public void onClick(View v) {
+//	            	// take local
+//					TLog.v(TAG, "user chose remote version for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
+//					onChooseNote(remoteTitle.getText().ToString(),remoteEdit.getText().ToString(), false);
+//				}
+//	        });
 			
-			copyBtn.setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-	            	// take local
-					TLog.v(TAG, "user chose to create copy for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
-					copyNote();
-				}
-	        });
+//			copyBtn.SetOnClickListener( new View.OnClickListener() {
+//				public void onClick(View v) {
+//	            	// take local
+//					TLog.v(TAG, "user chose to create copy for note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
+//					copyNote();
+//				}
+//	        });
 			
 			// collapse notes
 			collapseNote(localTitle, localEdit, true);
 			collapseNote(remoteTitle, remoteEdit, true);
-			diffView.setVisibility(View.GONE);
+			diffView.Visibility = ViewStates.Gone;
 
-			diffLabel.setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-					diffView.setVisibility(diffLabel.isChecked()?View.VISIBLE:View.GONE);
-				}
-	        });	
+//			diffLabel.SetOnClickListener( new View.OnClickListener() {
+//				public void onClick(View v) {
+//					diffView.SetVisibility(diffLabel.isChecked()?View.VISIBLE:View.GONE);
+//				}
+//	        });	
 			
-			localLabel.setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-					collapseNote(localTitle, localEdit, !localLabel.isChecked());
-				}
-	        });	
-			remoteLabel.setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-					collapseNote(remoteTitle, remoteEdit, !remoteLabel.isChecked());
-				}
-	        });	
+//			localLabel.SetOnClickListener( new View.OnClickListener() {
+//				public void onClick(View v) {
+//					collapseNote(localTitle, localEdit, !localLabel.isChecked());
+//				}
+//	        });	
+//			remoteLabel.SetOnClickListener( new View.OnClickListener() {
+//				public void onClick(View v) {
+//					collapseNote(remoteTitle, remoteEdit, !remoteLabel.isChecked());
+//				}
+//	        });	
 		}
 
 		protected void copyNote() {
-			
+
 			TLog.v(TAG, "user chose to create new copy for conflicting note TITLE:{0} GUID:{1}", localNote.getTitle(),localNote.getGuid());
 
 			// not doing a title difference, get new guid for new note
 			
 			if(!differentNotes) {
 				UUID newid = UUID.randomUUID();
-				remoteNote.setGuid(newid.tostring());
+				remoteNote.setGuid(newid.ToString());
 			}
 			
-			string localTitle = ((EditText)findViewById(R.id.local_title)).getText().tostring();
-			string remoteTitle = ((EditText)findViewById(R.id.remote_title)).getText().tostring();
+			string localTitle = ((EditText)FindViewById(Resource.Id.local_title)).getText().ToString();
+			string remoteTitle = ((EditText)FindViewById(Resource.Id.remote_title)).getText().ToString();
 			localNote.setTitle(localTitle);
 			remoteNote.setTitle(remoteTitle);
 			
-			if(!localNote.getTitle().equals(remoteNote.getTitle())) { // different titles, just create new note
+			if(!localNote.getTitle().Equals(remoteNote.getTitle())) { // different titles, just create new note
 			}
 			else {
 				
 				// validate against existing titles
-				string newTitle = NoteManager.validateNoteTitle(this, string.format(getstring(R.string.old),localNote.getTitle()), localNote.getGuid());
+				string newTitle = NoteManager.validateNoteTitle(this, string.format(GetString(Resource.String.old),localNote.getTitle()), localNote.getGuid());
 				
 				if(dateDiff < 0) { // local older, rename local
 					localNote.setTitle(newTitle);
@@ -384,7 +369,7 @@ namespace TomDroidSharp.ui
 			title = NoteManager.validateNoteTitle(this, title, localNote.getGuid());
 			
 			Time now = new Time();
-			now.setToNow();
+			now.SetToNow();
 			string time = now.Format3339(false);
 			
 			localNote.setTitle(title);
@@ -433,7 +418,7 @@ namespace TomDroidSharp.ui
 
 			// this will delete the note, since it already has the "system:deleted" tag
 			pushNote(localNote);
-			finish();
+			Finish();
 		}
 
 		private void pullNote(Note note) {
@@ -450,37 +435,37 @@ namespace TomDroidSharp.ui
 
 		
 		private void updateTextAttributes(EditText title, EditText content) {
-			float baseSize = Float.parseFloat(Preferences.getstring(Preferences.Key.BASE_TEXT_SIZE));
-			content.setTextSize(baseSize);
-			title.setTextSize(baseSize*1.3f);
+			float baseSize = Float.parseFloat(Preferences.GetString(Preferences.Key.BASE_TEXT_SIZE));
+			content.SetTextSize(baseSize);
+			title.SetTextSize(baseSize*1.3f);
 
-			title.setTextColor(Color.BLUE);
-			title.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-			title.setBackgroundColor(0xffffffff);
+			title.SetTextColor(Color.Blue);
+			title.PaintFlags = title.PaintFlags | PaintFlags.UnderlineText;
+			title.SetBackgroundColor(0xffffffff);
 
-			content.setBackgroundColor(0xffffffff);
-			content.setTextColor(Color.DKGRAY);
+			content.SetBackgroundColor(0xffffffff);
+			content.SetTextColor(Color.DarkGray);
 		}
 
 		private void collapseNote(EditText title, EditText content, bool collapse) {
 			if(collapse) {
-				title.setVisibility(View.GONE);
-				content.setVisibility(View.GONE);
+				title.Visibility = ViewStates.Gone;
+				content.Visibility = ViewStates.Gone;
 			}
 			else {
-				title.setVisibility(View.VISIBLE);
-				content.setVisibility(View.VISIBLE);
+				title.Visibility = ViewStates.Visible;
+				content.Visibility = ViewStates.Visible;
 			}
 			
 		}
 
 		private void finishForResult(Intent data){
-			if (getParent() == null) {
-			    setResult(Activity.RESULT_OK, data);
+			if (Parent == null) {
+			    SetResult(Result.Ok, data);
 			} else {
-			    getParent().setResult(Activity.RESULT_OK, data);
+			    Parent.SetResult (Result.Ok, data);
 			}
-			finish();
+			Finish();
 		}
 	}
 }

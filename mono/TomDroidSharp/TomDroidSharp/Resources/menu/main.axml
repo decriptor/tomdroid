@@ -71,5 +71,4 @@
        	android:showAsAction="never"
         android:orderInCategory="5"
 		android:id="@+id/menuPrefs"/>
-
 </menu>

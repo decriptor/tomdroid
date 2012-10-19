@@ -24,13 +24,13 @@
 using Android.Net;
 using Android.OS;
 
-namespace TomDroidSharp.sync
+namespace TomDroidSharp.Sync
 {
 
 	public interface ServiceAuth {
 		
-		public bool isConfigured();
-		public void getAuthUri(string server, Handler handler);
-		public void remoteAuthComplete(Uri uri, Handler handler);
+		bool isConfigured();
+		void getAuthUri(string server, Handler handler);
+		void remoteAuthComplete(Uri uri, Handler handler);
 	}
 }
